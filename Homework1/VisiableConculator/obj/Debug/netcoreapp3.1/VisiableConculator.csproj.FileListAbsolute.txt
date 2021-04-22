@@ -1,0 +1,15 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\bin\Debug\netcoreapp3.1\VisiableConculator.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisibleCalculator.Form1.resources
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.csproj.GenerateResource.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\VisiableConculator\obj\Debug\netcoreapp3.1\VisiableConculator.genruntimeconfig.cache

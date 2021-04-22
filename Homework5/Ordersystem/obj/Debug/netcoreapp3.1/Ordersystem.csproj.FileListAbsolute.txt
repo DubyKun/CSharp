@@ -1,0 +1,13 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\bin\Debug\netcoreapp3.1\Ordersystem.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Ordersystem\Ordersystem\obj\Debug\netcoreapp3.1\Ordersystem.genruntimeconfig.cache

@@ -1,0 +1,13 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\bin\Debug\netcoreapp3.1\Clock.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework4\Clock\obj\Debug\netcoreapp3.1\Clock.genruntimeconfig.cache

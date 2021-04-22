@@ -1,0 +1,13 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\bin\Debug\netcoreapp3.1\Conculaor.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework1\Homework1\obj\Debug\netcoreapp3.1\Conculaor.genruntimeconfig.cache
