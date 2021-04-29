@@ -1,0 +1,16 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\bin\Debug\netcoreapp3.1\OrderSystem.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.Form1.resources
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.Form2.resources
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.csproj.GenerateResource.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework8\OrderSystem\obj\Debug\netcoreapp3.1\OrderSystem.genruntimeconfig.cache

@@ -1,0 +1,15 @@
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.exe
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.deps.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.runtimeconfig.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.runtimeconfig.dev.json
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\bin\Debug\netcoreapp3.1\Urls.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.csprojAssemblyReference.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.Form1.resources
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.csproj.GenerateResource.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.AssemblyInfoInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.AssemblyInfo.cs
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.csproj.CoreCompileInputs.cache
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.dll
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.pdb
+C:\Things\Git\HomeWork\CSharp\CSharp\Homework9\Urls\obj\Debug\netcoreapp3.1\Urls.genruntimeconfig.cache
