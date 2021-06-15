@@ -1,0 +1,444 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="传统的OLS(普通最小二乘)方法无法解决样本数据的共线性(multicollinearity)问题，如果你的数据样本中每个特征变量具有共线性，那么使用基于PCA的PCR和PLSR方法对数据样本进行回归" />
+    <meta property="og:description" content="传统的OLS(普通最小二乘)方法无法解决样本数据的共线性(multicollinearity)问题，如果你的数据样本中每个特征变量具有共线性，那么使用基于PCA的PCR和PLSR方法对数据样本进行回归" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>数据分析处理之PCA OLSR PCR PLSR(NIPALS)及其Matlab代码实现 - 我叫平沢唯 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/QiQi-Robotics/custom.css?v=3imM5TxIBOhvbYkwPOPly9oBVdg=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/QiQi-Robotics/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/QiQi-Robotics/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/QiQi-Robotics/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 626571;
+        var currentBlogApp = 'QiQi-Robotics';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 04:20';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/QiQi-Robotics/"><div style="font-size: 20px; color: rgba(0, 0, 0, 1); font-family: 微软雅黑; font-weight: bold">我叫平沢唯</div> </a>
+</div>
+<div class="subtitle"><div style="font-weight: bold; font-size: 15px; font-family: 微软雅黑; color: rgba(0, 0, 0, 0.6)">我老婆呆唯实在是太可爱了(●'◡'●) 【Robotics &amp; Mechatronics】【qi.shield95@foxmail.com】<a href="https://home.cnblogs.com/u/QiQi-Robotics/">关注我 一键三连</a></div></div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/QiQi-Robotics/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%88%91%E5%8F%AB%E5%B9%B3%E6%B2%A2%E5%94%AF">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/QiQi-Robotics/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/QiQi-Robotics/p/14735699.html">
+    <span>数据分析处理之PCA OLSR PCR PLSR(NIPALS)及其Matlab代码实现</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<blockquote>
+<p><strong><span style="font-size: 16px; color: rgba(255, 102, 0, 1)">传统的OLS(普通最小二乘)方法无法解决样本数据的共线性(<a title="Variance" href="https://en.wikipedia.org/wiki/Multicollinearity">multicollinearity</a>)问题，如果你的数据样本中每个特征变量具有共线性，那么使用基于PCA的PCR和PLSR方法对数据样本进行回归建立模型将会是一个不错的选择。PCA是一种数据降维方式，但同时保持了原始数据降维后的特性；PCR是在降维后的数据空间(英文里常称为score)上进行OLSR(普通最小二乘回归)，然后将回归系数矩阵转化为原始空间；PLSR则可以看成改进版的PCR，该方法通过X和Y数据集的交叉投影方法使得回归模型兼顾到了X和Y数据集的本质关联，同时相比于PCR，在使用少数主成分的情况下具有更好的预测结果。</span></strong></p>
+</blockquote>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px">本文所有测试用数据集均来自Matlab，并使用Matlab封装的回归方法，对自己实现的代码做了验证，本文参考文献及资料如下：</span></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px">Reference:</span></strong></span></p>
+<p class="EndNoteBibliography"><span lang="EN-US">[1]&nbsp;&nbsp; GELADI P, KOWALSKI B R. Partial least-squares regression: a tutorial [J]. Analytica chimica acta, 1986, 185(1-17).</span></p>
+<p class="EndNoteBibliography">[2]&nbsp;&nbsp; WU F Y, ASADA H H. Implicit and intuitive grasp posture control for wearable robotic fingers: A data-driven method using partial least squares [J]. IEEE Transactions on Robotics, 2016, 32(1): 176-86.</p>
+<p class="EndNoteBibliography"><a href="https://en.wikipedia.org/wiki/Ordinary_least_squares" target="_blank">[3]&nbsp; &nbsp;https://en.wikipedia.org/wiki/Ordinary_least_squares</a></p>
+<p class="EndNoteBibliography"><a href="https://en.wikipedia.org/wiki/Principal_component_analysis" target="_blank">[4]&nbsp; &nbsp;https://en.wikipedia.org/wiki/Principal_component_analysis</a></p>
+<p class="EndNoteBibliography"><a href="https://en.wikipedia.org/wiki/Principal_component_regression" target="_blank">[5]&nbsp;&nbsp;&nbsp;https://en.wikipedia.org/wiki/Principal_component_regression</a></p>
+<p class="EndNoteBibliography"><a href="https://en.wikipedia.org/wiki/Partial_least_squares_regression" target="_blank">[6]&nbsp;&nbsp;&nbsp;https://en.wikipedia.org/wiki/Partial_least_squares_regression</a></p>
+<p class="EndNoteBibliography"><a href="https://github.com/scikit-learn/scikit-learn/blob/15a949460/sklearn/cross_decomposition/_pls.py#L502" target="_blank">[7]&nbsp; &nbsp;https://github.com/scikit-learn/scikit-learn/blob/15a949460/sklearn/cross_decomposition/_pls.py#L502</a></p>
+<p class="EndNoteBibliography">&nbsp;</p>
+<p class="EndNoteBibliography"><strong><span style="font-size: 16px">完整Matlab代码实现: <a href="https://github.com/ShieldQiQi/PCA-PCR-PLSR-Matlab-code" target="_blank">https://github.com/ShieldQiQi/PCA-PCR-PLSR-Matlab-code</a></span></strong></p>
+<hr>
+<p><span style="font-size: 14pt; color: rgba(255, 102, 0, 1)"><strong>一、OLSR</strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px">即为普通最小二乘回归，对此我们应该十分熟悉，各种大物材料力学实验都会用到这种方法，只不过我们当时使用的单变量的数据，当数据集涉及到矩阵，多维变量的形式时，就需要使用更加普遍适用的模型，我们设原始数据自变量(independent value)矩阵为$ X∈R_{n{\times}m} $，即X数据集含有n个样本，每个样本有m个特征变量；设原始数据因变量(dependent value)矩阵为$ Y∈R_{n{\times}p} $，即Y数据集含有n个样本，每个样本有p个特征变量。构建的最小二乘回归模型为：</span></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px">$$ Y=X{\cdot}B+E \tag{1} $$</span></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px">上式中$ B∈R_{m{\times}p} $为回归模型的系数矩阵，$ E∈R_{n{\times}p} $为模型预测的残差。B的通用解法参考维基百科，为：</span></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong>$$ B=(X^{T}X)^{-1}X^{T}Y \tag{2} $$</strong></span></p>
+<p><span style="color: rgba(255, 102, 0, 1); font-size: 14pt"><strong>二、PCA</strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong>PCA本质上是一种建立一种维度小于原始数据维度(特征变量数)正交基底空间，将原始数据投影到新的低维空间，以达到数据降维而保持原有特性的方法。PCA的步骤为：</strong></span></p>
+<blockquote>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong>1.对原始数据进行列居中处理: X(:,j) =&nbsp;<strong>X(:,j) - mean(<strong>X(:,j)</strong>)</strong></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><strong>2.计算协方差矩阵$ X^{T}X $的前num大个特征值和对应的特征向量(此处num即为我们需要使用的主成分个数)</strong></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><strong>3.取前num个特征向量(作为列向量)组成系数矩阵P</strong></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><strong>4.通过公式 $&nbsp; T=XP $ 即可求得在新空间下的降维后的(原来维度为m，降维后为num)数据矩阵T，英文里称为score，P称为loading</strong></strong></span></p>
+</blockquote>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><strong>至于为什么这样做，PCA的原理可以参考维基百科，或者我的这篇博文:<a href="https://www.cnblogs.com/QiQi-Robotics/p/14303718.html" target="_blank">&nbsp;https://www.cnblogs.com/QiQi-Robotics/p/14303718.html</a></strong></strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><strong>在实际应用中，计算协方差矩阵的特征向量常采用<span style="color: rgba(255, 102, 0, 1)">迭代计算</span>的方式，常用的方法为<span style="color: rgba(255, 102, 0, 1)">NIPALS</span>，Matlab精简代码(Matlab使用的为散布矩阵，而我的代码为协方差矩阵，所以特征值会相差(n-1)倍)实现如下：</strong></strong></span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 128, 128, 1)"> 1</span> %<span style="color: rgba(0, 0, 0, 1)"> 迭代得到num个成份
+</span><span style="color: rgba(0, 128, 128, 1)"> 2</span> <span style="color: rgba(0, 0, 255, 1)">for</span> h = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:num
+</span><span style="color: rgba(0, 128, 128, 1)"> 3</span>     % step(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)"> 4</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)"> 5</span>     %<span style="color: rgba(0, 0, 0, 1)"> 取T(:,h)为任意一个X_centered中的列向量，此处直接取第一列
+</span><span style="color: rgba(0, 128, 128, 1)"> 6</span>     T(:,h) = X_iteration(:,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+</span><span style="color: rgba(0, 128, 128, 1)"> 7</span> 
+<span style="color: rgba(0, 128, 128, 1)"> 8</span>     % step(<span style="color: rgba(128, 0, 128, 1)">2</span>) to step(<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)"> 9</span>     %<span style="color: rgba(0, 0, 0, 1)"> 迭代直到收敛到容忍度内的主成分
+</span><span style="color: rgba(0, 128, 128, 1)">10</span>     <span style="color: rgba(0, 0, 255, 1)">while</span>(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)">11</span>         P(:,h) = X_iteration<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*T(:,h)/(T(:,h)</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">T(:,h));
+</span><span style="color: rgba(0, 128, 128, 1)">12</span>         %<span style="color: rgba(0, 0, 0, 1)"> 归一化P(:,h)
+</span><span style="color: rgba(0, 128, 128, 1)">13</span>         P(:,h) =  P(:,h)/sqrt(P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*P(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">14</span>         t_temp =<span style="color: rgba(0, 0, 0, 1)"> T(:,h);
+</span><span style="color: rgba(0, 128, 128, 1)">15</span>         T(:,h) = X_iteration*P(:,h)/(P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*P(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">16</span> 
+<span style="color: rgba(0, 128, 128, 1)">17</span>         %<span style="color: rgba(0, 0, 0, 1)"> 检查当前T(:,h)与上一步T(:,h)是否相等以决定是否继续迭代
+</span><span style="color: rgba(0, 128, 128, 1)">18</span>         <span style="color: rgba(0, 0, 255, 1)">if</span> max(abs(T(:,h)-t_temp)) &lt;=<span style="color: rgba(0, 0, 0, 1)"> tolerance
+</span><span style="color: rgba(0, 128, 128, 1)">19</span>             %<span style="color: rgba(0, 0, 0, 1)"> 存储按顺序排列的特征值
+</span><span style="color: rgba(0, 128, 128, 1)">20</span>             % 注意此处的特征值为协方差矩阵的特征值，而matlab PCA方法使用的为散布矩阵(离散度矩阵)，故后者的特征值为前者的(n-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)倍
+</span><span style="color: rgba(0, 128, 128, 1)">21</span>             eigenValues(h) = P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*(X_centered</span><span style="color: rgba(128, 0, 0, 1)">'</span>*X_centered)*<span style="color: rgba(0, 0, 0, 1)">P(:,h);
+</span><span style="color: rgba(0, 128, 128, 1)">22</span>             <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 128, 128, 1)">23</span>         <span style="color: rgba(0, 0, 255, 1)">else</span>
+<span style="color: rgba(0, 128, 128, 1)">24</span> <span style="color: rgba(0, 0, 0, 1)">        end
+</span><span style="color: rgba(0, 128, 128, 1)">25</span> <span style="color: rgba(0, 0, 0, 1)">    end
+</span><span style="color: rgba(0, 128, 128, 1)">26</span>     
+<span style="color: rgba(0, 128, 128, 1)">27</span>     %<span style="color: rgba(0, 0, 0, 1)"> 计算残差，更新数据矩阵
+</span><span style="color: rgba(0, 128, 128, 1)">28</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)">29</span>     X_iteration = X_iteration - T(:,h)*P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">;</span>
+<span style="color: rgba(0, 128, 128, 1)">30</span> end</pre>
+</div>
+<p><span style="font-size: 14pt; color: rgba(255, 102, 0, 1)"><strong>三、PCR</strong></span></p>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>PCR使用的回归方法是OLSR，只不过回归的模型是建立在主成分空间，以防止原始数据的共线性问题导致模型建立不准确，步骤如下：</strong></span></p>
+<blockquote>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>1.执行PCA对原始数据进行降维处理</strong></span></p>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>2.对新数据矩阵T(score)(选多少列，就是利用多少个主成分)和居中(mean-centered)后的Y建立OLSR回归模型，得到主成分空间中的回归系数矩阵$ B^{'} $</strong></span></p>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>3.最终原始空间的系数矩阵$ B=P{\cdot}B^{'} $，该步可以将 $ T=XP $ 代入到式(1)中推导而得(利用$ PP^{T}=E $)</strong></span></p>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>4.当我们需要回归新的到的数据X*时，将该数据对减去原始模型数据X的均值，代入到回归模型，得到预测的$Y^{'}$，然后该矩阵加上原始模型数据Y的均值即为最终的结果</strong></span></p>
+</blockquote>
+<p><span style="font-size: 16px; color: rgba(0, 0, 0, 1)"><strong>Matlab精简代码如下：</strong></span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 128, 128, 1)"> 1</span> %<span style="color: rgba(0, 0, 0, 1)"> 定义测试集样本的数量
+</span><span style="color: rgba(0, 128, 128, 1)"> 2</span> r =<span style="color: rgba(0, 0, 0, 1)"> n;
+</span><span style="color: rgba(0, 128, 128, 1)"> 3</span> %<span style="color: rgba(0, 0, 0, 1)"> 将原始数据降维到主成分空间(T)后，使用OLS最小二乘回归获取系数矩阵
+</span><span style="color: rgba(0, 128, 128, 1)"> 4</span> B_inPca = inv(T<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*T)*T</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">Y_centered;
+</span><span style="color: rgba(0, 128, 128, 1)"> 5</span> %B_inPca = regress(Y-mean(Y), T(:,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:num));
+</span><span style="color: rgba(0, 128, 128, 1)"> 6</span> %<span style="color: rgba(0, 0, 0, 1)"> 将系数矩阵从主成分空间转化到原始空间
+</span><span style="color: rgba(0, 128, 128, 1)"> 7</span> B_estimated = P*<span style="color: rgba(0, 0, 0, 1)">B_inPca;
+</span><span style="color: rgba(0, 128, 128, 1)"> 8</span> 
+<span style="color: rgba(0, 128, 128, 1)"> 9</span> %<span style="color: rgba(0, 0, 0, 1)"> 定义测试集，此处直接使用原始数据的前r行
+</span><span style="color: rgba(0, 128, 128, 1)">10</span> X_validate =<span style="color: rgba(0, 0, 0, 1)"> zeros(r,m);
+</span><span style="color: rgba(0, 128, 128, 1)">11</span> %<span style="color: rgba(0, 0, 0, 1)"> 对原始数据集居中列平均化
+</span><span style="color: rgba(0, 128, 128, 1)">12</span> <span style="color: rgba(0, 0, 255, 1)">for</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:m
+</span><span style="color: rgba(0, 128, 128, 1)">13</span>     %<span style="color: rgba(0, 0, 0, 1)"> 注意，此处减去的平均值应该为模型数据集的平均值，而非新数据的平均值
+</span><span style="color: rgba(0, 128, 128, 1)">14</span>     X_validate(:,j) =   X(<span style="color: rgba(128, 0, 128, 1)">1</span>:r,j) -<span style="color: rgba(0, 0, 0, 1)"> mean(X(:,j));
+</span><span style="color: rgba(0, 128, 128, 1)">15</span> <span style="color: rgba(0, 0, 0, 1)">end
+</span><span style="color: rgba(0, 128, 128, 1)">16</span> 
+<span style="color: rgba(0, 128, 128, 1)">17</span> Y_estimated = X_validate*<span style="color: rgba(0, 0, 0, 1)">B_estimated;
+</span><span style="color: rgba(0, 128, 128, 1)">18</span> <span style="color: rgba(0, 0, 255, 1)">for</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:p
+</span><span style="color: rgba(0, 128, 128, 1)">19</span>    %<span style="color: rgba(0, 0, 0, 1)"> 注意此处最终的输出需要加上数据集Y的均值
+</span><span style="color: rgba(0, 128, 128, 1)">20</span>    Y_estimated(:,i) = Y_estimated(:,i) +<span style="color: rgba(0, 0, 0, 1)"> mean(Y(:,i)); 
+</span><span style="color: rgba(0, 128, 128, 1)">21</span> end</pre>
+</div>
+<p><span style="color: rgba(255, 102, 0, 1); font-size: 14pt"><strong>四、PLSR</strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong>PLSR相对于PCR的一个优点在于在使用更少的主成分可以获得更具有鲁棒性的预测结果(具体可以查看Matlab中关于PLSR的帮助文档)，具体步骤查阅论文 [1]。</strong></span><span style="font-size: 16px"><strong>精简版Matlab代码如下：</strong></span></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong>1.建立模型部分</strong></span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 128, 128, 1)"> 1</span> %<span style="color: rgba(0, 0, 0, 1)"> 迭代得到num个成份
+</span><span style="color: rgba(0, 128, 128, 1)"> 2</span> <span style="color: rgba(0, 0, 255, 1)">for</span> h = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:num
+</span><span style="color: rgba(0, 128, 128, 1)"> 3</span>     % step(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)"> 4</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)"> 5</span>     %<span style="color: rgba(0, 0, 0, 1)"> 取u_h为任意一个Y_centered中的列向量，此处直接取第一列
+</span><span style="color: rgba(0, 128, 128, 1)"> 6</span>     U(:,h) = Y_centered(:,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+</span><span style="color: rgba(0, 128, 128, 1)"> 7</span>     
+<span style="color: rgba(0, 128, 128, 1)"> 8</span>     % step(<span style="color: rgba(128, 0, 128, 1)">2</span>) to step(<span style="color: rgba(128, 0, 128, 1)">8</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)"> 9</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)">10</span>     <span style="color: rgba(0, 0, 255, 1)">while</span> <span style="color: rgba(128, 0, 128, 1)">1</span>
+<span style="color: rgba(0, 128, 128, 1)">11</span>         %<span style="color: rgba(0, 0, 0, 1)"> 在数据矩阵X_centered中
+</span><span style="color: rgba(0, 128, 128, 1)">12</span>         W(:,h) = X_centered<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*U(:,h)/(U(:,h)</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">U(:,h));
+</span><span style="color: rgba(0, 128, 128, 1)">13</span>         %<span style="color: rgba(0, 0, 0, 1)"> 对数据进行归一化
+</span><span style="color: rgba(0, 128, 128, 1)">14</span>         W(:,h) = W(:,h)/sqrt(W(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*W(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">15</span>         t_temp =<span style="color: rgba(0, 0, 0, 1)"> T(:,h);
+</span><span style="color: rgba(0, 128, 128, 1)">16</span>         T(:,h) = X_centered*W(:,h)/(W(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*W(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">17</span> 
+<span style="color: rgba(0, 128, 128, 1)">18</span>         %<span style="color: rgba(0, 0, 0, 1)"> 在数据矩阵Y_centered中
+</span><span style="color: rgba(0, 128, 128, 1)">19</span>         Q(:,h) = Y_centered<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*T(:,h)/(T(:,h)</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">T(:,h));
+</span><span style="color: rgba(0, 128, 128, 1)">20</span>         %<span style="color: rgba(0, 0, 0, 1)"> 对数据进行归一化
+</span><span style="color: rgba(0, 128, 128, 1)">21</span>         Q(:,h) = Q(:,h)/sqrt(Q(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*Q(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">22</span>         U(:,h) = Y_centered*Q(:,h)/(Q(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*Q(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">23</span> 
+<span style="color: rgba(0, 128, 128, 1)">24</span>         %<span style="color: rgba(0, 0, 0, 1)"> 检查T(:,h)与T(:,h)的前一步是否相等，若小于某个数值则该PLS成份迭代完成，否则返回继续迭代
+</span><span style="color: rgba(0, 128, 128, 1)">25</span>         <span style="color: rgba(0, 0, 255, 1)">if</span> max(abs(T(:,h)-t_temp)) &lt;=<span style="color: rgba(0, 0, 0, 1)"> tolerance
+</span><span style="color: rgba(0, 128, 128, 1)">26</span>             <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 128, 128, 1)">27</span>         <span style="color: rgba(0, 0, 255, 1)">else</span>
+<span style="color: rgba(0, 128, 128, 1)">28</span> <span style="color: rgba(0, 0, 0, 1)">        end
+</span><span style="color: rgba(0, 128, 128, 1)">29</span> <span style="color: rgba(0, 0, 0, 1)">    end
+</span><span style="color: rgba(0, 128, 128, 1)">30</span>     
+<span style="color: rgba(0, 128, 128, 1)">31</span>     % step(<span style="color: rgba(128, 0, 128, 1)">9</span>) to step(<span style="color: rgba(128, 0, 128, 1)">13</span><span style="color: rgba(0, 0, 0, 1)">)
+</span><span style="color: rgba(0, 128, 128, 1)">32</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)">33</span>     P(:,h) = X_centered<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*T(:,h)/(T(:,h)</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">T(:,h));
+</span><span style="color: rgba(0, 128, 128, 1)">34</span>     %<span style="color: rgba(0, 0, 0, 1)"> 对数据进行归一化
+</span><span style="color: rgba(0, 128, 128, 1)">35</span>     p_norm = sqrt(P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*P(:,h));</span>
+<span style="color: rgba(0, 128, 128, 1)">36</span>     P(:,h) = P(:,h)/<span style="color: rgba(0, 0, 0, 1)">p_norm;
+</span><span style="color: rgba(0, 128, 128, 1)">37</span>     T(:,h) = T(:,h)*<span style="color: rgba(0, 0, 0, 1)">p_norm;
+</span><span style="color: rgba(0, 128, 128, 1)">38</span>     W(:,h) = W(:,h)*<span style="color: rgba(0, 0, 0, 1)">p_norm;
+</span><span style="color: rgba(0, 128, 128, 1)">39</span>     B(h) = U(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">*T(:,h)/(T(:,h)</span><span style="color: rgba(128, 0, 0, 1)">'</span>*<span style="color: rgba(0, 0, 0, 1)">T(:,h));
+</span><span style="color: rgba(0, 128, 128, 1)">40</span>     
+<span style="color: rgba(0, 128, 128, 1)">41</span>     %<span style="color: rgba(0, 0, 0, 1)"> 计算残差，更新数据矩阵
+</span><span style="color: rgba(0, 128, 128, 1)">42</span>     % ---------------------------------------------------------------------
+<span style="color: rgba(0, 128, 128, 1)">43</span>     X_centered = X_centered - T(:,h)*P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">;</span>
+<span style="color: rgba(0, 128, 128, 1)">44</span>     Y_centered = Y_centered - B(h)*T(:,h)*Q(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">;</span>
+<span style="color: rgba(0, 128, 128, 1)">45</span> end</pre>
+</div>
+<p><span style="font-size: 16px"><strong>2.预测部分</strong></span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 128, 128, 1)"> 1</span> %<span style="color: rgba(0, 0, 0, 1)"> 对原始数据集居中列平均化
+</span><span style="color: rgba(0, 128, 128, 1)"> 2</span> <span style="color: rgba(0, 0, 255, 1)">for</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:m
+</span><span style="color: rgba(0, 128, 128, 1)"> 3</span>     %<span style="color: rgba(0, 0, 0, 1)"> 注意，此处减去的平均值应该为模型数据集的平均值，而非新数据的平均值
+</span><span style="color: rgba(0, 128, 128, 1)"> 4</span>     X_validate(<span style="color: rgba(128, 0, 128, 1)">1</span>:r,j) =   X(<span style="color: rgba(128, 0, 128, 1)">1</span>:r,j) -<span style="color: rgba(0, 0, 0, 1)"> mean(X(:,j));
+</span><span style="color: rgba(0, 128, 128, 1)"> 5</span> <span style="color: rgba(0, 0, 0, 1)">end
+</span><span style="color: rgba(0, 128, 128, 1)"> 6</span> 
+<span style="color: rgba(0, 128, 128, 1)"> 7</span> %<span style="color: rgba(0, 0, 0, 1)"> 计算预测的T
+</span><span style="color: rgba(0, 128, 128, 1)"> 8</span> <span style="color: rgba(0, 0, 255, 1)">for</span> h = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:num
+</span><span style="color: rgba(0, 128, 128, 1)"> 9</span>     T_est(:,h) = X_validate*<span style="color: rgba(0, 0, 0, 1)">W(:,h);
+</span><span style="color: rgba(0, 128, 128, 1)">10</span>     X_validate = X_validate - T_est(:,h)*P(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">;</span>
+<span style="color: rgba(0, 128, 128, 1)">11</span> <span style="color: rgba(0, 0, 0, 1)">end
+</span><span style="color: rgba(0, 128, 128, 1)">12</span> 
+<span style="color: rgba(0, 128, 128, 1)">13</span> %<span style="color: rgba(0, 0, 0, 1)"> 计算预测的Y
+</span><span style="color: rgba(0, 128, 128, 1)">14</span> <span style="color: rgba(0, 0, 255, 1)">for</span> h = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:num
+</span><span style="color: rgba(0, 128, 128, 1)">15</span>     Y_estimated = Y_estimated + B(h)*T_est(:,h)*Q(:,h)<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">;</span>
+<span style="color: rgba(0, 128, 128, 1)">16</span> <span style="color: rgba(0, 0, 0, 1)">end
+</span><span style="color: rgba(0, 128, 128, 1)">17</span> <span style="color: rgba(0, 0, 255, 1)">for</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">:p
+</span><span style="color: rgba(0, 128, 128, 1)">18</span>    %<span style="color: rgba(0, 0, 0, 1)"> 注意此处最终的输出需要加上数据集Y的均值
+</span><span style="color: rgba(0, 128, 128, 1)">19</span>    Y_estimated(:,i) = Y_estimated(:,i) +<span style="color: rgba(0, 0, 0, 1)"> mean(Y(:,i)); 
+</span><span style="color: rgba(0, 128, 128, 1)">20</span> end</pre>
+</div>
+<p><strong><span style="color: rgba(255, 102, 0, 1); font-size: 14pt">五、实验结果</span></strong></p>
+<p><span style="color: rgba(0, 0, 0, 1); font-size: 16px"><strong><img src="https://img2020.cnblogs.com/blog/2138322/202105/2138322-20210506160109190-264885034.jpg" alt="" width="1207" height="651" loading="lazy" style="display: block; margin-left: auto; margin-right: auto"></strong></span></p>
+<p style="text-align: center"><span style="color: rgba(0, 0, 0, 1); font-size: 14px"><strong>图1 Matlab PLSR算法(SIMPLS)和自定义PLSR<strong>(NIPALS)</strong>方法效果对比</strong></span></p>
+<p>&nbsp;</p>
+<p class="EndNoteBibliography">&nbsp;</p>
+<p><span style="color: rgba(0, 0, 0, 1)"><strong><span style="font-size: 16px"></span></strong></span></p>
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 16:20</span>&nbsp;
+<a href="https://www.cnblogs.com/QiQi-Robotics/">我叫平沢唯</a>&nbsp;
+阅读(<span id="post_view_count">21</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735699" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735699);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 626571, cb_blogApp = 'QiQi-Robotics', cb_blogUserGuid = '1f2aa425-807c-4c96-162f-08d83ba20c86';
+    var cb_entryId = 14735699, cb_entryCreatedDate = '2021-05-06 16:20', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 我叫平沢唯
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    <div id="page_end_html">
+        <script>console.log("顶部标题栏屏蔽开始；"); document.all.top_nav.style.display='none'; console.log("顶部标题栏屏蔽完成；");</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvhQOrFC_YynD-o2lyy6yMJ3yVhPXiLG3_6IUHwszQZUS9drdW9jd2k3a1ngqO9uMF5ecC1H0wEpjUd4WC0t9OkUfCUnYZWeKXpTmnQLmTPrClkLikxTBPebYnaoHOutOQ" />
+</body>
+</html>

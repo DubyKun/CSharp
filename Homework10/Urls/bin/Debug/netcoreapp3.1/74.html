@@ -1,0 +1,1145 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本文我们来说说Celery Worker Consumer 组件的启动。首先会概述启动" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本文我们来说说Celery Worker Consumer 组件的启动。首先会概述启动" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码解析] 分布式任务队列 Celery 之启动 Consumer - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-04-05 09:46';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14612853.html">
+    <span>[源码解析] 分布式任务队列 Celery 之启动 Consumer</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本文我们来说说Celery Worker Consumer 组件的启动。首先会概述启动过程，然后会选择Consumer的三个有特点的 子组件 进一步讲解其启动过程。这样大家就对 Consumer  的来龙去脉了解会更加深入。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码解析-分布式任务队列-celery-之启动-consumer">[源码解析] 分布式任务队列 Celery 之启动 Consumer</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码解析-分布式任务队列-celery-之启动-consumer">[源码解析] 分布式任务队列 Celery 之启动 Consumer</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-综述">0x01 综述</a><ul><li><a href="#11-kombuconsumer">1.1 kombu.consumer</a></li><li><a href="#12-celery-consumer">1.2 Celery Consumer</a></li></ul></li><li><a href="#0x02-start-in-worker">0x02 start in worker</a></li><li><a href="#0x03-start-in-consumer">0x03 start in consumer</a><ul><li><a href="#31-start-consumerblueprint">3.1 start consumer.blueprint</a></li><li><a href="#32-connection-step-子组件">3.2 Connection step 子组件</a><ul><li><a href="#321-connect-in-consumer">3.2.1 connect in consumer</a></li><li><a href="#322-connect-in-celery">3.2.2 connect in celery</a></li><li><a href="#323-使用异步调用">3.2.3 使用异步调用</a></li></ul></li><li><a href="#33-tasks-step-子组件">3.3 Tasks step 子组件</a><ul><li><a href="#331-启动-start">3.3.1 启动 start</a></li><li><a href="#332-策略">3.3.2 策略</a></li><li><a href="#333-基础-default-策略">3.3.3 基础 default 策略</a></li><li><a href="#334-更新已知任务策略">3.3.4 更新已知任务策略</a></li><li><a href="#335-消费">3.3.5 消费</a></li></ul></li><li><a href="#34-event-loop-子组件">3.4 event loop 子组件</a><ul><li><a href="#341-loop-in-consumer">3.4.1 loop in consumer</a></li><li><a href="#342-配置-kombuconsumer">3.4.2 配置 kombu.consumer</a></li><li><a href="#343-启动消费">3.4.3 启动消费</a></li></ul></li></ul></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本文我们来说说Celery Worker Consumer 组件的启动。</p>
+<p>首先会概述启动过程，然后会选择Consumer的三个有特点的 子组件（分别是配置网络，启动 tasks，开启对task的消费）进一步讲解其启动过程。这样大家就对 Consumer  的来龙去脉了解会更加深入。</p>
+<h2 id="0x01-综述">0x01 综述</h2>
+<p>Celery Worker是执行任务的消费者，通常会在多台服务器运行多个消费者来提高执行效率。那么在Woker之中，如何从broker取得消息。这就需要一个consumer。</p>
+<p>我们首先给出一个 consumer 的图例，让大家有个初步印象。</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234642779-1882235481.png" alt="" loading="lazy"></p>
+<p>我们已经知道，Kombu实现了Producer与Consumer两个概念。因此我们可以推论，在Celery的实现中，必然使用到Kombu的 Producer与 Consumer。</p>
+<h3 id="11-kombuconsumer">1.1 kombu.consumer</h3>
+<p>我们回忆下 <code>kombu . consumer</code> 的功能：</p>
+<p><code>Kombu . Consumer</code> 以及其相关类的作用主要如下：</p>
+<ul>
+<li>Exchange：MQ 路由，消息发送者将消息发至Exchange，Exchange负责将消息分发至队列。</li>
+<li>Queue：对应的队列抽象，存储着即将被应用消费掉的消息，Exchange负责将消息分发Queue，消费者从Queue接收消息；</li>
+<li><u>Consumers 是接受消息的抽象类</u>，consumer需要声明一个queue，并将queue与指定的exchange绑定，然后从queue里面接收消息。就是说，从用户角度，知道了一个 exchange，就可以从中读取消息，具体这个消息就是从 queue 中读取的。</li>
+</ul>
+<p>在具体 Consumer 的实现中，它把 queue 与 channel 联系起来。queue 里面有一个 channel，用来访问redis，queue 里面 也有 Exchange，Exchange 知道访问具体 redis 哪个key（就是queue对应的那个key）。</p>
+<p>Consumer 消费消息是通过 Queue 来消费，然后 Queue 又转嫁给 Channel。</p>
+<p>就是说，<u>在 exchange，queue都配置好的情况下，channel 就知道 redis 的哪个 key 对应了 哪个  consumer。如果 connection 里面有消息，就会调用到 consumer 的回调函数</u>。</p>
+<h3 id="12-celery-consumer">1.2 Celery Consumer</h3>
+<p>注意的是：celery Consumer 组件不是Kombu的Consumer，而是利用了Kombu的Consumer从broker取得消息。</p>
+<p>celery Consumer 组件的概念远远要大于Kombu的Consumer，不只是从broker取得消息，<u>也包括消息的消费，分发，监控，心跳等一系列功能</u>。</p>
+<p>可以说，除了消息循环引擎 被 hub 承担，多进程被 Pool，Autoscaler 承担，定时任务被 timer，beat 承担之外，其他主要功能都被 Consumer 承担。</p>
+<h2 id="0x02-start-in-worker">0x02 start in worker</h2>
+<p>我们还得再回顾下前文，当Worker初始化完成之后，worker继续调用start。</p>
+<pre><code class="language-python">worker.start()
+</code></pre>
+<p>其代码如下：</p>
+<pre><code class="language-python">def start(self):
+    try:
+        self.blueprint.start(self)
+    ......    
+</code></pre>
+<p>因此调用到blueprint.start（blueprint负责决定各个子模块的执行顺序）。因为Consumer是worker的组件之一，从而这里调用到Consumer的start。</p>
+<p>堆栈如下：</p>
+<pre><code class="language-python">start, consumer.py:300
+start, bootsteps.py:365
+start, bootsteps.py:116
+start, worker.py:204
+worker, worker.py:327
+caller, base.py:132
+new_func, decorators.py:21
+invoke, core.py:610
+invoke, core.py:1066
+invoke, core.py:1259
+main, core.py:782
+start, base.py:358
+worker_main, base.py:374
+</code></pre>
+<h2 id="0x03-start-in-consumer">0x03 start in consumer</h2>
+<p>现在我们来到了Consumer 相关部分。</p>
+<p>代码位于：celery/worker/consumer/consumer.py</p>
+<p>我们知道，Consumer内部也是有自己的Steps，具体如下：</p>
+<pre><code class="language-python">class Consumer:
+    """Consumer blueprint."""
+
+    Strategies = dict
+
+    #: Optional callback called the first time the worker
+    #: is ready to receive tasks.
+    init_callback = None
+
+    #: The current worker pool instance.
+    pool = None
+
+    #: A timer used for high-priority internal tasks, such
+    #: as sending heartbeats.
+    timer = None
+
+    class Blueprint(bootsteps.Blueprint):
+        """Consumer blueprint."""
+
+        name = 'Consumer'
+        default_steps = [
+            'celery.worker.consumer.connection:Connection',
+            'celery.worker.consumer.mingle:Mingle',
+            'celery.worker.consumer.events:Events',
+            'celery.worker.consumer.gossip:Gossip',
+            'celery.worker.consumer.heart:Heart',
+            'celery.worker.consumer.control:Control',
+            'celery.worker.consumer.tasks:Tasks',
+            'celery.worker.consumer.consumer:Evloop',
+            'celery.worker.consumer.agent:Agent',
+        ]
+</code></pre>
+<p>因此，Woker调用Consumer启动时，就调用到Consumer的start。</p>
+<p>具体如下：</p>
+<pre><code class="language-python">def start(self):
+    blueprint = self.blueprint
+    while blueprint.state not in STOP_CONDITIONS:
+        maybe_shutdown()
+        if self.restart_count:
+            try:
+                self._restart_state.step()
+            except RestartFreqExceeded as exc:
+                crit('Frequent restarts detected: %r', exc, exc_info=1)
+                sleep(1)
+        self.restart_count += 1
+        
+        try:
+            blueprint.start(self) # 这里是关键
+        except self.connection_errors as exc:
+</code></pre>
+<p>如下代码调用到blueprint.start。</p>
+<pre><code class="language-python">blueprint.start(self)
+</code></pre>
+<h3 id="31-start-consumerblueprint">3.1 start consumer.blueprint</h3>
+<p>代码位于：celery-master/celery/bootsteps.py</p>
+<pre><code class="language-python">def start(self, parent):
+    self.state = RUN
+    if self.on_start:
+        self.on_start()
+    for i, step in enumerate(s for s in parent.steps if s is not None):
+        self.started = i + 1
+        step.start(parent)
+</code></pre>
+<p>因此遍历每一个step，进行start。</p>
+<p>我们现在大致说说这些 step 的作用。</p>
+<ul>
+<li>【1】Connection：管理和 broker 的 Connection 连接</li>
+<li>【3】Events：用于发送监控事件</li>
+<li>【2】Agent：<code>cell</code> actor</li>
+<li>【2】Mingle：不同 worker 之间同步状态用的</li>
+<li>【1】Tasks：启动消息 Consumer</li>
+<li>【3】Gossip：消费来自其他 worker 的事件</li>
+<li>【1】Heart：发送心跳事件（consumer 的心跳）</li>
+<li>【3】Control：远程命令管理服务</li>
+</ul>
+<p>在参考文章  <a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow?lang=ZH_CN" target="_blank">1: Worker 启动流程概述</a>中提到：</p>
+<blockquote>
+<p>这里我对所有的 Bootstep 都做了标号处理，标号的大小说明了这些服务对于我们代码阅读的重要程序，1 最重要，3 最不紧要。对于 Consumer 来说，</p>
+<p>1 是基本功能，这些功能组成了一个简单的非强壮的消息队列框架；</p>
+<p>2 一般重要，可以实现一个高级一点的功能；</p>
+<p>3 属于附加功能，同时也属于一点分布式的功能。</p>
+</blockquote>
+<p>因为每一个step对应的组件其实都很复杂，所以在后续文章中，我们会详细讲解。<strong>本文只是大致说明几个最重要的step，基本就是消息循环组件。比如 读取broker需要的connection组件，处理消息需要的task组件</strong>。</p>
+<h3 id="32-connection-step-子组件">3.2 Connection step 子组件</h3>
+<p><u>此子组件主要是处理网络交互</u>。</p>
+<p>很奇怪的是，Connection 这里没有自己的逻辑，把事情都交给 <code>Consumer</code>类做了。</p>
+<p>start 的参数 c 是consumer。所以start方法调用了consumer的connect方法，也作用在 consumer 的成员变量connection。</p>
+<p>所以此时就建立了连接。即最终会创建<code>celery.app.amqp.Connection</code>实例，这里实际上是使用<code>kombu</code>库的<code>Connection</code>与队列连接。连接建立之后，会将<code>Connection</code>注册进<code>kombu</code>库的<code>Transport</code>的事件循环中。</p>
+<p>这样，Consumer 就同 broker 联系了起来。</p>
+<pre><code class="language-python">class Connection(bootsteps.StartStopStep):
+    """Service managing the consumer broker connection."""
+
+    def start(self, c):
+        c.connection = c.connect()
+</code></pre>
+<h4 id="321-connect-in-consumer">3.2.1 connect in consumer</h4>
+<p>代码在：celery/worker/consumer/consumer.py。</p>
+<p>可以看出做了如下：</p>
+<ul>
+<li>使用心跳为参数，创建<code>celery.app.amqp.Connection</code>实例，即得到kombu的Connection，若没有连接上，则建立连接。</li>
+<li>把得到的Connection配置为异步调用。</li>
+<li>返回得到的Connection。</li>
+</ul>
+<p>代码如下：</p>
+<pre><code class="language-python">def connect(self):
+    """Establish the broker connection used for consuming tasks.
+    """
+    conn = self.connection_for_read(heartbeat=self.amqheartbeat)      # 心跳
+    if self.hub:
+        conn.transport.register_with_event_loop(conn.connection, self.hub)# 使用异步调用
+    return conn   # 返回conn
+
+def connection_for_read(self, heartbeat=None):
+    return self.ensure_connected(
+        self.app.connection_for_read(heartbeat=heartbeat))# 确保连接
+</code></pre>
+<h4 id="322-connect-in-celery">3.2.2 connect in celery</h4>
+<p>本小节的目的就是得到 Connection。</p>
+<p>上面app就为celery，所以现在我们来到了Celery应用。</p>
+<p>代码在celery/app/base.py</p>
+<pre><code class="language-python">def connection_for_read(self, url=None, **kwargs):
+    """Establish connection used for consuming.
+    """
+    return self._connection(url or self.conf.broker_read_url, **kwargs)
+</code></pre>
+<p>进而来到</p>
+<pre><code class="language-python">def _connection(self, url, userid=None, password=None,
+                virtual_host=None, port=None, ssl=None,
+                connect_timeout=None, transport=None,
+                transport_options=None, heartbeat=None,
+                login_method=None, failover_strategy=None, **kwargs):
+    conf = self.conf
+    return self.amqp.Connection(
+        url,
+        userid or conf.broker_user,
+        password or conf.broker_password,
+        virtual_host or conf.broker_vhost,
+        port or conf.broker_port,
+        transport=transport or conf.broker_transport,
+        ssl=self.either('broker_use_ssl', ssl),
+        heartbeat=heartbeat,
+        login_method=login_method or conf.broker_login_method,
+        failover_strategy=(
+            failover_strategy or conf.broker_failover_strategy
+        ),
+        transport_options=dict(
+            conf.broker_transport_options, **transport_options or {}
+        ),
+        connect_timeout=self.either(
+            'broker_connection_timeout', connect_timeout
+        ),
+    )
+</code></pre>
+<p>可以看到，<u>最终无论Celery应用的Connection或者是Consumer看到的Connection，都是amqp.Connection，最终就是'kombu.connection.Connection'</u>。</p>
+<p>这里self.amqp变量如下，可以看到都是 kombu相关。</p>
+<pre><code class="language-python">self.amqp = {AMQP} &lt;celery.app.amqp.AMQP object at 0x7ffd556db7f0&gt;
+ BrokerConnection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Connection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Consumer = {type} &lt;class 'kombu.messaging.Consumer'&gt;
+ Producer = {type} &lt;class 'kombu.messaging.Producer'&gt;
+ app = {Celery} &lt;Celery tasks at 0x7ffd557f3da0&gt;
+ argsrepr_maxsize = {int} 1024
+ autoexchange = {NoneType} None
+ default_exchange = {Exchange} Exchange celery(direct)
+ default_queue = {Queue} &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;
+ kwargsrepr_maxsize = {int} 1024
+ producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x7ffd56788748&gt;
+ publisher_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x7ffd56788748&gt;
+ queues = {Queues: 1} {'celery': &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;}
+ queues_cls = {type} &lt;class 'celery.app.amqp.Queues'&gt;
+ router = {Router} &lt;celery.app.routes.Router object at 0x7ffd56799898&gt;
+ routes = {tuple: 0} ()
+ task_protocols = {dict: 2} {1: &lt;bound method AMQP.as_task_v1 of &lt;celery.app.amqp.AMQP object at 0x7ffd556db7f0&gt;&gt;, 2: &lt;bound method AMQP.as_task_v2 of &lt;celery.app.amqp.AMQP object at 0x7ffd556db7f0&gt;&gt;}
+ utc = {bool} True
+</code></pre>
+<p>我们得到一个'kombu.connection.Connection'</p>
+<p><code>&lt;Connection: redis://localhost:6379// at 0x7ffd567827b8&gt;</code></p>
+<p>然后会连接。</p>
+<pre><code class="language-python">def ensure_connected(self, conn):
+    # Callback called for each retry while the connection
+    # can't be established.
+    def _error_handler(exc, interval, next_step=CONNECTION_RETRY_STEP):
+        if getattr(conn, 'alt', None) and interval == 0:
+            next_step = CONNECTION_FAILOVER
+        next_step = next_step.format(
+            when=humanize_seconds(interval, 'in', ' '),
+            retries=int(interval / 2),
+            max_retries=self.app.conf.broker_connection_max_retries)
+        error(CONNECTION_ERROR, conn.as_uri(), exc, next_step)
+
+    # remember that the connection is lazy, it won't establish
+    # until needed.
+    if not self.app.conf.broker_connection_retry:
+        # retry disabled, just call connect directly.
+        conn.connect()
+        return conn
+
+    conn = conn.ensure_connection(
+        _error_handler, self.app.conf.broker_connection_max_retries,
+        callback=maybe_shutdown,
+    )
+    return conn
+</code></pre>
+<p>堆栈如下：</p>
+<pre><code class="language-python">ensure_connected, consumer.py:414
+connection_for_read, consumer.py:405
+connect, consumer.py:398
+start, connection.py:21
+start, bootsteps.py:116
+start, consumer.py:311
+start, bootsteps.py:365
+start, bootsteps.py:116
+start, worker.py:204
+worker, worker.py:327
+caller, base.py:132
+new_func, decorators.py:21
+invoke, core.py:610
+invoke, core.py:1066
+invoke, core.py:1259
+main, core.py:782
+start, base.py:358
+worker_main, base.py:374
+&lt;module&gt;, myTest.py:26
+</code></pre>
+<p>最终得到一个有效连接。</p>
+<pre><code class="language-python">                                                                                  For Read
+                +------------------------------------------+       +------------------------------------------------------------------------+
++--------+      |                 [Consumer]   Connection+-------&gt; |Connection: redis://localhost:6379// class 'kombu.connection.Connection'|
+| Gossip +&lt;-----+                                          |       +------------------------------------------------------------------------+
++--------+      |                                          |          +----------+
+                |                                          +--------&gt; |          |                  ^
+                |                                          |          |  Events  |                  |
++-------+       |                                          |          |          |                  |
+| Tasks | &lt;-----+         Timer  Strategies  Blueprint     |          +----------+                  |
++-------+       |                                          |                                        |
+                |                                          |                                        |
++-------+       | pool        hub          loop       app  |           +-------+                    |
+| Heart | &lt;-----+  +           +            +          +   +--------&gt;  | Agent |                    |
++-------+       |  |           |            |          |   |           +-------+                    |
+                |  |           |            |          |   |           +---------+                  |
+                +------------------------------------------+--------&gt;  | Mingle  |                  |
+                   |           |            |          |               +---------+                  |
+                   |           |            |          |                                            |
+                   v           v            v          v                                            |
+                                                                                                    |
+   +-----------------+   +-----+ +----------------+ +---------------+           +--------------+    |
+   | prefork.TaskPool|   | Hub | | loops.asynloop | | Celery        |           |    AMQP      |    |
+   +-----------------+   +-----+ +----------------+ |               |           |              |    |
+                                                    |        amqp +-----------&gt; |  Connection+------+
+                                                    +---------------+           +--------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234621447-547022492.png" alt="" loading="lazy"></p>
+<h4 id="323-使用异步调用">3.2.3 使用异步调用</h4>
+<p>下面代码使用<code>kombu</code>库的<code>Connection</code>与队列连接。连接建立之后，会将<code>Connection</code>注册进<code>kombu</code>库的<code>Transport</code>的事件循环中。</p>
+<pre><code class="language-python">if self.hub:
+    conn.transport.register_with_event_loop(conn.connection, self.hub)  # 使用异步调用
+</code></pre>
+<p>所以最终如下：</p>
+<pre><code class="language-java">                                                                                  For Read
+                +------------------------------------------+       +------------------------------------------------------------------------+
++--------+      |                 [Consumer]   Connection+-------&gt; |Connection: redis://localhost:6379// class 'kombu.connection.Connection'|
+| Gossip +&lt;-----+                                          |       +------------------------------------------------------------------------+
++--------+      |                                          |          +----------+
+                |                                          +--------&gt; |          |                  ^                ^
+                |                                          |          |  Events  |                  |                |
++-------+       |                                          |          |          |                  |                |
+| Tasks | &lt;-----+         Timer  Strategies  Blueprint     |          +----------+                  |                |
++-------+       |                                          |                                        |                |
+                |                                          |                                        |                |
++-------+       | pool        hub          loop       app  |           +-------+                    |                |
+| Heart | &lt;-----+  +           +            +          +   +--------&gt;  | Agent |                    |                |
++-------+       |  |           |            |          |   |           +-------+                    |                |
+                |  |           |            |          |   |           +---------+                  |                |
+                +------------------------------------------+--------&gt;  | Mingle  |                  |                |
+                   |           |            |          |               +---------+                  |                |
+                   |           |            |          |                                            |                |
+                   v           v            v          v                                            |                |
+                                                                                                    |                |
+   +-----------------+ +-------+ +----------------+ +---------------+           +--------------+    |                |
+   | prefork.TaskPool| |       | | loops.asynloop | | Celery        |           |    AMQP      |    |                |
+   +-----------------+ |  Hub  | +----------------+ |               |           |              |    |                |
+                       |       |                    |        amqp +-----------&gt; |  Connection+------+                |
+                       |       |                    +---------------+           +--------------+                     |
+                       +---+---+                                                                                     |
+                           |                                                                                         |
+                           +----------------------------------------------------------------------------------------&gt;+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234642779-1882235481.png" alt="" loading="lazy"></p>
+<h3 id="33-tasks-step-子组件">3.3 Tasks step 子组件</h3>
+<p>因为网络连接已经配置好，所以<u>本部分就引入了各种 tasks</u>，我们先分析一下loop的开启。</p>
+<p>c 的内容为：&lt;Consumer: celery (running)&gt;，因此就针对Consumer进行操作。</p>
+<p>我们首先要介绍下 celery 的 task 思路。</p>
+<p><u>Celery 启动之后，会查找代码中，哪些类或者函数使用了 @task注解，然后就把这些 类或者函数注册到全局回调集合中</u>。<strong>得倒了一个 全局 set ：<code>_on_app_finalizers</code>，这个 set 用来收集所有的 任务 tasks 类</strong>。</p>
+<p>目前 Celery 知道了有哪些 task，并且把它们收集起来放在了 on_app_finalizers，但是还不知道它们的逻辑意义。或者可以这么认为，Celery 只是知道有哪些类，但是没有这些类的实例，也需要建立联系。</p>
+<p>所以，Celery <u>把全局回调集合 _on_app_finalizers 中的回调函数运行，得到任务的实例，然后就把它们加入到 Celery 的任务列表 tasks</u>。</p>
+<p>这个 tasks 就是后续消费消息时候使用的。根据 客户端提供的 task 名字 得到具体 task 实例，然后处理。</p>
+<pre><code class="language-python">self._tasks = {TaskRegistry: 10} 
+ NotRegistered = {type} &lt;class 'celery.exceptions.NotRegistered'&gt;
+ 'celery.chunks' = {chunks} &lt;@task: celery.chunks of myTest at 0x7fb652da5fd0&gt;
+ 'celery.backend_cleanup' = {backend_cleanup} &lt;@task: celery.backend_cleanup of myTest at 0x7fb652da5fd0&gt;
+ 'celery.chord_unlock' = {unlock_chord} &lt;@task: celery.chord_unlock of myTest at 0x7fb652da5fd0&gt;
+ 'celery.group' = {group} &lt;@task: celery.group of myTest at 0x7fb652da5fd0&gt;
+ 'celery.map' = {xmap} &lt;@task: celery.map of myTest at 0x7fb652da5fd0&gt;
+ 'celery.chain' = {chain} &lt;@task: celery.chain of myTest at 0x7fb652da5fd0&gt;
+ 'celery.starmap' = {xstarmap} &lt;@task: celery.starmap of myTest at 0x7fb652da5fd0&gt;
+ 'celery.chord' = {chord} &lt;@task: celery.chord of myTest at 0x7fb652da5fd0&gt;
+ 'myTest.add' = {add} &lt;@task: myTest.add of myTest at 0x7fb652da5fd0&gt;
+ 'celery.accumulate' = {accumulate} &lt;@task: celery.accumulate of myTest at 0x7fb652da5fd0&gt;
+ __len__ = {int} 10
+</code></pre>
+<p>所以我们下一步看看如何启动 task 组件。</p>
+<h4 id="331-启动-start">3.3.1 启动 start</h4>
+<p>Task启动如下：</p>
+<ul>
+<li>更新已知的任务；</li>
+<li>获取到 <code>kombu . consumer</code>，就是 <code>c . task_consumer</code>；</li>
+<li>开始消费；</li>
+</ul>
+<p>具体如下：</p>
+<pre><code class="language-python">class Tasks(bootsteps.StartStopStep):
+    """Bootstep starting the task message consumer."""
+
+    requires = (Mingle,)
+
+    def __init__(self, c, **kwargs):
+        c.task_consumer = c.qos = None
+        super().__init__(c, **kwargs)
+
+    def start(self, c):
+        """Start task consumer."""
+        c.update_strategies()    # 更新已知的任务
+
+        # - RabbitMQ 3.3 completely redefines how basic_qos works..
+        # This will detect if the new qos smenatics is in effect,
+        # and if so make sure the 'apply_global' flag is set on qos updates.
+        qos_global = not c.connection.qos_semantics_matches_spec
+
+        # set initial prefetch count
+        c.connection.default_channel.basic_qos(
+            0, c.initial_prefetch_count, qos_global,
+        )   # 设置计数
+
+        c.task_consumer = c.app.amqp.TaskConsumer(
+            c.connection, on_decode_error=c.on_decode_error,
+        )   # 开始消费
+
+        def set_prefetch_count(prefetch_count):
+            return c.task_consumer.qos(
+                prefetch_count=prefetch_count,
+                apply_global=qos_global,
+            )
+        c.qos = QoS(set_prefetch_count, c.initial_prefetch_count)      # 设置计数
+</code></pre>
+<h4 id="332-策略">3.3.2 策略</h4>
+<p><u>关于 task 运行其实是需要一定策略的，这也可以认为是一种负载均衡</u>。其策略如下:</p>
+<pre><code class="language-python">SCHED_STRATEGY_FCFS = 1
+SCHED_STRATEGY_FAIR = 4
+
+SCHED_STRATEGIES = {
+    None: SCHED_STRATEGY_FAIR,
+    'default': SCHED_STRATEGY_FAIR,
+    'fast': SCHED_STRATEGY_FCFS,
+    'fcfs': SCHED_STRATEGY_FCFS,
+    'fair': SCHED_STRATEGY_FAIR,
+}
+</code></pre>
+<p>Celery 会配置每个任务的回调策略以及回调方法，比如：<code>'celery.chunks' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a47d5a60&gt;</code>。</p>
+<h4 id="333-基础-default-策略">3.3.3 基础 default 策略</h4>
+<p>我们以基础 default 策略为例，看看其作用。在其中，<u>会根据 task 实例 构建一个 Request，从而把 broker 消息，consumer，多进程都联系起来。具体在 Request. execute_using_pool 这里就会和多进程处理开始关联，比如和 comsumer 的 pool 进程池联系起来</u>。</p>
+<p>代码为：</p>
+<pre><code class="language-python">def default(task, app, consumer,
+        info=logger.info, error=logger.error, task_reserved=task_reserved,
+        to_system_tz=timezone.to_system, bytes=bytes, buffer_t=buffer_t,
+        proto1_to_proto2=proto1_to_proto2):
+    """Default task execution strategy.
+
+    Note:
+        Strategies are here as an optimization, so sadly
+        it's not very easy to override.
+    """
+    hostname = consumer.hostname                                      # 设置相关的消费者信息
+    connection_errors = consumer.connection_errors                    # 设置错误值
+    _does_info = logger.isEnabledFor(logging.INFO)
+
+    # task event related
+    # (optimized to avoid calling request.send_event)
+    eventer = consumer.event_dispatcher                                             
+    events = eventer and eventer.enabled
+    send_event = eventer.send
+    task_sends_events = events and task.send_events
+
+    call_at = consumer.timer.call_at
+    apply_eta_task = consumer.apply_eta_task
+    rate_limits_enabled = not consumer.disable_rate_limits
+    get_bucket = consumer.task_buckets.__getitem__
+    handle = consumer.on_task_request
+    limit_task = consumer._limit_task
+    body_can_be_buffer = consumer.pool.body_can_be_buffer
+    Req = create_request_cls(Request, task, consumer.pool, hostname, eventer)  # 返回请求类
+
+    revoked_tasks = consumer.controller.state.revoked
+
+    def task_message_handler(message, body, ack, reject, callbacks,
+                             to_timestamp=to_timestamp):
+        if body is None:
+            body, headers, decoded, utc = (
+                message.body, message.headers, False, True,
+            )
+            if not body_can_be_buffer:
+                body = bytes(body) if isinstance(body, buffer_t) else body
+        else:
+            body, headers, decoded, utc = proto1_to_proto2(message, body)  # 解析接受的数据
+
+        req = Req(
+            message,
+            on_ack=ack, on_reject=reject, app=app, hostname=hostname,
+            eventer=eventer, task=task, connection_errors=connection_errors,
+            body=body, headers=headers, decoded=decoded, utc=utc,
+        )                                                                  # 实例化请求
+        if (req.expires or req.id in revoked_tasks) and req.revoked():
+            return
+
+        if task_sends_events:
+            send_event(
+                'task-received',
+                uuid=req.id, name=req.name,
+                args=req.argsrepr, kwargs=req.kwargsrepr,
+                root_id=req.root_id, parent_id=req.parent_id,
+                retries=req.request_dict.get('retries', 0),
+                eta=req.eta and req.eta.isoformat(),
+                expires=req.expires and req.expires.isoformat(),
+            )                                           # 如果需要发送接受请求则发送
+
+        if req.eta:                                     # 时间相关处理
+            try:
+                if req.utc:
+                    eta = to_timestamp(to_system_tz(req.eta))
+                else:
+                    eta = to_timestamp(req.eta, timezone.local)
+            except (OverflowError, ValueError) as exc:
+                req.reject(requeue=False)
+            else:
+                consumer.qos.increment_eventually()
+                call_at(eta, apply_eta_task, (req,), priority=6)
+        else:
+            if rate_limits_enabled:                             # 速率限制
+                bucket = get_bucket(task.name)
+                if bucket:
+                    return limit_task(req, bucket, 1)
+            task_reserved(req)                                 
+            if callbacks:
+                [callback(req) for callback in callbacks] 
+            handle(req)                                          # 处理接受的请求
+
+    return task_message_handler
+
+</code></pre>
+<p>此时处理的handler就是在consumer初始化的时候传入的w.process_task，</p>
+<pre><code class="language-python">def _process_task(self, req):
+    """Process task by sending it to the pool of workers."""
+    try:
+        req.execute_using_pool(self.pool)
+    except TaskRevokedError:
+        try:
+            self._quick_release()   # Issue 877
+        except AttributeError:
+            pass
+</code></pre>
+<p>具体可以看到  <u>Request. execute_using_pool 这里就会和多进程处理开始关联</u>，比如和 comsumer 的 pool 进程池联系起来。</p>
+<h4 id="334-更新已知任务策略">3.3.4 更新已知任务策略</h4>
+<p>启动时候，会调用 update_strategies 更新已知的任务策略。</p>
+<pre><code class="language-python">class Tasks(bootsteps.StartStopStep):
+    """Bootstep starting the task message consumer."""
+
+    def start(self, c):
+        """Start task consumer."""
+        c.update_strategies()
+</code></pre>
+<p>代码如下：</p>
+<pre><code class="language-python">def update_strategies(self):
+    loader = self.app.loader
+    for name, task in self.app.tasks.items():
+        self.strategies[name] = task.start_strategy(self.app, self)
+        task.__trace__ = build_tracer(name, task, loader, self.hostname,
+                                      app=self.app)
+</code></pre>
+<p><u>self.app.tasks为应用启动时收集的任务</u>。此时需要再次看看是否需要更新策略。</p>
+<p>变量如下：</p>
+<pre><code class="language-python">self.app.tasks = {TaskRegistry: 10} 
+ NotRegistered = {type} &lt;class 'celery.exceptions.NotRegistered'&gt;
+ 'celery.chunks' = {chunks} &lt;@task: celery.chunks of myTest at 0x7ffe3ff08198&gt;
+ 'myTest.add' = {add} &lt;@task: myTest.add of myTest at 0x7ffe3ff08198&gt;
+ 'celery.backend_cleanup' = {backend_cleanup} &lt;@task: celery.backend_cleanup of myTest at 0x7ffe3ff08198&gt;
+ 'celery.chord_unlock' = {unlock_chord} &lt;@task: celery.chord_unlock of myTest at 0x7ffe3ff08198&gt;
+ 'celery.group' = {group} &lt;@task: celery.group of myTest at 0x7ffe3ff08198&gt;
+ 'celery.map' = {xmap} &lt;@task: celery.map of myTest at 0x7ffe3ff08198&gt;
+ 'celery.chain' = {chain} &lt;@task: celery.chain of myTest at 0x7ffe3ff08198&gt;
+ 'celery.starmap' = {xstarmap} &lt;@task: celery.starmap of myTest at 0x7ffe3ff08198&gt;
+ 'celery.chord' = {chord} &lt;@task: celery.chord of myTest at 0x7ffe3ff08198&gt;
+ 'celery.accumulate' = {accumulate} &lt;@task: celery.accumulate of myTest at 0x7ffe3ff08198&gt;
+ __len__ = {int} 10
+self = {Consumer} &lt;Consumer: celery (running)&gt;
+</code></pre>
+<p>此时我们继续查看task.start_strategy函数，</p>
+<pre><code class="language-python">def start_strategy(self, app, consumer, **kwargs):
+    return instantiate(self.Strategy, self, app, consumer, **kwargs)    # 生成task实例
+</code></pre>
+<p>操作之后，得到 strategies 如下，里面都是每个任务的callback方法，目前都是 task_message_handler，就是在这里，<u>会 根据 task 实例 构建一个 Request，从而把 broker 消息，consumer，多进程都联系起来</u>。</p>
+<pre><code class="language-java">strategies = {dict: 10} 
+ 'celery.chunks' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a47d5a60&gt;
+ 'celery.backend_cleanup' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a4878400&gt;
+ 'celery.chord_unlock' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a4878598&gt;
+ 'celery.group' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a4878840&gt;
+ 'celery.map' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a4878ae8&gt;
+ 'celery.chain' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a4878d90&gt;
+ 'celery.starmap' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a487b0d0&gt;
+ 'celery.chord' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a487b378&gt;
+ 'myTest.add' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a487b620&gt;
+ 'celery.accumulate' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fc5a487b8c8&gt;
+ __len__ = {int} 10
+</code></pre>
+<p>逻辑为（因为Consumer成员变量太多，为了画图清晰，所以省略了部分变量）：</p>
+<pre><code class="language-java">                                      +-----------------------+                      +---------------------------+
+                                      | Celery                |                      | Consumer                  |
+                                      |                       |                      |                           |
+                                      |            consumer +---------------------&gt;  |                           |            +---------------+
+                                      |                       |                      |        task_consumer +---------------&gt; | amqp.Consumer |
+                                      |             _tasks    |                      |                           |            +---------------+
+                                      |                +      |                      |                           |
+                                      |                |      |                      |        strategies +----------------+
+                                      +-----------------------+                      |                           |        |
+                                                       |                             |                           |        |
+                                                       |                             +---------------------------+        |
+                                                       |                                                                  v
+                                                       v
++------------------------------------------------------+-------------------------------------+  +-----------------------------------------------------------------------------+
+|                                                                                            |  | strategies = {dict: 10}                                                     |
+|                          TaskRegistry                                                      |  |  'celery.chunks' = function default.&lt;locals&gt;.task_message_handler           |
+|                                                                                            |  |  'celery.backend_cleanup' = function default.&lt;locals&gt;.task_message_handler  |
+|   NotRegistered = {type} &lt;class 'celery.exceptions.NotRegistered'&gt;                         |  |  'celery.chord_unlock' = function default.^locals&gt;.task_message_handler     |
+|   'celery.chunks' = {chunks} &lt;@task: celery.chunks of myTest&gt;                              |  |  'celery.group' = function default.&lt;localsv.task_message_handler            |
+|   'celery.backend_cleanup' = {backend_cleanup} &lt;@task: celery.backend_cleanup of myTest &gt;  |  |  'celery.map' = function default.&lt;locals&gt;.task_message_handler              |
+|   'celery.chord_unlock' = {unlock_chord} &lt;@task: celery.chord_unlock of myTest&gt;            |  |  'celery.chain' = function default.&lt;locals&gt;.task_message_handler            |
+|   'celery.group' = {group} &lt;@task: celery.group of myTest&gt;                                 |  |  'celery.starmap' = function default.&lt;locals&gt;.task_message_handler          |
+|   'celery.map' = {xmap} &lt;@task: celery.map of myTest&gt;                                      |  |  'celery.chord' = function default.&lt;locals&gt;.task_message_handler            |
+|   'celery.chain' = {chain} &lt;@task: celery.chain of myTest&gt;                                 |  |  'myTest.add' = function default.&lt;locals^.task_message_handler              |
+|   'celery.starmap' = {xstarmap} &lt;@task: celery.starmap of myTest&gt;                          |  |  'celery.accumulate' = function default.vlocals&gt;.task_message_handler       |
+|   'celery.chord' = {chord} &lt;@task: celery.chord of myTest&gt;                                 |  |                                                                             |
+|   'myTest.add' = {add} &lt;@task: myTest.add of myTest&gt;                                       |  +-----------------------------------------------------------------------------+
+|   'celery.accumulate' = {accumulate} &lt;@task: celery.accumulate of myTest&gt;                  |
+|                                                                                            |
++--------------------------------------------------------------------------------------------+
+
+</code></pre>
+<p>手机上如图，<u>主要就是 tasks，以及其对于的 strategies</u>：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234714777-71738690.png" alt="" loading="lazy"></p>
+<h4 id="335-消费">3.3.5 消费</h4>
+<p>如下代码就把 task 和 对应的 kombu consumer 联系起来。</p>
+<pre><code class="language-python">c.task_consumer = c.app.amqp.TaskConsumer(
+    c.connection, on_decode_error=c.on_decode_error,
+)
+</code></pre>
+<p>c.app.amqp.TaskConsumer的作用就是返回一个 Consumer。可以看出来，<u>返回的为 c.task_consumer，即 kombu . Consumer，也配置了c.connection进去</u>。</p>
+<ul>
+<li>&lt;Consumer: [&lt;Queue celery -&gt; &lt;Exchange celery(direct) bound to chan:1&gt; -&gt; celery bound to chan:1&gt;]&gt;</li>
+<li>&lt;Connection: redis://localhost:6379&gt;</li>
+</ul>
+<p><u>于是，Celery 的 Consumer 组件就和 kombu的 consumer 联系起来。既，celery.consumer.task_consumer 就是一个 kombu consumer，而且此时 这个 kombu . consumer 已经和 channel 联系了起来，当 connection 之中有消息，就会回调到 kombu . consumer。我们下面就能看到如何使用</u>。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">from kombu import Connection, Consumer, Exchange, Producer, Queue, pools
+
+class AMQP:
+    """App AMQP API: app.amqp."""
+
+    Connection = Connection
+    Consumer = Consumer
+    Producer = Producer
+
+    def TaskConsumer(self, channel, queues=None, accept=None, **kw):
+        if accept is None:
+            accept = self.app.conf.accept_content
+        return self.Consumer(
+            channel, accept=accept,
+            queues=queues or list(self.queues.consume_from.values()),
+            **kw
+        )
+</code></pre>
+<p>逻辑如下（因为Consumer成员变量太多，为了画图清晰，所以省略了部分变量）：</p>
+<pre><code class="language-java"> +--------------------------------+
+ |  [Consumer]                    |                        For Read
+ |                                |       +----------------------------------------+
+ |                    Connection+-------&gt; | &lt;Connection: redis://localhost:6379//&gt; |
+ |                                |       +----------------------------------------+
+ |                                |
+ |                                |       +--------+
+ |                                +-----&gt; | Tasks  |
+ |                                |       +--------+
+ |                                |
+ |   app           task_consumer+--------------------------------------------------------------------------------------+
+ |    +                           |                                                                                    |
+ |    |                           |                                                                                    |
+ |    |                           |                                                                                    |
+ +--------------------------------+                                                                                    |
+      |                                  +-------------------------------------+                                       |
+      |                                  |                celery.app.amqp.AMQP |                                       |
+      |                                  |                                     |                                       |
++-----+----------------------+           |                                     |                                       |
+| Celery                     |           |                   BrokerConnection +-------&gt;  kombu.connection.Connection   |
+|                            |           |                                     |                                       |
+|                      amqp+------------&gt;+                   Connection       +-------&gt;  kombu.connection.Connection   |
+|                            |           |                                     |                                       |
+|                            |           |                   Consumer         +-------&gt;  kombu.messaging.Consumer &lt;----+
++----------------------------+           |                                     |
+                                         |                   Producer         +-------&gt;  kombu.messaging.Producer
+                                         |                                     |
+                                         |                   producer_pool    +-------&gt;  kombu.pools.ProducerPool
+                                         |                                     |
+                                         |                   queues           +-------&gt;  celery.app.amqp.Queues
+                                         |                                     |
+                                         |                   router           +-------&gt;  celery.app.routes.Router
+                                         +-------------------------------------+
+
+</code></pre>
+<p>手机如图</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234729560-1574191798.png" alt="" loading="lazy"></p>
+<h3 id="34-event-loop-子组件">3.4 event loop 子组件</h3>
+<p>上一个子组件配置了各种 task，<u>本子组件就开启了对应 tasks 的消费</u>。代码位置在: celery/worker/consumer/consumer.py。</p>
+<p>对应了  'celery.worker.consumer.consumer:Evloop' 这个 step。</p>
+<p>[&lt;step: Connection&gt;, &lt;step: Events&gt;, &lt;step: Mingle&gt;, &lt;step: Gossip&gt;, &lt;step: Tasks&gt;, &lt;step: Control&gt;, &lt;step: Heart&gt;, <strong>&lt;step: event loop&gt;</strong>]</p>
+<pre><code class="language-python">class Evloop(bootsteps.StartStopStep):
+    """Event loop service.
+
+    Note:
+        This is always started last.
+    """
+
+    label = 'event loop'
+    last = True
+
+    def start(self, c):
+        self.patch_all(c)
+        c.loop(*c.loop_args())
+
+    def patch_all(self, c):
+        c.qos._mutex = DummyLock()
+</code></pre>
+<p>其实我们发现，这里就是调用了 consumer中的loop函数进行循环。</p>
+<h4 id="341-loop-in-consumer">3.4.1 loop in consumer</h4>
+<p>代码位于 celery/worker/loops.py。</p>
+<p>consumer中的loop函数就是位于celery/worker/loops.py中的 asynloop 函数。</p>
+<p>init有如下代码配置了loop函数：</p>
+<pre><code class="language-python">if not hasattr(self, 'loop'):
+    self.loop = loops.asynloop if hub else loops.synloop
+</code></pre>
+<p>此时具体如下（因为Consumer成员变量太多，为了画图清晰，所以省略了部分变量）：</p>
+<pre><code class="language-python">+--------------------------------+       +--------+
+| [Consumer]                     +-----&gt; | Evloop |
+|                                |       +--------+
+|                                |          +--------------------------+
+|                                |          |                on_tick +--------&gt;  Transport.register_with_event_loop
+|                                +-------&gt;  | Hub                      |
+|                                |          |                poller +---------&gt;  kombu.utils.eventio._poll
+|                                |          |                          |
+|                                |          |                readers   |
+|                                |          |                          |
+|  create_task_handler     loop +-----------------------&gt;  create_loop+-------&gt;  loops.asynloop
+|                                |          |                          |
+|                                |          +--------------------------+
+|   app                          |
+|    +                           |
+|    |            task_consumer +--------------------------------------------------------------------------&gt;+
+|    |                           |                                                                          |
++--------------------------------+                                                                          |
+     |                                                                                                      |
+     |                                                                                                      |
+     |                                                                                                      |
++----+---------+                                                                                            |
+| Celery       |       +-------------------------------------+                                              |
+|              |       | celery.app.amqp.AMQP                |                                              |
+|              |       |                                     |                                              |
+|              |       |                                     |                                              |
+|              |       |                   BrokerConnection +-------&gt;  kombu.connection.Connection          |
+|              |       |                                     |                                              |
+|        amqp+--------&gt;+                   Connection       +-------&gt;  kombu.connection.Connection          |
+|              |       |                                     |                                              |
++--------------+       |                   Consumer         +-------&gt;  kombu.messaging.Consumer  &lt;----------+
+                       |                                     |
+                       |                   Producer         +-------&gt;  kombu.messaging.Producer
+                       |                                     |
+                       |                   producer_pool    +-------&gt;  kombu.pools.ProducerPool
+                       |                                     |
+                       |                   queues           +-------&gt;  celery.app.amqp.Queues
+                       |                                     |
+                       |                   router           +-------&gt;  celery.app.routes.Router
+                       +-------------------------------------+
+
+</code></pre>
+<p>手机为：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234743863-1444048413.png" alt="" loading="lazy"></p>
+<h4 id="342-配置-kombuconsumer">3.4.2 配置 kombu.consumer</h4>
+<p>前面有如下代码：</p>
+<pre><code class="language-python">c.loop(*c.loop_args())
+</code></pre>
+<p>注意这里用到的为 self.task_consumer，即 kombu . Consumer，也配置了c.connection进去。</p>
+<pre><code class="language-python">def loop_args(self):
+    return (self, self.connection, self.task_consumer,
+            self.blueprint, self.hub, self.qos, self.amqheartbeat,
+            self.app.clock, self.amqheartbeat_rate)
+</code></pre>
+<p>此时逻辑如下（因为Consumer成员变量太多，为了画图清晰，所以省略了部分变量）：</p>
+<pre><code class="language-python">+--------------------------------+          +--------+
+| [Consumer]                     +--------&gt; | Evloop |
+|                                |          +--------+
+|                                |          +--------------------------+
+|                                |          |                on_tick +-----+--&gt;  Transport.register_with_event_loop
+|                                +-------&gt;  | Hub                      |   |
+|                                |          |                          |   +--&gt;  AsynPool._create_write_handlers.&lt;locals&gt;.on_poll_start
+|                                |          |                          |                                                       +
+|                                |          |                          |                                                       |
+|                                |          |                          |                                                       v
+|  create_task_handler           |          |                          |                                      iterate_file_descriptors_safely
+|                                |          |                poller +---------&gt;  kombu.utils.eventio._poll                     ^
+|                                |          |                          |                       +                               |
+|   app                    loop +-----------------------&gt;  create_loop+-------&gt; loops.asynloop |                               |
+|    +                           |          |                          |                       |             +-----+           |
+|    |       task_consumer       |          +--------------------------+                       +----------&gt;  | fd  |  +--------+
+|    |            +              |                                                                           +-----+
+|    |            |              |
+|    |            |              |          +--------------------------------------+
+|    |            | Connection +----------&gt; | &lt;Connection: redis://localhost:6379&gt; |
+|    |            |              |          +--------------------------------------+
++--------------------------------+
+     |            |                                    ^
+     |            |                                    |
+     |            v                                    |
++----+----+  +----+-------------------------+          |
+| Celery  |  | kombu . Consumer             |          |
+|         |  |                              |          |
+|         |  |                   channel+--------------+
++---------+  |                              |
+             +------------------------------+
+
+</code></pre>
+<p>手机上如下：</p>
+<p>)</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210402234800843-2077987006.png" alt="" loading="lazy"></p>
+<h4 id="343-启动消费">3.4.3 启动消费</h4>
+<p>在 asynloop 中，会：</p>
+<ul>
+<li>
+<p>设置消息处理（解析消息并执行）函数，就是说，真正的消息处理（解析消息并执行）的逻辑是这个create_task_handler；</p>
+</li>
+<li>
+<p>设置 kombu . consumer  的消息回调函数，就是说，on_task_received 就是最后接受消息的函数。</p>
+</li>
+<li>
+<p>调用 hub.create_loop() 得到执行引擎；</p>
+</li>
+<li>
+<p>调用 next(loop) 执行引擎；</p>
+</li>
+</ul>
+<pre><code class="language-python">def asynloop(obj, connection, consumer, blueprint, hub, qos,
+             heartbeat, clock, hbrate=2.0):
+    """Non-blocking event loop."""
+    RUN = bootsteps.RUN
+    update_qos = qos.update
+    errors = connection.connection_errors
+
+    on_task_received = obj.create_task_handler() # 设置消息处理（解析消息并执行）函数
+
+    _enable_amqheartbeats(hub.timer, connection, rate=hbrate)
+
+    consumer.on_message = on_task_received
+    obj.controller.register_with_event_loop(hub)
+    obj.register_with_event_loop(hub)
+    consumer.consume()
+    obj.on_ready()
+
+    loop = hub.create_loop()
+
+    try:
+        while blueprint.state == RUN and obj.connection:
+            state.maybe_shutdown()
+
+            # We only update QoS when there's no more messages to read.
+            # This groups together qos calls, and makes sure that remote
+            # control commands will be prioritized over task messages.
+            if qos.prev != qos.value:
+                update_qos()
+
+            try:
+                next(loop)
+            except StopIteration:
+                loop = hub.create_loop()
+    finally:
+        try:
+            hub.reset()
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.exception(
+                'Error cleaning up after event loop: %r', exc)
+
+</code></pre>
+<p>至此，异步Loop就开启了，然后就开始了服务端的事件等待处理。下一篇文章我们将分析 task 概念以及实现。</p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow" target="_blank">Celery 源码解析一：Worker 启动流程概述</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-execute-engine" target="_blank">Celery 源码解析二：Worker 的执行引擎</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement" target="_blank">Celery 源码解析三：Task 对象的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-scheduler-task-implements" target="_blank">Celery 源码解析四：定时任务的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control" target="_blank">Celery 源码解析五：远程控制管理</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-event-implemention" target="_blank">Celery 源码解析六：Events 的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-interact-between-workers" target="_blank">Celery 源码解析七：Worker 之间的交互</a></p>
+<p><a href="https://liqiang.io/post/state-and-result-implement-in-celery" target="_blank">Celery 源码解析八：State 和 Result</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-04-05 09:46</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">190</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14612853" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14612853);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14612853, cb_entryCreatedDate = '2021-04-05 09:46', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjs9uUu3w0HhQvo8McIq4QF6PcV1FcCzzq6DTwQu2SZA1Uk38uNJY43dshnhWqeH1hCRqco0l42FB7XEH5TXlQ03idxUdmIZ_IThNOvUkd78-oY8tbGrKgbzWajWJ_J3Z4g" />
+</body>
+</html>

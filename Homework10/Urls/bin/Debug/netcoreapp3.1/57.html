@@ -1,0 +1,851 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>zy7y - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/blacklowkey/bundle-blacklowkey.min.css?v=1gj9-XJKL9BZFkjdvROYQPiPWjQXk-hsXXZGtqkfaSc" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/zy7y/custom.css?v=6vd15zmdoE&#x2B;ujQ1hzLwPf7pR01c=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/blacklowkey/bundle-blacklowkey-mobile.min.css?v=zrVn_w7PYXoSvEFaixHbQGlNNXNZ3h27-9PpkXZLYns" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/zy7y/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/zy7y/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/zy7y/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 525824;
+        var currentBlogApp = 'zy7y';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'BlackLowKey';
+        var visitorUserId = '';
+    </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <a href="https://github.com/zy7y" target="_blank">
+　　<img style="position: fixed; top: 0; right: 0; border: 0; z-index: 1;" src="https://images.cnblogs.com/cnblogs_com/jackson0714/779808/o_github.png" >
+</a>
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/zy7y/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/zy7y/">柒意</a>
+</h1>
+<h2>路漫漫其修远兮，吾将上下而求索。 -《离骚》
+QQ群：851163511（没技术大佬，本站上的个人项目问题都可以在这里咨询）</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/zy7y/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/zy7y">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/zy7y/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+
+
+
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14735690.html">
+    <span>
+            <span>[置顶]</span>
+        FastAPI + Vue 前后端分离 接口自动化测试工具 apiAutoTestWeb
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：apiAutoTestWeb使用说明 apiAutoTestWeb是为apiAutoTest的可视化版本，其采用前后端分离(FastAPI + Vue2)方式实现 具体使用: Python3 + FastAPI + Vue + element-ui + vue element admin + Tor        <a href="https://www.cnblogs.com/zy7y/p/14735690.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 16:19
+zy7y
+<span data-post-id="14735690" class="post-view-count">阅读(155)</span> 
+<span data-post-id="14735690" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14735690" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735690" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/04/20.html">2021年4月20日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14683370.html">
+    <span>
+            <span>[置顶]</span>
+        FastAPI项目实战：&quot;异步&quot;接口测试&quot;平台&quot;
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：apiAutoTestWeb 之所以说是异步，是因为将会使用异步Web框架，异步ORM， 及其他异步库 是什么? apiAutoTest接口自动化测试工具的可视化版本，将原本对用例的操作转移到Web页面之上 用什么实现？ 接口自动化测试：大体上测试逻辑将采用apiAutoTest，也会采取下其他开源        <a href="https://www.cnblogs.com/zy7y/p/14683370.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-20 23:18
+zy7y
+<span data-post-id="14683370" class="post-view-count">阅读(366)</span> 
+<span data-post-id="14683370" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14683370" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14683370" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/02/27.html">2021年2月27日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14456202.html">
+    <span>
+            <span>[置顶]</span>
+        apiAutoTest：自动化测试用例中调用自定义函数的实现
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：0. 前言 apiAutoTest从去年8月以来开源至今，也更新了不少内容，一起来看看吧 第一个版本 - 2020/08/08 增加实际响应存储数据的方法，并在字典可以处理依赖见tools/svae_response.py - 2020/08/09 实现多文件上传，接口中Path参数依赖处理 初步实        <a href="https://www.cnblogs.com/zy7y/p/14456202.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-27 16:33
+zy7y
+<span data-post-id="14456202" class="post-view-count">阅读(251)</span> 
+<span data-post-id="14456202" class="post-comment-count">评论(2)</span> 
+<span data-post-id="14456202" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14456202" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/01/19.html">2021年1月19日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14299472.html">
+    <span>
+            <span>[置顶]</span>
+        apiAutoTest: 自动化测试的数据隔离实现
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：接口自动化测试之数据清洗/隔离/备份/恢复 在得到QQ:1301559180 得代码贡献之后，想到了通过ssh连接上服务器，然后进行数据库备份，数据库恢复， 主要使用了 paramiko库 最终效果 测试开始前会进行数据备份，并在下面2个路径存储对应的数据库备份(目前备份的数据库是写死的为，测试连接        <a href="https://www.cnblogs.com/zy7y/p/14299472.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-19 19:03
+zy7y
+<span data-post-id="14299472" class="post-view-count">阅读(234)</span> 
+<span data-post-id="14299472" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14299472" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14299472" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2020/11/23.html">2020年11月23日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14022398.html">
+    <span>
+            <span>[置顶]</span>
+        apiAutoTest：自动化测试中的数据依赖处理
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：原始版本 简书：https://www.jianshu.com/p/6bfaca87a93b 博客园：https://www.cnblogs.com/zy7y/p/13426816.html testerhome：https://testerhome.com/topics/25003 最新用例截图以        <a href="https://www.cnblogs.com/zy7y/p/14022398.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-11-23 00:00
+zy7y
+<span data-post-id="14022398" class="post-view-count">阅读(646)</span> 
+<span data-post-id="14022398" class="post-comment-count">评论(4)</span> 
+<span data-post-id="14022398" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14022398" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2020/08/03.html">2020年8月3日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/13426816.html">
+    <span>
+            <span>[置顶]</span>
+        Python接口自动化测试工具(Pytest+Allure+jsonpath+xlrd+excel、支持Restful接口规范)
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：废话 和几个朋友聊天然后出来的产物希望能帮到大家学习接口自动化测试，欢迎大家交流指出不合适的地方，源码在文末 功能 实现：get/post请求(上传文件)::理论上其他delete/put等请求也实现了，支持restful接口规范 发送邮件 生成allure测试报告 压缩测试报告文件 数据依赖 运行        <a href="https://www.cnblogs.com/zy7y/p/13426816.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-08-03 16:03
+zy7y
+<span data-post-id="13426816" class="post-view-count">阅读(2419)</span> 
+<span data-post-id="13426816" class="post-comment-count">评论(36)</span> 
+<span data-post-id="13426816" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13426816" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14735690.html">
+    <span>
+        FastAPI + Vue 前后端分离 接口自动化测试工具 apiAutoTestWeb
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：apiAutoTestWeb使用说明 apiAutoTestWeb是为apiAutoTest的可视化版本，其采用前后端分离(FastAPI + Vue2)方式实现 具体使用: Python3 + FastAPI + Vue + element-ui + vue element admin + Tor        <a href="https://www.cnblogs.com/zy7y/p/14735690.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 16:19
+zy7y
+<span data-post-id="14735690" class="post-view-count">阅读(155)</span> 
+<span data-post-id="14735690" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14735690" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735690" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/04/20.html">2021年4月20日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14683370.html">
+    <span>
+        FastAPI项目实战：&quot;异步&quot;接口测试&quot;平台&quot;
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：apiAutoTestWeb 之所以说是异步，是因为将会使用异步Web框架，异步ORM， 及其他异步库 是什么? apiAutoTest接口自动化测试工具的可视化版本，将原本对用例的操作转移到Web页面之上 用什么实现？ 接口自动化测试：大体上测试逻辑将采用apiAutoTest，也会采取下其他开源        <a href="https://www.cnblogs.com/zy7y/p/14683370.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-20 23:18
+zy7y
+<span data-post-id="14683370" class="post-view-count">阅读(366)</span> 
+<span data-post-id="14683370" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14683370" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14683370" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14682473.html">
+    <span>
+        element ui 下拉框编辑时无法修改 value值
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：参考：https://www.zhangshengrong.com/p/boNwZvEbaw/        <a href="https://www.cnblogs.com/zy7y/p/14682473.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-20 19:19
+zy7y
+<span data-post-id="14682473" class="post-view-count">阅读(12)</span> 
+<span data-post-id="14682473" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14682473" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14682473" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/04/19.html">2021年4月19日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14679000.html">
+    <span>
+        tortoise-orm下pydantic_model_creator 外键字段丢失
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：tortoise-orm 生成Pydantic，丢失外键字段 目录结构大致如下 models.py class Project(Model): id = fields.IntField(pk=True) name = fields.CharField(max_length=255, descript        <a href="https://www.cnblogs.com/zy7y/p/14679000.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-19 22:24
+zy7y
+<span data-post-id="14679000" class="post-view-count">阅读(18)</span> 
+<span data-post-id="14679000" class="post-comment-count">评论(1)</span> 
+<span data-post-id="14679000" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14679000" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/04/16.html">2021年4月16日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14666406.html">
+    <span>
+        string.Template 类无法对 (,)等特殊字符替换
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：string Template 无法替换带特殊字符的解决问题 debug.yaml - desc: 获取年级列表 ~ faker生成用例模板 var: {} expect: status_code: 200 msg: ${sum(1,2)} hello: ${name} 问题 修改前: main.p        <a href="https://www.cnblogs.com/zy7y/p/14666406.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-16 12:22
+zy7y
+<span data-post-id="14666406" class="post-view-count">阅读(6)</span> 
+<span data-post-id="14666406" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14666406" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14666406" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/03/10.html">2021年3月10日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14511197.html">
+    <span>
+        Vue：Axios发送网络请求
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：axios Axios 是一个基于 promise 的 HTTP 库，可以用在浏览器和 node.js 中。 http://www.axios-js.com/zh-cn/docs/ 安装 npm install axios --save 使用 发送Get请求- 不带参数 import axios f        <a href="https://www.cnblogs.com/zy7y/p/14511197.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-10 13:49
+zy7y
+<span data-post-id="14511197" class="post-view-count">阅读(24)</span> 
+<span data-post-id="14511197" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14511197" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14511197" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14509191.html">
+    <span>
+        Vue：Vuex状态管理
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：Vuex Vuex 是一个专为 Vue.js 应用程序开发的状态管理模式。它采用集中式存储管理应用的所有组件的状态，并以相应的规则保证状态以一种可预测的方式发生变化。Vuex 也集成到 Vue 的官方调试工具 devtools extension (opens new window)，提供了诸如零配        <a href="https://www.cnblogs.com/zy7y/p/14509191.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-10 00:44
+zy7y
+<span data-post-id="14509191" class="post-view-count">阅读(23)</span> 
+<span data-post-id="14509191" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14509191" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14509191" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/zy7y/archive/2021/03/07.html">2021年3月7日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14496707.html">
+    <span>
+        Vue: Vue Router
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：Vue Router Vue Router 是 Vue.js 官方的路由管理器。它和 Vue.js 的核心深度集成，让构建单页面应用变得易如反掌 https://router.vuejs.org/zh/ 安装 npm install vue-router --save 配置 router/index        <a href="https://www.cnblogs.com/zy7y/p/14496707.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-07 21:50
+zy7y
+<span data-post-id="14496707" class="post-view-count">阅读(16)</span> 
+<span data-post-id="14496707" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14496707" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14496707" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14495784.html">
+    <span>
+        Vue: VueCli脚手架
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：Vue Cli Vue提供的快速开发项目工具 安装 npm install @vue/cli -g # 全局安装 创建项目 vue create packagename	# 命令行创建项目 Manually select features 手动配置 vue ui # 可视化web界面创建项目 启动项        <a href="https://www.cnblogs.com/zy7y/p/14495784.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-07 18:39
+zy7y
+<span data-post-id="14495784" class="post-view-count">阅读(11)</span> 
+<span data-post-id="14495784" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14495784" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14495784" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14495021.html">
+    <span>
+        Vue: slot的使用
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：slot插槽 为组件提供扩展性 插槽定义： 在组件中使用&amp;lt;slot name=&amp;quot;jumin&amp;quot;&amp;gt;&amp;lt;/slot&amp;gt; &amp;lt;template&amp;gt; &amp;lt;div&amp;gt; &amp;lt;p&amp;gt;{{userInfo.length}} Titles&amp;lt;/p&amp;gt; &amp;lt;slot name=&amp;quot;jumin&amp;quot; :data=&amp;quot;list1&amp;quot;&amp;gt;&amp;lt;/slot&amp;gt; &amp;lt;ul        <a href="https://www.cnblogs.com/zy7y/p/14495021.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-07 16:03
+zy7y
+<span data-post-id="14495021" class="post-view-count">阅读(13)</span> 
+<span data-post-id="14495021" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14495021" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14495021" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+
+<div class="topicListFooter">
+    <div id="nav_next_page">
+        
+    <a href="https://www.cnblogs.com/zy7y/default.html?page=2">
+        下一页
+    </a>
+
+    </div>    
+</div>
+
+
+
+
+
+
+<script>
+    updatePostStats(
+        $(".post-view-count").map(function () { return this.dataset.postId }).get(),
+        function(id, count) { $(".post-view-count[data-post-id=" + id + "]").text("阅读(" + count + ")") },
+        function(id, count) { $(".post-comment-count[data-post-id=" + id + "]").text("评论(" + count + ")") },
+        function(id, count) { $(".post-digg-count[data-post-id=" + id + "]").text("推荐(" + count + ")") });
+</script>
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 zy7y
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjt0WfJXX3sUvGkSKLx_SlJozgG7Fu1hr-7L1qpXnRZnoRQ1pdrFYT6jsqSHtUqeO84xntilBuvmHoxbASjhNYctiC12_XdVif19GUNik8E8-3v435fI15tMEjfgk6MD5-g" />
+</body>
+</html>

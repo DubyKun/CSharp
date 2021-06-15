@@ -34,6 +34,7 @@ namespace Urls
             {
                 action();
             }
+            thread = null;
         }
 
         private void Crawler_PageDownload(Crawler crawler, string url, string info)

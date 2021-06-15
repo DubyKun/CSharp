@@ -1,0 +1,734 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="#汇编语言——更多功能 ##转移指令及其原理 可以修改IP，或同时修改cs和IP的指令统称为转移指令。概括地讲，转移指令就是可以控制CPU执行内存中某处代码的指令。 8086CPU的转移行为有以下几类" />
+    <meta property="og:description" content="#汇编语言——更多功能 ##转移指令及其原理 可以修改IP，或同时修改cs和IP的指令统称为转移指令。概括地讲，转移指令就是可以控制CPU执行内存中某处代码的指令。 8086CPU的转移行为有以下几类" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>汇编语言——更多功能 - W&B - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/custom/bundle-custom.min.css?v=URnzNOcYasaxFfc79Balq6aK60x2WaH4sa2e1Ty6OO4" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/cs-Miscellaneous/custom.css?v=sa3SRlyCC3KTRsSMDECFS3NDj3Q=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/custom/bundle-custom-mobile.min.css?v=OayYBbtUbH4FYkn_bTL4VVf4DsEOiTHSWhbl11KyY6Y" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/cs-Miscellaneous/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/cs-Miscellaneous/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/cs-Miscellaneous/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 594405;
+        var currentBlogApp = 'cs-Miscellaneous';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'Custom';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 04:41';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/cs-Miscellaneous/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/cs-Miscellaneous/"></a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/cs-Miscellaneous/">
+首页</a>
+</li>
+<li>
+
+
+</li>
+<li>
+</li>
+<li>
+
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/cs-Miscellaneous/p/14735830.html">
+    <span>汇编语言——更多功能</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="汇编语言更多功能">汇编语言——更多功能</h1>
+<h2 id="转移指令及其原理">转移指令及其原理</h2>
+<p>可以修改IP，或同时修改cs和IP的指令统称为转移指令。概括地讲，转移指令就是可以控制CPU执行内存中某处代码的指令。</p>
+<p>8086CPU的转移行为有以下几类：</p>
+<ul>
+<li>
+<p>只修改IP时，称为段内转移，比如：jmp ax</p>
+</li>
+<li>
+<p>同时修改cs和IP时，称为段间转移，比如：jmp 1000:0，由于转移指令对IP的修改范围不同，段内转移又分为：短转移和近转移。</p>
+</li>
+<li>
+<p>短转移IP的修改范围为-128~127。</p>
+</li>
+<li>
+<p>近转移IP的修改范围为-32768~32767。</p>
+</li>
+</ul>
+<p>8086CPU的转移指令分为以下几类</p>
+<ul>
+<li>无条件转移指令（如：jmp)</li>
+<li>条件转移指令</li>
+<li>循环指令（如：loop)</li>
+<li>过程</li>
+<li>中断</li>
+</ul>
+<p>这些转移指令转移的前提条件可能不同，但转移的基本原理是相同的。我们在这一章主要通过深入学习无条件转移指令jmp来理解CPU执行转移指令的基本原理。</p>
+<h3 id="操作符-offset和空操作指令nop">操作符 offset和空操作指令nop</h3>
+<p>操作符<code>offset</code>在汇编语言中是由编译器处理的符号 ， 它的功能是取得标号的偏移地址。比如下面的程序：</p>
+<pre><code>assume cs:codesg
+	codesg segment
+		start: mov ax,offset start  ;等于mov ax,0
+			s: mov ax,offset s      ;等于mov ax,3
+	codesg ends
+end start
+</code></pre>
+<p>空操作指令<code>nop</code>，只占用一个byte的空间，作为指令不会被执行。</p>
+<h3 id="jmp指令">jmp指令</h3>
+<p>jmp指令是无条件跳转指令，可以只修改ip，也可以cs和ip都修改</p>
+<p><code>jmp</code> 指令要给出两种信息：</p>
+<ol>
+<li>转移的目的地址</li>
+<li>转移的距离（段间转移、段内短转移、段内近转移）</li>
+</ol>
+<p>不同的给出目的地址的方法，和不同的转移位置，对应有不同格式的<code>jmp</code>指令，下面分情况讨论。</p>
+<hr>
+<p><strong>依据位移进行转移的jmp指令</strong></p>
+<p>jmp short  标号（转到标号处执行指令）</p>
+<p>这种格式的jmp指令实现的是段内短转移，它对IP的修改范围为-128~127，也就是说，它向前转移时可以最多越过128个字节，向后转移可以最多越过127个字节。jmp指令中的"short"符号，说明指令进行的是短转移。jmp指令中的“标号”是代码段中的标号，指明了指令要转移的目的地，转移指令结束后，CS:IP应该指向标号处的指令。</p>
+<pre><code>assume cs:code
+	code segment
+		start:	mov ax,0
+				jmp short s
+				add ax,1
+				
+			  s:inc ax
+				
+				mov ax,4c00h
+				int 21h
+	code ends
+end
+</code></pre>
+<p>上面的代码执行完之后，ax中的值为1，因为<code>jmp short</code>指令跳过了<code>add ax,1</code>。</p>
+<p>在其他的用立即数操作的指令中，如<code>mov ax,ds:[0123h]</code>，在debug中可以看到对应的机器码为<code>B82301</code>，可以发现操作数就在机器码中。<br>
+在debug中查看<code>jmp short s</code>发现对应代码为<code>jmp 0008</code>，但机器码确是<code>EB03</code>，可以发现没有和0008直接有关。那么他是如何实现修改IP的呢？</p>
+<pre><code>;debug 机器码
+076C:0000	B80000  mov ax,0
+076C:0003	EB03	jmp short s
+076C:0005	050100  add ax,1
+076C:0008	40		inc ax
+076C:0009	B8004C  mov ax,4c00h
+076C:000C	CD21    int 21h
+</code></pre>
+<p>可以很容易发现0005和0008之间隔了3，回想一下CPU如何处理指令，加载到缓冲区，IP+（指令长度），然后执行指令。不妨做个猜想，CPU读取到<code>jmp short s</code>之后，IP=IP+3=5，IP指向了<code>add ax,1</code>，执行<code>jmp short s</code>后变为0008，实际上是通过对当前IP的加减操作，IP=IP+3。为了验证，我们在原来代码的基础上，<code>jmp short s</code>后再加一条<code>nop空指令</code>来占据一个byte。再次debug可以发现<code>jmp short s</code>的机器码为<code>EB04</code>，证明我们的猜想是对的。</p>
+<p>实际上，<code>jmp short 标号</code>的功能为：(IP)=(IP)+8位位移。</p>
+<ol>
+<li>8位位移＝标号处的地址-jmp指令后的第一个字节的地址；</li>
+<li>short指明此处的位移为8位位移；</li>
+<li>8位位移的范围为-128~127,用补码表示</li>
+<li>8位位移由编译程序在编译时算出。</li>
+</ol>
+<p>还有一种和<code>jmp short 标号</code>功能相近的指令格式，jmpnearptr标号，它实现的是段内近转移。<code>jmp near ptr 标号</code>的功能为：(IP)=(IP)+16位位移。</p>
+<ol>
+<li>16位位移＝标号处的地址-jmp指令后的第一个字节的地址；</li>
+<li>nearptr指明此处的位移为16位位移，进行的是段内近转移；</li>
+<li>16位位移的范围为-32768~32767,用补码表示；</li>
+<li>16位位移由编译程序在编译时算出。</li>
+</ol>
+<hr>
+<p><strong>转移的目的地址在指令中的jmp 指令</strong><br>
+前面说到的jmp指令对应的机器指令中并没有转移的目的地址，而是相对于其当前IP的转移位移。<code>jmp far ptr 标号</code>实现的是段间转移，又称为远转移。</p>
+<pre><code>assume cs:code
+	code segment
+		start:	mov ax,0
+				jmp far ptr s
+				db 256 dup(0)
+			  s:inc ax
+				
+				mov ax,4c00h
+				int 21h
+	code ends
+end
+</code></pre>
+<p>上面这段代码用debug查看机器码可以看到<code>jmp far ptr s</code>的机器码为<code>EA08016C07</code>，执行这条指令后IP为<code>0108</code>，CS为<code>076C</code>。</p>
+<hr>
+<p><strong>转移地址在寄存器中的jmp指令</strong><br>
+可以在<a href="https://www.cnblogs.com/cs-Miscellaneous/p/14607089.html" target="_blank">查看之前的讲解</a></p>
+<hr>
+<p><strong>转移地址在内存中的jmp指令</strong></p>
+<p>转移地址在内存中的jmp指令有两种格式：</p>
+<ol>
+<li>jmp word ptr 内存单元地址（段内转移）</li>
+</ol>
+<p>功能：从内存单元地址处开始存放着一个字，是转移的目的偏移地址。内存单元地址可用寻址方式的任一格式给出。比如，下面的指令：</p>
+<pre><code>mov ax,0123H
+mov ds:[0],ax
+jmp word ptr ds:[0]
+</code></pre>
+<p>执行后，(IP)=0123H。</p>
+<p>下面的指令也可以达到相同的效果：</p>
+<pre><code>mov ax,0123H
+mov [bx],ax
+jmp word ptr [bx]
+</code></pre>
+<ol start="2">
+<li>jmp dword ptr  内存单元地址（段间转移）</li>
+</ol>
+<p>功能：从内存单元地址处开始存放着两个字，高地址处的字是转移的目的段地址，低地址处是转移的目的偏移地址。<br>
+(CS)=(内存单元地址+2)<br>
+(IP)=(内存单元地址）<br>
+内存单元地址可用寻址方式的任一格式给出。比如，下面的指令：</p>
+<pre><code>mov ax,0123H
+mov ds:[0],ax
+mov word ptr ds:[2],0
+jmp dword ptr ds:[0]
+</code></pre>
+<p>执行后，(CS)=0,(IP)=0123H,CS:IP指向0000:0123</p>
+<p>下面的指令也可以达到相同的效果：</p>
+<pre><code>mov ax,0123H
+mov [bx],ax
+mov word ptr [bx+2],0
+jmp dword ptr [bx]
+</code></pre>
+<h3 id="jcxz指令">jcxz指令</h3>
+<p>jcxz指令为有条件转移指令，所有的有条件转移指令都是短转移，在对应的机器码中包含转移的位移，而不是目的地址。对IP的修改范围都为：-128~127。</p>
+<p>指令格式：<code>jcxz 标号</code>（如果cx==0,转移到标号处执行。操作：当(cx)=0时，(IP)=(IP)+8位位移；<br>
+8位位移＝标号处的地址-jcxz指令后的第一个字节的地址；<br>
+8位位移的范围为-128~127,用补码表示；<br>
+8位位移由编译程序在编译时算出。<br>
+当cx!=0时，什么也不做（程序向下执行）。</p>
+<h3 id="loop指令">loop指令</h3>
+<p>虽然在前面经常用，但还是说一下，loop指令也是短转移指令，机器码中的数字是位移，而不是目的地址。</p>
+<h3 id="编译器对转移位移超界的检测">编译器对转移位移超界的检测</h3>
+<p>编译器会对超界的位移报错，程序无法通过编译，例如下面这段程序在编译时会报错<code>error A2053 jump out of range by 129 byte(s)</code>。因为<code>jmp short</code>最多向后127个，但是却有256的差距，所以越界了129byte。</p>
+<pre><code>assume cs:code
+	code segment
+		start:	mov ax,0
+				jmp short ptr s
+				db 256 dup(0)
+			  s:inc ax
+				
+				mov ax,4c00h
+				int 21h
+	code ends
+end
+</code></pre>
+<h2 id="call和ret指令">CALL和RET指令</h2>
+<p>call和ret指令都是转移指令，这它们都修改IP或同时修改CS和IP。他们共同用来实现子程序的设计。</p>
+<h3 id="ret和retf">ret和retf</h3>
+<blockquote>
+<p><code>ret</code>用栈中的数据，修改IP，实现近转移<br>
+<code>retf</code>用栈中的数据，修改IP和CS，实现远转移</p>
+</blockquote>
+<p>CPU执行ret指令时，进行下面两步操作：</p>
+<pre><code>IP = ss*16+sp
+sp=sp+2
+</code></pre>
+<p>CPU执行retf指令时，进行下面4步操作：</p>
+<pre><code>IP=((ss)*l6+(sp))
+sp=(sp)+2
+CS=((ss)*l6+(sp))
+sp=(sp)+2
+</code></pre>
+<p>用不正确汇编指令表示出来就是这个</p>
+<pre><code>------RET-------
+POP IP
+------RETF-------
+POP IP
+POP CS
+</code></pre>
+<h3 id="call指令">CALL指令</h3>
+<p>CPU执行CALL指令时，会把当前的IP或CS和IP压入栈中，随后转移。</p>
+<p>CALL指令除了不能短转移(short 位移)之外和jmp指令很相似，不同的用法在下面分别讲述</p>
+<hr>
+<p><strong>依据位移进行转移的call指令</strong></p>
+<p><code>call 标号</code>（将当前的IP压栈后，转到标号处执行指令）</p>
+<p>CPU执行此种格式的call指令时，进行如下的操作：</p>
+<blockquote>
+<p>sp=sp-2<br>
+ss*16+sp=IP<br>
+IP=IP+16位位移</p>
+</blockquote>
+<p>16位位移＝标号处的地址-call指令后的第一个字节的地址；<br>
+16位位移的范围为-32768~32767,用补码表示；<br>
+16位位移由编译程序在编译时算出。</p>
+<p>从上面的描述中，可以看出，如果我们用汇编语法来解释此种格式的call指令，则：<br>
+CPU执行"call标号”时，相当于进行：</p>
+<pre><code>push IP
+jmp near ptr 标号
+</code></pre>
+<hr>
+<p><strong>转移的目的地址在指令中的call指令</strong><br>
+上一个call指令的用法，对应的机器码只有当前IP的偏移值，没有指定的目的地址，<code>CALL far ptr 标号</code>实现的是段间转移。</p>
+<p>CPU执行此种格式的call指令时，进行如下的操作。</p>
+<blockquote>
+<p>sp=sp-2<br>
+ss<em>16+sp=CS<br>
+sp=sp-2<br>
+ss</em>16+sp=IP<br>
+CS=标号所在段的段地址<br>
+IP=标号在段中的偏移地址</p>
+</blockquote>
+<p>从上面的描述中可以看出，如果我们用汇编语法来解释此种格式的call指令，则：</p>
+<p>CPU执行"callfarptr标号”时，相当于进行：</p>
+<pre><code>push CS
+push IP
+jmp far ptr 标号
+</code></pre>
+<hr>
+<p><strong>转移的目的地址在寄存器和内存中的call指令</strong><br>
+大致用法与jmp指令并无不同。</p>
+<h3 id="call指令和ret指令配合使用">CALL指令和RET指令配合使用</h3>
+<p>在开始的时候我们说到call和ret是用来实现子程序的，那么该如何使用呢？<br>
+call是用来保存当前即将执行到指令的偏移地址并且转到标号处执行别的程序，ret可以用来恢复IP。通常我们用以下结构实现程序执行到一半去执行别的程序再回来接着执行剩余的指令</p>
+<pre><code>.
+.
+.
+many instructions
+.
+.
+.
+call sub
+	.
+	.
+	.
+	many instructions
+	.
+	.
+	.
+sub:
+	.
+	.
+	.
+	many instructions
+	.
+	.
+	.
+	ret ;返回原程序继续执行
+</code></pre>
+<h3 id="参数和结果传递的问题">参数和结果传递的问题</h3>
+<p>子程序一般都要根据提供的参数处理一定的事务，处理后，将结果（返回值）提供给调用者。其实，我们讨论参数和返回值传递的问题，实际上就是在探讨，应该如何存储子程序需要的参数和产生的返回值。<br>
+比如，设计一个子程序，可以根据提供的N,来计算N的3次方。这里面就有两个问题：<br>
+(1)将参数N存储在什么地方？<br>
+(2)计算得到的数值，存储在什么地方？<br>
+很显然，可以用寄存器来存储，可以将参数放到bx中；因为子程序中要计算<br>
+<code>N X N X N</code>，可以使用多个mul指令，为了方便，可将结果放到dx和ax中。子程序如下。<br>
+；说明：计算N的3次方<br>
+；参数：(bx)=N<br>
+；结果：(dx:ax)=N<sup>3</sup></p>
+<pre><code>cube: mov ax,bx
+	  mul bx
+	  mul bx
+	  ret
+</code></pre>
+<p>mul是乘法指令，用法与div指令相似，提供8位乘法和16位乘法，8位乘法是，一个乘数默认在AL，另一个可以在8位寄存器或者内存中，结果高位在AH，低位在AL，16位乘法是，AX中保存一个乘数，另一个可以在16位寄存器或者内存中，结果高位在DX，低位在AX。</p>
+<h3 id="批量数据的传递">批量数据的传递</h3>
+<p>在上面的例子中，只有一个参数，如果有很多的参数，寄存器跟不够用，该怎么办呢？<br>
+通常把数据存储在内存中，然后将它们所在内存空间的首地址放在寄存器里，再把寄存器传给子程序，返回是也是如此。</p>
+<h3 id="寄存器的冲突">寄存器的冲突</h3>
+<p>在之前的实现双重循环的时候，会出现cx寄存器的冲突，在构建子程序的时候，同样也会遇到这样的问题，会出现寄存器的冲突，解决方法是在子程序的开始，将使用到的寄存器保存到堆栈，在程序返回的时候再复原。</p>
+<h2 id="标志寄存器">标志寄存器</h2>
+<p>CPU内部的寄存器中，有一种特殊的寄存器（对于不同的处理机，个数和结构都可能不同）具有以下3种作用。</p>
+<ol>
+<li>用来存储相关指令的某些执行结果；</li>
+<li>用来为CPU执行相关指令提供行为依据；</li>
+<li>用来控制CPU的相关工作方式。</li>
+</ol>
+<p>这种特殊的寄存器在8086CPU中，被称为标志寄存器。8086CPU的标志寄存器有16位，其中存储的信息通常被称为程序状态字(PSW)。我们已经使用过8086CPU的ax、bx、ex、dx、si、di、bp、sp、IP、cs、ss、ds、es等13个寄存器了，本章中的标志寄存器（以下简称为flag)是我们要学习的最后一个寄存器。<br>
+flag和其他寄存器不一样，其他寄存器是用来存放数据的，都是整个寄存器具有一个含义。而flag寄存器是按位起作用的，也就是说，它的每一位都有专门的含义，记录特定的信息。<br>
+下面是8086flag的结构<br>
+|15|14|13|12|11|10| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|<br>
+|--|--|<br>
+|  |  |  |  |OF|DF|IF|TF|SF|ZF|  |AF|  |PF|  |CF|</p>
+<p>在这一章中，我们学习标志寄存器中的CF、PF、ZF、SF、OF、DF标志位，以及一些与其相关的典型指令。</p>
+<h3 id="zf">ZF</h3>
+<p>flag的第6位是ZF,零标志位。它记录相关指令执行后，其结果是否为0。如果结果为0,那么zf=l;如果结果不为0,那么zf=0。<br>
+如下面的程序，执行之后结果为0，zf为1：</p>
+<pre><code>mov ax,2
+sub ax,2
+</code></pre>
+<p>注意，在8086CPU的指令集中，有的指令的执行是影响标志寄存器的，比如，add、sub、mul、div、inc、or、and等，它们大都是运算指令（进行逻辑或算术运算）；有的指令的执行对标志寄存器没有影响，比如，mov、push、pop等，它们大都是传送指令。在使用一条指令的时候，要注意这条指令的全部功能，其中包括，执行结果对标志寄存器的哪些标志位造成影响。</p>
+<h3 id="pf">PF</h3>
+<p>flag的第2位是PF,奇偶标志位。它记录相关指令执行后，其结果的所有bit位中1<br>
+的个数是否为偶数。如果1的个数为偶数，pf=l,如果为奇数，那么pf=O。比如，指令：</p>
+<pre><code>mov al,1
+add al,10
+</code></pre>
+<p>执行后，结果为00001011B,其中有3(奇数）个1,则pf=0;</p>
+<pre><code>mov al,1
+or al,2
+</code></pre>
+<p>执行后，结果为00000011B,其中有2(偶数）个1,则pf=1;</p>
+<h3 id="sf">SF</h3>
+<p>flag的第7位是SF,符号标志位。它记录相关指令执行后，其结果是否为负。如果结果为负，sf=1;如果非负，sf=0。<br>
+计算机中通常用补码来表示有符号数据。计算机中的一个数据可以看作是有符号数，也可以看成是无符号数。比如：<br>
+00000001B,可以看作为无符号数1,或有符号数+1;<br>
+10000001B,可以看作为无符号数129,也可以看作有符号数-127。</p>
+<p>这也就是说，对于同一个二进制数据，计算机可以将它当作无符号数据来运算，也可以当作有符号数据来运算。比如：</p>
+<pre><code>mov al,10000001B
+add al,1
+</code></pre>
+<p>结果：(al)=10000010B。</p>
+<p>可以将add指令进行的运算当作无符号数的运算，那么add指令相当于计算<strong>129+1</strong>,结果为<strong>130(10000010B)</strong>;也可以将add指令进行的运算当作有符号数的运算，那么<br>
+add指令相当于计算<strong>-127+1</strong>,结果为<strong>-126(10000010B)</strong>。<br>
+不管我们如何看待，CPU在执行add等指令的时候，就已经包含了两种含义，也将得到用同一种信息来记录的两种结果。关键在于我们的程序需要哪一种结果。<br>
+SF标志，就是CPU对有符号数运算结果的一种记录，它记录数据的正负。在我们将数据当作有符号数来运算的时候，可以通过它来得知结果的正负。如果我们将数据当作无符号数来运算，SF的值则没有意义，虽然相关的指令影响了它的值。<br>
+这也就是说，CPU在执行add等指令时，是必然要影响到SF标志位的值的。至于我们需不需要这种影响，那就看我们如何看待指令所进行的运算了。</p>
+<p>sf为什么值，代表了假如我们进行了有符号数的计算，结果是否为负数。</p>
+<h3 id="cf">CF</h3>
+<p>flag的第0位是CF,进位标志位。一般情况下，在进行<strong>无符号数运算</strong>的时候，它记录了运算结果的最高有效位向更高位的进位值，或从更高位的借位值。<br>
+对于位数为N的无符号数来说，其对应的二进制信息的最高位，即第N-1位，就是它的最高有效位，而假想存在的第N位，就是相对于最高有效位的更高位。</p>
+<p>我们知道，当两个数据相加的时候，有可能产生从最高有效位向更高位的进位。比如，两个8位数据：<strong>98H+98H</strong>,将产生进位。由于这个进位值在8位数中无法保存，我们在前面的课程中，就只是简单地说这个进位值丢失了。其实CPU在运算的时候，并不丢弃这个进位值，而是记录在一个特殊的寄存器的某一位上。8086CPU就用flag的CF位来记录这个进位值。比如，下面的指令：</p>
+<pre><code>mov al,98h
+add al,al
+</code></pre>
+<p>执行后结果为<strong>30H</strong>，CF为1。</p>
+<p>而当两个数据做减法的时候，有可能向更高位借位。比如，两个8位数据：<strong>97H-98H</strong>，将产生借位，借位后，相当于计算<strong>197H-98H</strong>。而falg的CF位也可以用来记录这个借位值。</p>
+<pre><code>mov al,98h
+sub al,98h
+</code></pre>
+<p>执行后结果为<strong>FFH</strong>，CF为1。</p>
+<h3 id="of">OF</h3>
+<p>我们先来谈谈溢出的间题。在进行有符号数运算的时候，如结果超过了机器所能表示的范围称为溢出。</p>
+<p>那么，什么是机器所能表示的范围呢？</p>
+<p>比如说，指令运算的结果用8位寄存器或内存单元来存放，比如，addal,3,那么对于8位的有符号数据，机器所能表示的范围就是—128127。同理，对于16位有符号数据，机器所能表示的范围是-32768~32767，如果运算结果超出了机器所能表达的范围，将产生溢出。</p>
+<p>注意，这里所讲的溢出，只是对<strong>有符号数运算</strong>而言。下面我们看两个溢出的例子。</p>
+<pre><code>mov al,98
+add al,99
+</code></pre>
+<p>执行后将产生溢出。因为<code>add al,99</code>进行的有符号数运算是：</p>
+<blockquote>
+<p>(al)=(al)+99=98+99=197。</p>
+</blockquote>
+<p>而结果197超出了机器所能表示的8位有符号数的范围：-128~127。</p>
+<p>add指令运算的结果是(al)=<code>0C5H</code>,因为进行的是有符号数运算，所以<br>
+有符号数，而<code>0C5H</code>是有符号数<code>-59</code>的补码。指令进行的是有符号数运算，则<strong>98+99=-59</strong>这样的结果让人无法接受，造成这种情况的原因，就是实际的结果197，在8位寄存器al中存放不下。</p>
+<p>由于在进行有符号数运算时，可能发生溢出而造成结果的错误。则CPU需要对指令执行后是否产生溢出进行记录。<br>
+flag的第11位是OF，溢出标志位。一般情况下，OF记录了有符号数运算的结果是否发生了溢出。如果发生溢出，OF=1，如果没有，OF=0。<br>
+一定要注意CF和OF的区别：CF是对无符号数运算有意义的标志位，而OF是对有符号数运算有意义的标志位。比如：</p>
+<pre><code>mov al,98
+add al,99
+</code></pre>
+<p>add指令执行后：CF=0,0F=1。前面我们讲过，CPU在执行add等指令的时候，就包含了两种含义：无符号数运算和有符号数运算。对于无符号数运算，CPU用CF位来记录是否产生了进位；对于有符号数运算，CPU用0F位来记录是否产生了溢出，当然，还要用SF位来记录结果的符号。对于无符号数运算，98+99没有进位，CF=0;对于有符号数运算，98+99发生溢出，0F=1。</p>
+<pre><code>mov al,0F0H
+add al,88H
+</code></pre>
+<p>add指令执行后：CF=1,0F=1。对千无符号数运算，0F0H+88H有进位，CF=1;对于有符号数运算，0F0H+88H发生溢出，0F=1。</p>
+<pre><code>mov al,0F0H
+add al,78H
+</code></pre>
+<p>add指令执行后：CF=1,0F=0。对于无符号运算，0F0H+78H有进位，CF=1;对于有符号数运算，0F0H+78H不发生溢出，0F=0。</p>
+<p>我们可以看出，CF和0F所表示的进位和溢出，是分别对无符号数和有符号数运算而言的，它们之间没有任何关系。</p>
+<h3 id="adc指令">adc指令</h3>
+<p>adc指令是带进位加法的指令，利用了CF中保存的进位信息。<br>
+例如：</p>
+<pre><code>mov ax,2
+mov bx,1
+sub bx,ax
+adc ax,1
+</code></pre>
+<p>结果ax=4，因为ax=ax+bx+cf。</p>
+<p>可以看出，adc指令比add指令多加了一个CF位的值。为什么要加上CF的值呢?</p>
+<p>在进行大的数字计算的时候，可能无法直接相加，如32位数的相加，可以拆成2个16位相加，但是低位的相加，进位需要保存下来，在高位计算的时候用adc指令补进去。</p>
+<h3 id="sbb指令">sbb指令</h3>
+<p>sbb是带借位减法指令，它利用了CF位上记录的借位值。</p>
+<blockquote>
+<p>指令格式：sbb操作对象1,操作对象2<br>
+功能：操作对象l=操作对象l—操作对象2—CF<br>
+比如指令<code>sbb ax,bx</code>实现的功能是：(ax)=(ax)-(bx)-CF</p>
+</blockquote>
+<p><strong>sbb</strong>和<strong>adc</strong>是基于同样的思想设计的两条指令，在应用思路上和adc类似。在这里，我们就不再进行过多的讨论。通过学习这两条指令，我们可以进一步领会一下标志寄存器CF位的作用和意义。</p>
+<h3 id="cmp指令">cmp指令</h3>
+<p>cmp是比较指令，cmp的功能相当于减法指令，只是不保存结果。cmp指令执行后，将对标志寄存器产生影响。其他相关指令通过识别这些被影响的标志寄存器位来得知比较结果。<br>
+cmp指令格式：cmp 操作对象1,操作对象2<br>
+功能：计算操作对象1-操作对象2，但并不保存结果，仅仅根据计算结果对标志寄存器进行设置。<br>
+比如，指令cmp ax,ax,做(ax)-(ax)的运算，结果为0,但并不在ax中保存，仅影响<br>
+flag的相关各位。指令执行后：zf=1,pf=1,sf=0,cf=0,of=0。</p>
+<p>对于无符号数比较，我们通过cmp指令执行后，相关标志位的值就可以看出比较的结果。</p>
+<pre><code>if ax =bx, then ZF=1
+if ax!=bx, then ZF=0
+if ax &gt;bx, then ZF=0, CF=0
+if ax &lt;bx, then CF=1
+if ax&lt;=bx, then CF=1 or ZF=1
+if ax&gt;=bx, then CF=0
+</code></pre>
+<p>但是对有符号数这么比较是有漏洞的，对于有符号数，判断是否相等可以直接用ZF标志位。对于有符号数计算，通过判断SF标志符号，可以知道结果表示为有符号数的正负，但是这里同样有个漏洞，例如：</p>
+<pre><code>mov al,22h
+mov bl,0a0h
+cmp al,bl
+</code></pre>
+<p>34-(-96)=130得到的结果是82H，-126的补码是82H(10000010B)，SF标志位的值为1，这样的情况不能直接判断是大于还是小于，思考一下，为什么出现上述的情况会无法只用SF判断，原因是因为溢出了（130&gt;127），因为溢出导致了无法正确判断，在没有发生溢出时（OF=0），可以直接判断，所以：</p>
+<pre><code>if OF=1 and SF=1 ax&gt;bx
+if OF=0 and SF=1 ax&lt;bx
+if OF=1 and SF=0 ax&lt;bx
+if OF=0 and SF=0 ax&gt;bx
+</code></pre>
+<h3 id="检测比较结果的条件转移指令">检测比较结果的条件转移指令</h3>
+<p>在前面的时候，我们有说到关于条件的跳转指令都是有关CX寄存器的，现在来说一下关于标志寄存器的，根据cmp指令修改标志位后，检查指定标志位确定是否进行跳转，两者配合使用，类似于call和ret指令。</p>
+<p>因为cmp分为无符号数字比较和有符号数字比较，所以，跳转指令也分为对无符号数比较的跳转指令和有符号数字比较的跳转指令</p>
+<pre><code>;无符号跳转
+je  ;含义：相等跳转
+jne ;含义：不相等跳转
+jb  ;含义：小于跳转
+jnb ;含义：不小于跳转
+ja  ;含义：大于跳转
+jna ;含义：不大于跳转
+</code></pre>
+<h3 id="df标志和串传送指令">DF标志和串传送指令</h3>
+<p>falg的第10位是DF，方向标志位。在串处理指令中，控制每次操作后si、中的增减。</p>
+<p>df=0每次操作后si、di递增；<br>
+df=1每次操作后si、di递减。</p>
+<p>我们来看下面的一个串传送指令。</p>
+<blockquote>
+<p>格式：movsb<br>
+功能：执行movsb指令相当于进行下面几步操作。<br>
+(1)((es)X16+(di))=((ds)Xl6+(si))<br>
+(2)如果df=0则：(si)=(si)+1，(di)=(di)+1<br>
+(3)如果df=1则：(si)=(si)-1，(di)=(di)-1</p>
+</blockquote>
+<p>该指令实现了内存中数据段中的数据复制到另一处位置，可以从一个指定位置开始，如果df为0则正向进行，否则反向进行。</p>
+<p>当然也支持字传输：</p>
+<blockquote>
+<p>格式：movsw<br>
+功能：执行movsw指令相当于进行下面几步操作。<br>
+(1)((es)X16+(di))=((ds)Xl6+(si))<br>
+(2)如果df=0则：(si)=(si)+2，(di)=(di)+2<br>
+(3)如果df=1则：(si)=(si)-2，(di)=(di)-2</p>
+</blockquote>
+<p>movsb和movsw进行的是串传送操作中的一个步骤，一般来说，movsb和movsw都和rep配合使用，格式如下：</p>
+<pre><code>rep movsb
+</code></pre>
+<p>用汇编语法来描述<code>rep movsb</code>的功能就是：</p>
+<pre><code>s: movsb
+   loop s
+</code></pre>
+<p>可见，rep的作用是根据cx的值，重复执行后面的串传送指令。由于每执行一次<br>
+movsb指令si和小都会递增或递减指向后一个单元或前一个单，<code>rep movsb</code>就可以循环实现(cx)个字符的传送。对于movsw也是同理。</p>
+<h3 id="对标志寄存器的保存和恢复">对标志寄存器的保存和恢复</h3>
+<p>对于一半的寄存器可以直接 <code>push 寄存器名</code>实现把寄存器的值保存在堆栈中，对标志寄存器，使用<code>pushf</code>指令可以把标志寄存器压入堆栈，<code>popf</code>从堆栈中弹出一个字给标志寄存器</p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 16:41</span>&nbsp;
+<a href="https://www.cnblogs.com/cs-Miscellaneous/">W&B</a>&nbsp;
+阅读(<span id="post_view_count">82</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735830" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735830);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 594405, cb_blogApp = 'cs-Miscellaneous', cb_blogUserGuid = '7c9ab77f-ea01-4350-99e2-08d7d7b52bb0';
+    var cb_entryId = 14735830, cb_entryCreatedDate = '2021-05-06 16:41', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 W&amp;B
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjt616khFsZTdOQxalm32r3GjTv5QHaC8bci9DJycnLMJvHgG0Ky_Tvt941AfFgQerJIKiln_bFwa0kLWO613_7sRCoDkgggRjvQH1TPe-A6eASBR3eEI7ohqxg4ekk_ThM" />
+</body>
+</html>

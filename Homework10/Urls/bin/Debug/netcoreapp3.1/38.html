@@ -1,0 +1,1853 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Docker 简介 Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是" />
+    <meta property="og:description" content="Docker 简介 Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Docker学习笔记---通俗易懂 - 平遥 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/red_autumnal_leaves/bundle-red_autumnal_leaves.min.css?v=PbxkURuaOrmhHaO9IG5rjaIzIYW2OMqQsQSlFGE0Wgk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/red_autumnal_leaves/bundle-red_autumnal_leaves-mobile.min.css?v=iPf_XHQsJ-ofZZ2RiaeMCHG0JEaMNLa9yhkUGK3xTSQ" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/zhou-zr/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/zhou-zr/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/zhou-zr/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 627239;
+        var currentBlogApp = 'zhou-zr';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'red_autumnal_leaves';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 07:41';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/zhou-zr/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/zhou-zr/">平遥</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/zhou-zr/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E5%B9%B3%E9%81%A5">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/zhou-zr/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zhou-zr/p/14698345.html">
+    <span>Docker学习笔记---通俗易懂</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#docker">Docker</a><ul><li><a href="#简介">简介</a></li><li><a href="#docker安装">Docker安装</a><ul><li><a href="#docker的基本组成">Docker的基本组成</a></li><li><a href="#安装docker">安装Docker</a></li><li><a href="#配置阿里云镜像加速">配置阿里云镜像加速</a></li><li><a href="#回顾helloworld流程">回顾helloworld流程</a></li><li><a href="#工作原理">工作原理</a></li></ul></li><li><a href="#docker的常用命令">Docker的常用命令</a><ul><li><a href="#帮助命令">帮助命令</a></li><li><a href="#镜像命令">镜像命令</a></li><li><a href="#容器命令">容器命令</a></li><li><a href="#常用其它命令">常用其它命令</a></li><li><a href="#小结">小结</a></li></ul></li><li><a href="#练习部署">练习部署</a><ul><li><a href="#部署nginx">部署Nginx</a></li><li><a href="#部署tomcat">部署Tomcat</a></li><li><a href="#部署eskibana">部署es+kibana</a></li><li><a href="#可视化">可视化</a></li></ul></li><li><a href="#docker镜像">Docker镜像</a><ul><li><a href="#docker镜像加载原理">Docker镜像加载原理</a></li><li><a href="#分层理解">分层理解</a></li><li><a href="#commit镜像">commit镜像</a></li></ul></li><li><a href="#容器数据卷">容器数据卷</a><ul><li><a href="#使用数据卷">使用数据卷</a></li><li><a href="#部署mysql">部署MySQL</a></li><li><a href="#具名挂载和匿名挂载">具名挂载和匿名挂载</a></li><li><a href="#初识dockerfile">初识Dockerfile</a></li><li><a href="#数据卷容器">数据卷容器</a></li></ul></li><li><a href="#dockerfile">DockerFile</a><ul><li><a href="#dockerfile介绍">DockerFile介绍</a></li><li><a href="#dockerfile构建过程">DockerFile构建过程</a></li></ul></li></ul></li><li><a href="#，-表示注释。">， 表示注释。</a><ul><li><a href="#dockerfile指令">DockerFile指令</a></li><li><a href="#实战测试">实战测试</a></li><li><a href="#实战-tomcat镜像">实战 Tomcat镜像</a></li><li><a href="#发布镜像">发布镜像</a></li><li><a href="#小结">小结</a></li></ul><ul><li><a href="#docker网络">Docker网络</a><ul><li><a href="#理解-dockers0">理解 Dockers0</a></li><li><a href="#--link">--link</a></li><li><a href="#自定义网络">自定义网络</a></li><li><a href="#网络联通">网络联通</a></li><li><a href="#部署redis集群">部署Redis集群</a></li></ul></li><li><a href="#springboot打包dockers镜像">SpringBoot打包Dockers镜像</a></li></ul></li></ul></div><p></p>
+<h1 id="docker">Docker</h1>
+<h2 id="简介">简介</h2>
+<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的<a href="https://baike.baidu.com/item/%E9%95%9C%E5%83%8F/1574" target="_blank">镜像</a>中，然后发布到任何流行的 <a href="https://baike.baidu.com/item/Linux" target="_blank">Linux</a>或<a href="https://baike.baidu.com/item/Windows/165458" target="_blank">Windows</a> 机器上，也可以实现<a href="https://baike.baidu.com/item/%E8%99%9A%E6%8B%9F%E5%8C%96/547949" target="_blank">虚拟化</a>。容器是完全使用<a href="https://baike.baidu.com/item/%E6%B2%99%E7%AE%B1/393318" target="_blank">沙箱</a>机制，相互之间不会有任何接口。</p>
+<p>Docker是基于 Go 语言开发的，是一个开源项目。</p>
+<p>文档地址：<a href="https://docs.docker.com/" target="_blank">https://docs.docker.com/</a></p>
+<p>仓库地址：<a href="https://hub.docker.com/" target="_blank">https://hub.docker.com/</a></p>
+<p>虚拟机技术缺点：模拟一个完整的操作系统，资源占用多，步骤冗余，启动慢。</p>
+<p>Docker 容器化技术：不是模拟的一个完整的操作系统。运行在宿主机的内核上。每个容器内是互相隔离的，互不影响。</p>
+<p>DevOps：开发 运维。</p>
+<p><strong>应用更快的交付和部署。</strong></p>
+<p>传统：安装各种的jar包，打包发布。</p>
+<p>Docker ：一键打包镜像发布，测试。</p>
+<p><strong>更便捷的升级和扩缩容</strong>，项目打包为一个镜像，部署应用就和搭积木一样。</p>
+<p><strong>更简单的系统运维</strong>，容器化后，开发测试环境都是一致的。</p>
+<p><strong>更高效的计算资源利用</strong>，Docke是内核级的虚拟化，在一个物理机上可以运行很多的容器。</p>
+<h2 id="docker安装">Docker安装</h2>
+<h3 id="docker的基本组成">Docker的基本组成</h3>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213339979-1398003024.png" alt="" loading="lazy"></p>
+<p><strong>镜像（image）：</strong></p>
+<p>就好比是一个模板，可通过这个镜像来创建容器服务，比如 tomcat 镜像---&gt;run---&gt;tomcat01容器，通过这个镜像可以创建多个容器（应用最终在容器中运行）。</p>
+<p><strong>容器（container）：</strong></p>
+<p>Docker利用容器技术，独立运行一个或一组应用，通过镜像创建。</p>
+<p>启动，停止，删除，基本命令。</p>
+<p><strong>仓库（repository）：</strong></p>
+<p>存放镜像的地方。仓库分为公有仓库和私有仓库。</p>
+<h3 id="安装docker">安装Docker</h3>
+<p>环境准备：</p>
+<ol>
+<li>需要会Linux基础</li>
+<li>Centos7</li>
+<li>使用Xshell连接远程服务器操作</li>
+<li>已经购买云服务器（以下使用阿里云）</li>
+</ol>
+<p>环境查看</p>
+<pre><code class="language-shell">#系统内核是3.0以上的
+[root@zhourui /]# uname -r
+4.18.0-193.28.1.el8_2.x86_64
+</code></pre>
+<pre><code class="language-shell">#系统版本
+[root@zhourui /]# cat /etc/os-release
+NAME="CentOS Linux"
+VERSION="8 (Core)"
+ID="centos"
+ID_LIKE="rhel fedora"
+VERSION_ID="8"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="CentOS Linux 8 (Core)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:centos:centos:8"
+HOME_URL="https://www.centos.org/"
+BUG_REPORT_URL="https://bugs.centos.org/"
+
+CENTOS_MANTISBT_PROJECT="CentOS-8"
+CENTOS_MANTISBT_PROJECT_VERSION="8"
+REDHAT_SUPPORT_PRODUCT="centos"
+REDHAT_SUPPORT_PRODUCT_VERSION="8"
+</code></pre>
+<p>安装：参考帮助文档  <a href="https://docs.docker.com/engine/install/centos/" target="_blank">https://docs.docker.com/engine/install/centos/</a></p>
+<p>卸载旧的版本</p>
+<pre><code class="language-shell">#卸载
+yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+                  
+#需要的安装包
+yum install -y yum-utils
+#设置镜像的仓库
+yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo  #默认的是国外的十分慢
+#阿里云镜像 （推荐使用）   
+yum-config-manager \
+    --add-repo \    
+    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+    
+#更新yum软件包索引
+yun makecache fast
+    
+#安装docker  decker-ce社区版的 ee企业版
+yum install docker-ce docker-ce-cli containerd.io
+
+#启动docker
+systemctl start docker
+
+#查看是否安装成功
+docker version
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213536266-2126472450.png" alt="" loading="lazy"></p>
+<pre><code class="language-shell">#启动 hello-world
+docker run hello-world
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213548334-878900374.png" alt="" loading="lazy"></p>
+<pre><code class="language-shell">#查看下载的hello-world镜像
+[root@zhourui /]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED       SIZE
+hello-world   latest    d1165f221234   2 weeks ago   13.3kB
+
+</code></pre>
+<pre><code class="language-shell">#卸载docker
+yum remove docker-ce docker-ce-cli containerd.io
+#删除资源
+rm -rf /var/lib/docker
+rm -rf /var/lib/containerd
+</code></pre>
+<h3 id="配置阿里云镜像加速">配置阿里云镜像加速</h3>
+<p>登录阿里云找到容器服务。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213618330-1950777368.png" alt="" loading="lazy"></p>
+<p>找到容器镜像服务</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213628336-102556800.png" alt="" loading="lazy"></p>
+<p>配置使用</p>
+<pre><code class="language-shell">sudo mkdir -p /etc/docker
+
+sudo tee /etc/docker/daemon.json &lt;&lt;-'EOF'
+{
+  "registry-mirrors": ["https://tk46rux4.mirror.aliyuncs.com"]
+}
+EOF
+
+sudo systemctl daemon-reload
+
+sudo systemctl restart docker
+</code></pre>
+<h3 id="回顾helloworld流程">回顾helloworld流程</h3>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213856020-1538963516.png" alt="" loading="lazy"></p>
+<p>流程图</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213903798-421387030.png" alt="" loading="lazy"></p>
+<h3 id="工作原理">工作原理</h3>
+<p>Docker是一个Client，Server结构的系统，Docker的守护进程运行在主机上，通过Socket从客户端访问。</p>
+<p>DockerServer接收到DockerClient的指令，就会执行这个命令。</p>
+<p>Docker为什么比VNM快：</p>
+<p>Docker有比虚拟机更少的抽象层。</p>
+<p>Docker利用的是宿主机的内核，VM有自己的Guest OS。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424213934599-691233788.png" alt="" loading="lazy"></p>
+<p>新建一个容器的时候，Docker不需要像虚拟机一样新建一个系统内核。利用宿主机的内核，提升了启动速度和系统资源利用率。</p>
+<h2 id="docker的常用命令">Docker的常用命令</h2>
+<h3 id="帮助命令"><strong>帮助命令</strong></h3>
+<pre><code class="language-shell">docker -version    #显示docker的版本信息
+docker info		   #docker的详细信息 镜像和容器的数量
+docker 命令 --help  #万能命令
+docker --help		#docker的所有命令
+</code></pre>
+<p>命令：官网地址 <a href="https://docs.docker.com/reference/" target="_blank">https://docs.docker.com/reference/</a></p>
+<h3 id="镜像命令">镜像命令</h3>
+<p><strong>docker images：</strong>查看本机所有镜像</p>
+<pre><code class="language-shell">[root@zhourui /]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED       SIZE
+hello-world   latest    d1165f221234   2 weeks ago   13.3kB
+
+#解释
+REPOSITORY 镜像的仓库源
+TAG			镜像的标签
+IMAGE ID	镜像的 id
+CREATED		镜像的创建时间
+SIZE		镜像的大小
+
+#可选项
+  -a, --all             #显示所有的镜像
+  -q, --quiet           #只显示镜像的id
+
+</code></pre>
+<p><strong>docker search</strong>：搜索镜像</p>
+<pre><code class="language-shell">[root@zhourui /]# docker search mysql
+NAME                              DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+mysql                             MySQL is a widely used, open-source relation…   10634     [OK]       
+mariadb                           MariaDB Server is a high performing open sou…   3990      [OK]       
+
+#可选项
+--filter=STARS=3000		#搜索出来的就是stars大于等于3000的  -f简写
+[root@zhourui /]# docker search mysql -f=STARS=3000
+NAME      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+mysql     MySQL is a widely used, open-source relation…   10634     [OK]       
+mariadb   MariaDB Server is a high performing open sou…   3990      [OK] 
+</code></pre>
+<p><strong>docker pull</strong>：下载镜像</p>
+<pre><code class="language-shell">#下载 docker pull 镜像名 [:tag](可以选版本) 不写版本默认latest最后一个
+[root@zhourui /]# docker pull mysql
+Using default tag: latest
+latest: Pulling from library/mysql
+a076a628af6f: Pull complete 		#分层下载 docker image核心 联合文件系统 
+f6c208f3f991: Pull complete 
+88a9455a9165: Pull complete 
+406c9b8427c6: Pull complete 
+7c88599c0b25: Pull complete 
+25b5c6debdaf: Pull complete 
+43a5816f1617: Pull complete 
+1a8c919e89bf: Pull complete 
+9f3cf4bd1a07: Pull complete 
+80539cea118d: Pull complete 
+201b3cad54ce: Pull complete 
+944ba37e1c06: Pull complete 
+Digest: sha256:feada149cb8ff54eade1336da7c1d080c4a1c7ed82b5e320efb5beebed85ae8c	#签名
+Status: Downloaded newer image for mysql:latest		
+docker.io/library/mysql:latest		#真实地址
+
+# docker pull mysql
+# 等价
+# docker pull docker.io/library/mysql:latest
+
+#指定版本下载
+[root@zhourui /]# docker pull mysql:5.7
+5.7: Pulling from library/mysql
+a076a628af6f: Already exists 		#共用
+f6c208f3f991: Already exists 
+88a9455a9165: Already exists 
+406c9b8427c6: Already exists 
+7c88599c0b25: Already exists 
+25b5c6debdaf: Already exists 
+43a5816f1617: Already exists 
+1831ac1245f4: Pull complete 
+37677b8c1f79: Pull complete 
+27e4ac3b0f6e: Pull complete 
+7227baa8c445: Pull complete 
+Digest: sha256:b3d1eff023f698cd433695c9506171f0d08a8f92a0c8063c1a4d9db9a55808df
+Status: Downloaded newer image for mysql:5.7
+docker.io/library/mysql:5.7
+
+[root@zhourui /]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+hello-world   latest    d1165f221234   2 weeks ago    13.3kB
+mysql         5.7       a70d36bc331a   2 months ago   449MB
+mysql         latest    c8562eaf9d81   2 months ago   546MB
+</code></pre>
+<p><strong>docker rmi</strong>：删除镜像</p>
+<pre><code class="language-shell">#删除指定的容器 根据id
+[root@zhourui /]# docker rmi -f c8562eaf9d81
+#删除多个镜像
+[root@zhourui /]# docker rmi -f id1 id2 id3
+#删除全部容器
+[root@zhourui /]# docker rmi -f $(docker images -aq)
+
+</code></pre>
+<h3 id="容器命令">容器命令</h3>
+<p>我们有了镜像才可以创建容器，下载一个CentOS镜像来测试学习。</p>
+<pre><code class="language-shell">docker pull centos
+</code></pre>
+<p><strong>新建容器并启动</strong></p>
+<pre><code class="language-shell">docker run （可选参数） image
+
+#参数说明
+--name=“Name” 	#容器名字 tomcat01 tomcat01 来区分
+-d 				#后台方式运行
+-it 			#使用交互方式运行，进入容器查看内容
+-p 				#指定容器的端口 -p 8080:8080
+	-p 主机端口:容器端口 (常用)
+	-p ip：主机端口:容器端口
+	-p 容器端口
+	容器端口（不写-p）
+-p 				#随机指定端口
+
+#启动并进入容器
+[root@zhourui /]# docker run -it centos /bin/bash
+[root@b728c79b5448 /]# ls   #查看容器内的centos  基础版本 很多的命令不完善
+bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@b728c79b5448 /]# exit  #退出命令
+exit
+[root@zhourui /]# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  patch  proc  root  run  sbin  srv  sys  tmp  usr  var  www
+
+</code></pre>
+<p><strong>列出所有运行的容器</strong></p>
+<pre><code class="language-shell"># docker ps  
+	#列出所有在运行的容器
+-a	#列出历史运行过的容器
+-n=？ #显示最近创建的n个容器
+-q	#列出运行容器的id
+
+[root@zhourui /]# docker ps  
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@zhourui /]# docker ps -a
+CONTAINER ID   IMAGE          COMMAND       CREATED         STATUS                     PORTS     NAMES
+b728c79b5448   centos         "/bin/bash"   4 minutes ago   Exited (0) 2 minutes ago             relaxed_elbakyan
+0ce52f9209e4   d1165f221234   "/hello"      5 hours ago     Exited (0) 5 hours ago               intelligent_mirzakhani
+
+</code></pre>
+<p><strong>退出容器</strong></p>
+<pre><code class="language-shell">exit  #容器停止并退出
+ctrl +P +Q  #按住这三个键 容器不停止退出
+
+[root@zhourui /]# docker run -it centos /bin/bash
+[root@c9797d0b4ba8 /]# [root@zhourui /]# docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
+c9797d0b4ba8   centos    "/bin/bash"   About a minute ago   Up About a minute             inspiring_faraday
+
+</code></pre>
+<p><strong>删除容器</strong></p>
+<pre><code class="language-shell">docker rm 			#删指定id的容器  不能删除正在运行的容器  强制删除 rm -f
+docker rm -f $(docker ps -aq) #删除全部的容器
+docker -a-q|xargs docker rm   #删除全部容器
+</code></pre>
+<p><strong>启动和停止容器的操作</strong></p>
+<pre><code class="language-shell">docker start 容器id 		#启动
+docker restart 容器id		#重启
+docker stop 容器id		#停止容器
+docker kill 容器id		#强制停止
+</code></pre>
+<h3 id="常用其它命令"><strong>常用其它命令</strong></h3>
+<p><strong>后台启动容器</strong></p>
+<pre><code class="language-shell"># docker run -d 容器名  后台启动
+[root@zhourui /]# docker run -d centos
+#运行docker ps 发现centos停止了
+
+#docker容器使用后台运行，就必须有一个前台进程，docker发现没有应用，就会自动停止
+
+</code></pre>
+<p><strong>查看日志</strong></p>
+<pre><code class="language-shell">docker logs -f -t --tail 10 容器id #打印最近10条日志
+
+#编写shell脚本
+“while true;do echo zhourrrrr;sleep 1;done”
+
+[root@zhourui /]# docker run -d centos /bin/bash -c "while true;do echo zhourrrr;sleep 1;done"
+e79bac46e660abb781dcce7b0dbd3a3a896b573a104fdd9a15db0bbf5331341b
+[root@zhourui /]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS        PORTS     NAMES
+e79bac46e660   centos    "/bin/bash -c 'while…"   3 seconds ago   Up 1 second             jolly_sanderson
+
+#显示日志
+-tf  #显示日志 t 时间
+--tail number #最近的多少条数据
+[root@zhourui /]# docker logs -f -t --tail 10 e79bac46e660 
+</code></pre>
+<p><strong>查看容器中的进程信息</strong></p>
+<p>docker top 容器id</p>
+<pre><code class="language-shell">[root@zhourui /]# docker top e79bac46e660
+UID                 PID                 PPID                C                   STIME               TTY     
+root                227610              227588              0                   22:36               ?       
+root                229020              227610              0                   22:45               ?       
+</code></pre>
+<p><strong>查看镜像源数据</strong></p>
+<p>docker inspect 容器id</p>
+<pre><code class="language-shell">[root@zhourui /]# docker inspect e79bac46e660
+[
+    {
+        "Id": "e79bac46e660abb781dcce7b0dbd3a3a896b573a104fdd9a15db0bbf5331341b",
+        "Created": "2021-03-21T14:36:07.740342428Z",
+        "Path": "/bin/bash",
+        "Args": [
+            "-c",
+            "while true;do echo zhourrrr;sleep 1;done"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 227610,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2021-03-21T14:36:08.2053845Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        .........#省略...
+     }
+}
+
+</code></pre>
+<p><strong>进入当前正在运行的容器</strong></p>
+<pre><code class="language-sh">#通常容器都是后台的方式运行的，需要进入容器修改一些配置
+#命令
+docker exec -it 容器id bashShell(bin/bash)
+#测试
+[root@zhourui /]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+538cddb5e369   centos    "bin/bash -c 'while …"   14 seconds ago   Up 13 seconds             quizzical_wing
+[root@zhourui /]# docker exec -it 538cddb5e369 bin/bash
+[root@538cddb5e369 /]# 
+[root@538cddb5e369 /]# ls
+bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@538cddb5e369 /]# ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 11:08 ?        00:00:00 bin/bash -c while true;do echo zzzzzrr;sleep 2;done
+root          66       0  0 11:10 pts/0    00:00:00 bin/bash
+root         131       1  0 11:12 ?        00:00:00 /usr/bin/coreutils --coreutils-prog-shebang=sleep /usr/bin/sleep 2
+root         132      66  0 11:12 pts/0    00:00:00 ps -ef
+
+#方式二
+docker attach 容器id
+#测试
+[root@zhourui /]# docker attach 538cddb5e369
+zzzzzrr
+zzzzzrr
+zzzzzrr
+zzzzzrr
+#进去后是正在执行的当前代码，想停止可以新开一个窗口 docker rm -f $(docker ps -aq)
+
+# docker exec  进入后打开了一个新的终端，可以在里面操作
+# docker attach 进入容器正在执行的终端，不会启动新的进程
+</code></pre>
+<p><strong>从容器内拷贝文件到主机上</strong></p>
+<pre><code class="language-sh">docker cp 容器id:容器内路径 目的主机路径
+#测试
+[root@zhourui /]# cd /home
+[root@zhourui home]# ls
+www  zhour.java
+[root@zhourui home]# docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
+44e87620bf99   centos    "/bin/bash"   About a minute ago   Up About a minute             romantic_burnell
+#进入容器
+[root@zhourui home]# docker attach 44e87620bf99
+[root@44e87620bf99 /]# cd /home
+[root@44e87620bf99 home]# ls
+#在容器内新建一个文件
+[root@44e87620bf99 home]# touch zr.java
+[root@44e87620bf99 home]# ls
+zr.java
+[root@44e87620bf99 home]# exit
+exit
+[root@zhourui home]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@zhourui home]# docker ps -a
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS                     PORTS     NAMES
+44e87620bf99   centos    "/bin/bash"   3 minutes ago   Exited (0) 6 seconds ago             romantic_burnell
+
+#将容器内的文件拷贝到主机上
+[root@zhourui home]# docker cp 44e87620bf99:/home/zr.java /home
+[root@zhourui home]# ls
+www  zhour.java  zr.java
+[root@zhourui home]#
+
+#拷贝是一个手动过程，后面学习使用 -v 卷的技术，可以实现自动同步
+</code></pre>
+<h3 id="小结">小结</h3>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214159038-1290898162.png" alt="" loading="lazy"></p>
+<p>常用命令</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214207279-1948852785.png" alt="" loading="lazy"></p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214216347-1934812799.png" alt="" loading="lazy"></p>
+<h2 id="练习部署">练习部署</h2>
+<h3 id="部署nginx">部署Nginx</h3>
+<ol>
+<li>
+<p>搜索镜像：docker search nginx</p>
+</li>
+<li>
+<p>下载镜像：docker pull nginx</p>
+</li>
+<li>
+<p>运行测试：docker run -d --name nginx01 -p 3344:80 nginx   （--name：起别名，-p 3344:80 3344是暴露的端口就是宿主机端口   80是nginx默认端口就是容器的端口）</p>
+<pre><code class="language-sh">[root@zhourui home]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+nginx         latest    f6d0b4767a6c   2 months ago    133MB
+centos        latest    300e315adb2f   3 months ago    209MB
+hello-world   latest    bf756fb1ae65   14 months ago   13.3kB
+
+#--name：起别名，-p 3344:80 3344是暴露的端口 80是nginx默认端口
+[root@zhourui home]# docker run -d --name nginx01 -p 3344:80 nginx
+56b36ad955ca7cf6d80708b20d7ffd1152a0ca974c312df45bfe9e31d0888e0b
+[root@zhourui home]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                  NAMES
+56b36ad955ca   nginx     "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds   0.0.0.0:3344-&gt;80/tcp   nginx01
+[root@zhourui home]# curl localhost:3344
+
+[root@zhourui home]# docker exec -it nginx01 bin/bash
+root@56b36ad955ca:/# whereis nginx
+nginx: /usr/sbin/nginx /usr/lib/nginx /etc/nginx /usr/share/nginx
+root@56b36ad955ca:/# cd /etc/nginx
+root@56b36ad955ca:/etc/nginx# ls
+conf.d	fastcgi_params	koi-utf  koi-win  mime.types  modules  nginx.conf  scgi_params	uwsgi_params  win-utf
+root@56b36ad955ca:/etc/nginx# 
+#每次改动nginx的配置文件，都需要进入容器的内部修改，非常麻烦，后面学习数据卷的技术就可以在容器外部修改文件，容器内自动同步。
+</code></pre>
+<p>访问自己服务器的nginx：<a href="http://39.105.48.232:3344/%EF%BC%88%E5%89%8D%E6%8F%90%E6%98%AF%E8%87%AA%E5%B7%B1%E9%98%BF%E9%87%8C%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E5%85%A8%E7%BB%84%E4%B8%AD%E5%BC%80%E5%90%AF%E4%BA%863344%E7%AB%AF%E5%8F%A3%EF%BC%89" target="_blank">http://39.105.48.232:3344/（前提是自己阿里云服务器安全组中开启了3344端口）</a></p>
+</li>
+</ol>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214239143-1325391318.png" alt="" loading="lazy"></p>
+<h3 id="部署tomcat">部署Tomcat</h3>
+<pre><code class="language-shell">#docker hub 官方的使用
+docker run -it --rm tomcat:9.0
+#之前练习的启动在后台，停止容器后，容器还在，可以查到。run -it --rm 一般用来测试，用完即删除（容器删除镜像还在）
+[root@zhourui /]# docker pull tomcat
+
+[root@zhourui /]# docker images
+REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+tomcat        9.0       040bdb29ab37   2 months ago    649MB
+tomcat        latest    040bdb29ab37   2 months ago    649MB
+nginx         latest    f6d0b4767a6c   2 months ago    133MB
+centos        latest    300e315adb2f   3 months ago    209MB
+hello-world   latest    bf756fb1ae65   14 months ago   13.3kB
+[root@zhourui /]# docker run -d -p 3355:8080 --name tomcat01 tomcat
+53197d7745a2d7f83f3a45b1f474a189eb7f496b0cf08c9a509a6c390680e347
+[root@zhourui /]# curl localhost:3355
+
+</code></pre>
+<p>浏览器测试访问：<a href="http://39.105.48.232:3355/%EF%BC%88%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E7%BB%84%E5%BC%80%E5%90%AF%E7%AB%AF%E5%8F%A3%EF%BC%89%EF%BC%8C%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E4%BD%86%E6%98%AF%E6%98%BE%E7%A4%BA404%E3%80%82" target="_blank">http://39.105.48.232:3355/（阿里云安全组开启端口），可以访问但是显示404。</a></p>
+<pre><code class="language-sh">#进入容器
+[root@zhourui /]# docker exec -it tomcat01 /bin/bash
+root@53197d7745a2:/usr/local/tomcat# ls
+BUILDING.txt  CONTRIBUTING.md  LICENSE	NOTICE	README.md  RELEASE-NOTES  RUNNING.txt  bin  conf  lib  logs  native-jni-lib  temp  webapps  webapps.dist  work
+root@53197d7745a2:/usr/local/tomcat# cd webapps
+root@53197d7745a2:/usr/local/tomcat/webapps# ls
+root@53197d7745a2:/usr/local/tomcat/webapps# 
+#发现ll无法使用，ls-al可以使用，命令少了。webapps中是空的，默认的是最小的镜像，不必要的被删除了，保证的是最小可用环境。
+</code></pre>
+<p>如果想要访问，可以复制webapps.dist目录的内容到webapps中</p>
+<pre><code class="language-sh">root@53197d7745a2:/usr/local/tomcat/webapps# cd ..
+root@53197d7745a2:/usr/local/tomcat# cd webapps.dist
+root@53197d7745a2:/usr/local/tomcat/webapps.dist# ls
+ROOT  docs  examples  host-manager  manager
+root@53197d7745a2:/usr/local/tomcat/webapps.dist# cd ..
+root@53197d7745a2:/usr/local/tomcat# cp -r webapps.dist/* webapps
+root@53197d7745a2:/usr/local/tomcat# cd webapps
+root@53197d7745a2:/usr/local/tomcat/webapps# ls
+ROOT  docs  examples  host-manager  manager
+root@53197d7745a2:/usr/local/tomcat/webapps# 
+
+</code></pre>
+<p>再次刷新网页访问即可！</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214506779-1485653244.png" alt="" loading="lazy"></p>
+<h3 id="部署eskibana">部署es+kibana</h3>
+<pre><code class="language-sh">#es暴漏的端口十分多
+#es十分耗内存
+#es的数据一般需要放置到安全目录，挂载。
+#--net somenetwork  网络配置
+
+#启动（启动前停掉其它的容器，防止启动不了）
+docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.6.2
+
+#docker stats 容器id 查看cpu的状态
+#启动后 发现执行docker ps命令非常卡，因为内存快耗尽。
+</code></pre>
+<p>启动后可以从宝塔上看到自己服务器的内存状态。（也可以使用命令docker stats 容器id 查看cpu，内存的状态）</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214521370-1430255026.png" alt="" loading="lazy"></p>
+<p>停掉es</p>
+<pre><code class="language-sh">[root@zhourui /]# docker ps
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                                            NAMES
+94c6cad2a01d   elasticsearch:7.6.2   "/usr/local/bin/dock…"   5 minutes ago   Up 5 minutes   0.0.0.0:9200-&gt;9200/tcp, 0.0.0.0:9300-&gt;9300/tcp   elasticsearch
+[root@zhourui /]# docker stop 94c6cad2a01d
+94c6cad2a01d
+
+</code></pre>
+<p>这时查看服务器的状态</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214537253-771356104.png" alt="" loading="lazy"></p>
+<p>再次启动，增加内存的配置，修改配置文件，-e 环境配置修改。</p>
+<pre><code class="language-sh">docker run -d --name elasticsearch02 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node"  -e ES_JAVA_OPTS="-Xms64m -Xmx512m" elasticsearch:7.6.2
+</code></pre>
+<h3 id="可视化">可视化</h3>
+<ul>
+<li><strong>portainer</strong>（图形化界面管理工具，提供一个面板供操作）</li>
+</ul>
+<pre><code class="language-sh">docker run -d -p 9222:9000 \
+--restart=always -v /var/run/docker.sock:/var/run/docker.sock --privileged=true portainer/portainer
+</code></pre>
+<ul>
+<li><strong>Rancher</strong>(CI/CD 持续集成/持续部署时使用)</li>
+</ul>
+<p>启动portainer后访问测试：<a href="http://39.105.48.232:9222/%EF%BC%8C%E5%AF%86%E7%A0%81%E5%8F%AF%E4%BB%A5%E9%9A%8F%E6%84%8F%E8%BE%93%E5%85%A5%E3%80%82" target="_blank">http://39.105.48.232:9222/，密码可以随意输入。</a></p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214615668-1009297549.png" alt="" loading="lazy"></p>
+<p>进入后选择local，点击connect</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214632140-260499590.png" alt="" loading="lazy"></p>
+<p>可以看到镜像，容器等</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214647029-1111575957.png" alt="" loading="lazy"></p>
+<p>查看镜像</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214701908-692457852.png" alt="" loading="lazy"></p>
+<h2 id="docker镜像">Docker镜像</h2>
+<p>镜像是什么：镜像是一种轻量级的，可执行的独立软件包。用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码，运行时，库，环境变量和配置文件。</p>
+<p>将应用直接打包为docker镜像，就可以直接跑起来。</p>
+<p>如何得到镜像：</p>
+<ul>
+<li>从仓库下载</li>
+<li>自己制作一个镜像</li>
+</ul>
+<h3 id="docker镜像加载原理">Docker镜像加载原理</h3>
+<p><strong>UnionFS（联合文件系统）</strong>：Union文件系统（UnionFS）是一种分层，轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同的目录挂载到同一个虚拟文件系统下。Union文件系统是 docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作具体的应用镜像。</p>
+<p>特性：一次同时加载多个文件系统，但从外面看起来，只能看到一个文件系统，联合加载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录。</p>
+<p><strong>Docker镜像加载原理</strong>：docker镜像实际上是由一层一层的文件系统组成，这种层级的文件系统叫UnionFS（联合文件系统）。</p>
+<p>bootfs（boot file system）主要包含bootloader和kernel，bootloader主要是引导加载kernel，Linux刚启动时会加载bootfs文件系统，在Docker镜像的最底层是bootfs，这一层与我们典型的Linux/Unix系统是一样的，包含boot加载和内核，当boot加载完之后整个内核都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs。</p>
+<p>rootfs（root file system）在bootfs之上，包含的就是典型LInux系统中的 /dev，/proc，/bin，/etc等标准目录和文件，rootfs就是各种不同的操作系统发行版，比如Ubantu，Centos等。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214910867-2066551072.png" alt="" loading="lazy"></p>
+<p>可以使用docker images看到Centos的镜像非常小。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214924572-1565967607.png" alt="" loading="lazy"></p>
+<p>对于一个精简的OS，rootfs可以很小，只需包含最基本的命令，工具和程序库就可以了，因为底层直接用Host的kernel，自己只需提供rootfs就可以了，因此可见对于不同的Linux发行版，bootfs基本是一致的，rootfs会有差别，因此不同的发行版可以共用bootfs。</p>
+<h3 id="分层理解">分层理解</h3>
+<p>下载一个镜像，观察日志输出，可以看到是一层一层的在下载（分层下载，提高了复用性）<br>
+<img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214937382-590847961.png" alt="" loading="lazy"></p>
+<p>使用docker inspect redis，可以看到RootFS</p>
+<pre><code class="language-sh"> "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:cb42413394c4059335228c137fe884ff3ab8946a014014309676c25e3ac86864",
+                "sha256:8e14cb7841faede6e42ab797f915c329c22f3b39026f8338c4c75de26e5d4e82",
+                "sha256:1450b8f0019c829e638ab5c1f3c2674d117517669e41dd2d0409a668e0807e96",
+                "sha256:f927192cc30cb53065dc266f78ff12dc06651d6eb84088e82be2d98ac47d42a0",
+                "sha256:a24a292d018421783c491bc72f6601908cb844b17427bac92f0a22f5fd809665",
+                "sha256:3480f9cdd491225670e9899786128ffe47054b0a5d54c48f6b10623d2f340632"
+            ]
+        },
+</code></pre>
+<p><strong>理解</strong>：所有的Docker镜像都起始于一个基础镜像层，当进行修改或增加新的内容时，都会在当前的镜像层上，创建新的镜像层。在添加额外的镜像层时，镜像始终保持是当前所有镜像的组合。</p>
+<p><strong>特点：</strong></p>
+<p>docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部。这一层通常是我们所说的容器层，容器之下都是镜像层。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424214955551-340086444.png" alt="" loading="lazy"></p>
+<h3 id="commit镜像">commit镜像</h3>
+<pre><code class="language-sh">docker commit #提交容器成为一个新的副本
+#命令和git类似
+docker commit -m=“提交描述信息” -a=“作者” 容器id 目标镜像名:[TAG]
+</code></pre>
+<p>测试</p>
+<pre><code class="language-sh">#启动一个tomcat
+docker run -it -p 8081:8080 tomcat
+
+#在新的窗口进入tomcat
+[root@zhourui /]# docker ps
+CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS          PORTS          1fd9b7b4cb3d   tomcat                "catalina.sh run"        28 seconds ago   Up 27 seconds   0.0.0.0:8081-&gt;8080/tcp                           
+[root@zhourui /]# docker exec -it 1fd9b7b4cb3d /bin/bash
+
+#官方默认的tomcat的webapps下面没有应用，自己拷贝
+cp -r webapps.dist/* webapps
+
+#提交自己的镜像，以后使用修改过的镜像即可
+[root@zhourui /]# docker commit -a="zhourr" -m="add webapps" 1fd9b7b4cb3d tomcat02:1.0
+sha256:1c7804b415ba38099178f63e48444aebec938252632defd16bb35acc71bdabab
+[root@zhourui /]# docker images
+REPOSITORY            TAG       IMAGE ID       CREATED         SIZE
+tomcat02              1.0       1c7804b415ba   6 seconds ago   654MB
+redis                 latest    621ceef7494a   2 months ago    104MB
+tomcat                9.0       040bdb29ab37   2 months ago    649MB
+tomcat                latest    040bdb29ab37   2 months ago    649MB
+nginx                 latest    f6d0b4767a6c   2 months ago    133MB
+centos                latest    300e315adb2f   3 months ago    209MB
+portainer/portainer   latest    62771b0b9b09   8 months ago    79.1MB
+elasticsearch         7.6.2     f29a1ee41030   12 months ago   791MB
+hello-world           latest    bf756fb1ae65   14 months ago   13.3kB
+[root@zhourui /]# 
+
+</code></pre>
+<p>对容器进行修改后，想保存容器的状态，通过commit来提交，下次就可以使用自己提交的这个镜像了。就好比 vm 的快照功能。</p>
+<h2 id="容器数据卷">容器数据卷</h2>
+<p>如果数据在容器中，那么将容器删除，数据就会丢失！需求，数据可持久化！！</p>
+<p>MySQL容器删除，数据丢失，需求，MySQL数据可以存储在本地！！</p>
+<p>容器之间可以有一个数据共享的技术。Docker容器中产生的数据，同步到本地。</p>
+<p>这就是卷技术！将容器内的目录，挂载到主机上。</p>
+<p>数据持久化和同步操作，容器间也是可以数据共享的。</p>
+<h3 id="使用数据卷">使用数据卷</h3>
+<p>方式一：使用命令来挂载  -v</p>
+<pre><code class="language-sh">docker -it -v主机内的目录：容器内的目录
+#测试
+[root@zhourui home]# docker run -it -v /home/zrtest:/home centos /bin/bash
+
+#启动后使用 docker inspect 容器id 查看
+</code></pre>
+<p>使用 docker inspect 容器id   查看</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215116454-2095008183.png" alt="" loading="lazy"></p>
+<p>测试文件的同步</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215126019-2069323899.png" alt="" loading="lazy"></p>
+<p>1.停止容器</p>
+<p>2.修改宿主机上的文件</p>
+<p>3.启动容器，发现文件依旧是同步的</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215137672-107071941.png" alt="" loading="lazy"></p>
+<p>好处：以后修改只需要在本地修改即可，不需要进入容器！</p>
+<h3 id="部署mysql">部署MySQL</h3>
+<p>MySQL的数据持久化问题！</p>
+<pre><code class="language-sh">#获取镜像
+docker pull mysql:5.7
+
+#运行容器，数据挂载。安装mysql需要配置密码的，注意！
+#官方测试连接方法
+docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag
+
+#启动MySQL
+-d：后台运行
+-p：端口映射
+-v：数据卷挂载
+-e：环境配置
+--name：容器别名
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --name mysql01 mysql:5.7
+
+#在本地连接上后创建一个test数据库，查看映射路径是否可以。
+</code></pre>
+<p>在本地使用Navicat测试连接</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215203700-1447395271.png" alt="" loading="lazy"></p>
+<p>将容器删除后</p>
+<pre><code class="language-sh">[root@zhourui data]# ls
+auto.cnf    ca.pem           client-key.pem  ibdata1      ib_logfile1  mysql               private_key.pem  server-cert.pem  sys
+ca-key.pem  client-cert.pem  ib_buffer_pool  ib_logfile0  ibtmp1       performance_schema  public_key.pem   server-key.pem   test
+</code></pre>
+<p>可以看到test数据库还在，即挂载到本地的数据卷没有丢失，这就实现了容器数据的持久化。</p>
+<h3 id="具名挂载和匿名挂载">具名挂载和匿名挂载</h3>
+<pre><code class="language-sh">#匿名挂载
+-P（大写P 随机映射端口）
+-v 容器内路径
+docker run -d -P --name nginx01 -v /etc/nginx nginx
+
+#查看所有的卷的情况
+[root@zhourui home]# docker volume ls
+DRIVER    VOLUME NAME
+local     42a60ffb1a9dfcefffdf269e3a08fcb9172a082babe6ea19b864d5f679eb4361
+local     93e2f2060025965b83b0433b95e29ac325c25fa8684b79a12617438ffe898941
+local     271ccfa1da7814fa8fceb5b482ce86009f97e29c09dca69bcc594a0d8fabb92a
+
+#匿名挂载：这里-v的时候只写了容器内的路径，没有写容器外的路径
+
+#具名挂载
+[root@zhourui home]# docker  run -d -P --name nginx02 -v juming-nginx:/etc/nginx nginx
+3024685007a57eda45820c8c07920cea08b84b7847b86fd97f5f71f7100b8fbd
+[root@zhourui home]# docker volume ls
+DRIVER    VOLUME NAME
+local     42a60ffb1a9dfcefffdf269e3a08fcb9172a082babe6ea19b864d5f679eb4361
+local     93e2f2060025965b83b0433b95e29ac325c25fa8684b79a12617438ffe898941
+local     271ccfa1da7814fa8fceb5b482ce86009f97e29c09dca69bcc594a0d8fabb92a
+local     juming-nginx
+[root@zhourui home]# 
+
+#通过-v 卷名：容器内名字
+#查看卷
+[root@zhourui home]# docker volume inspect juming-nginx
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215538855-247815278.png" alt="" loading="lazy"></p>
+<p><strong>所有docker容器内的卷，在没有指定目录的情况下都是在 /var/lib/docker/volumes/xxxx/_data。</strong></p>
+<p>通过具名挂载可以方便的找到我们的卷，大多数情况下都是使用具名挂载。</p>
+<pre><code class="language-sh">#如何确定是具名挂载还是匿名挂载，还是指定路径挂载
+-v 容器内路径  			#匿名挂载
+-v 卷名：容器内路径 	  #具名挂载
+-v /宿主机路径：容器内路径  #指定路径挂载
+</code></pre>
+<p>拓展：</p>
+<pre><code class="language-sh"> #通过-v 卷名：容器内路径：ro或rw 改变读写权限
+ ro readonly   #只读
+ rw readwrite  #可读可写
+ 
+ #一旦设置了容器权限，容器对挂载出来的文件就有限定了
+ docker  run -d -P --name nginx02 -v juming-nginx:/etc/nginx:ro nginx
+ docker  run -d -P --name nginx02 -v juming-nginx:/etc/nginx:rw nginx
+ 
+ #只要看到ro，就说明这个文件只能通过宿主机来操作，容器内部是无法操作的！
+</code></pre>
+<h3 id="初识dockerfile">初识Dockerfile</h3>
+<p>Dockerfile就是用来构建 docker 镜像的构建文件！命令脚本！</p>
+<p>通过这个脚本可以生成镜像。镜像是一层一层的，脚本是一个个的命令，每个命令都是一层。</p>
+<p>方式二：</p>
+<pre><code class="language-sh">[root@zhourui home]# pwd
+/home
+[root@zhourui home]# cd docker-test-volume/
+[root@zhourui docker-test-volume]# pwd
+/home/docker-test-volume
+[root@zhourui docker-test-volume]# vim dockerfile  #创建dockerfile
+[root@zhourui docker-test-volume]# cat dockerfile  #文件中添加以下内容后查看（文件中内容 指令（大写） 参数）
+#每个命令就是镜像的一层
+FROM centos
+
+VOLUME ["volume01","volume02"]  #匿名挂载
+
+CMD echo "....end...."
+CMD /bin/bash
+
+[root@zhourui docker-test-volume]# docker build -f /home/docker-test-volume/dockerfile -t zhour/centos:1.0 .
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215554319-1884974167.png" alt="" loading="lazy"></p>
+<pre><code class="language-sh">#启动自己生成的容器
+docker run -it 29e054de9dd4 /bin/bash
+#在volume01中创建文件
+[root@e224b7ebc0d7 volume01]# ls
+[root@e224b7ebc0d7 volume01]# touch container.txt
+[root@e224b7ebc0d7 volume01]# ls
+container.txt
+[root@e224b7ebc0d7 volume01]# 
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215610178-300953833.png" alt="" loading="lazy"></p>
+<p>查看匿名卷挂载的路径：docker inspect 容器id</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215619998-1113609394.png" alt="" loading="lazy"></p>
+<p>进入挂载的路径中查看</p>
+<pre><code class="language-sh">[root@zhourui /]# cd /var/lib/docker/volumes/f517ef934bb1d4376751cf0ec11608ed0fd287844436ba62cad973ce0f67dee8/_data
+[root@zhourui _data]# ls
+container.txt
+[root@zhourui _data]# 
+
+</code></pre>
+<p>可以看到文件已经同步！！</p>
+<p>这种方式较常使用，通常用于构建自己的镜像。</p>
+<p>假设构建镜像时没有挂载卷，需要手动挂载，-v 卷名：容器内路径。</p>
+<h3 id="数据卷容器">数据卷容器</h3>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215635199-1189733951.png" alt="" loading="lazy"></p>
+<p>启动三个容器</p>
+<pre><code class="language-sh">#创建docker01
+[root@zhourui /]# docker run -it --name docker01 29e054de9dd4
+[root@255f9d13bea7 /]# ls
+bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var  volume01	volume02
+
+#创建docker02
+[root@zhourui /]# docker run -it --name docker02 --volumes-from docker01 29e054de9dd4
+[root@861b5d25a8ca /]# ls
+bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var  volume01	volume02
+
+#在docker01的volume01中创建文件
+[root@zhourui /]# docker attach 255f9d13bea7
+[root@255f9d13bea7 /]# cd volume01
+[root@255f9d13bea7 volume01]# ls
+[root@255f9d13bea7 volume01]# touch docker01
+
+#进入docker02的volume01中查看
+[root@861b5d25a8ca /]# cd volume01
+[root@861b5d25a8ca volume01]# ls
+docker01
+
+#创建docker03并在volume01中增加docker03文件
+[root@zhourui /]# docker run -it --name docker03 --volumes-from docker01 29e054de9dd4
+[root@7a405584084a /]# cd volume01
+[root@7a405584084a volume01]# ls
+docker01
+[root@7a405584084a volume01]# touch docker03
+[root@7a405584084a volume01]# ls
+docker01  docker03
+
+#在docker01中查看volume01
+[root@255f9d13bea7 volume01]# ls
+docker01  docker03
+[root@255f9d13bea7 volume01]# 
+
+</code></pre>
+<p>通过 --volumes-from 可以实现容器间的数据共享！！</p>
+<p>可以测试删除掉 docker01 ，再去查看 docker02 和 docker03 ，数据仍然还在。</p>
+<p>三个容器之间的文件是相互拷贝的，删掉一个不会丢失数据。</p>
+<p>应用：多个 MySQL 或者 Redis 之间实现数据共享！！</p>
+<pre><code class="language-sh">docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --name mysql01 mysql:5.7
+
+docker run -d -p 3310:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql02 --volumes-from mysql01 mysql:5.7
+#可以实现两个MySQL之间的数据同步
+</code></pre>
+<p>结论：容器之间配置信息的传递，数据卷容器的生命周期是一直持续到没有容器使用为止。</p>
+<p>通过 -v 将数据持久化到本地，本地的数据是不会删除的。</p>
+<h2 id="dockerfile">DockerFile</h2>
+<h3 id="dockerfile介绍">DockerFile介绍</h3>
+<p>dockerfile是用来构建 docker 镜像的文件。命令参数脚本。</p>
+<p>构建步骤：</p>
+<ol>
+<li>编写一个 dockerfile 文件</li>
+<li>docker build 构建成为一个镜像</li>
+<li>docker run 运行镜像</li>
+<li>docker push 发布镜像（dockerHub，阿里云镜像仓库）</li>
+</ol>
+<p>查看官方 centos，点击版本会跳转至 GitHUb</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215737813-2084743599.png" alt="" loading="lazy"></p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215747493-465043831.png" alt="" loading="lazy"></p>
+<p>很多的官方镜像都是基础包，一些功能没有，我们就需要自己搭建。</p>
+<h3 id="dockerfile构建过程">DockerFile构建过程</h3>
+<p><strong>基础知识：</strong></p>
+<ol>
+<li>每个保留关键字（指令）必须是大写字母。</li>
+<li>只需顺序从上到下。</li>
+<li>
+<h1 id="，-表示注释。">， 表示注释。</h1>
+</li>
+<li>每个指令都会创建提交一个新的镜像层。</li>
+</ol>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215758939-1473937395.png" alt="" loading="lazy"></p>
+<p>docker 是面向开发的，发布项目做镜像，就需要编写 dockerfile 文件。</p>
+<p>Docker镜像逐渐成为企业交付的标准。</p>
+<p>dockerfile ：构建文件，定义了一切所需的环境和源代码。</p>
+<p>dockerImage：通过 dockerfile 构建生成的镜像，最终发布和运行的产品。</p>
+<p>docker 容器：容器是镜像运行起来后提供服务的。</p>
+<h3 id="dockerfile指令">DockerFile指令</h3>
+<pre><code class="language-sh">FROM		#基础镜像，一切从这里开始构建
+MAINTAINER	#镜像是谁写的
+RUN			#docker 镜像构建的时候需要运行的命令
+ADD			#步骤：使用tomcat镜像，tomcat压缩包，就是添加的内容
+WORKDIR		#镜像的工作目录
+VOLUME		#挂载的目录位置
+EXPOSE		#暴漏端口配置
+CMD 		#指定这个容器启动的时候要运行的命令，只有最后一个会生效，可被替代
+ENTRYPOINT	#指定这个容器启动的时候要运行的命令，可以追加命令
+ONBUILD		#当构建一个被继承的 dockerfile 这个时候会运行 ONBUILD 的指令，触发指令
+COPY		#类似add命令，将文件拷贝拷贝到目录中
+ENV			#构建的时候设置环境变量
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215842533-1284750245.png" alt="" loading="lazy"></p>
+<h3 id="实战测试">实战测试</h3>
+<p>Docker Hub 中99%的镜像都是由这个基础镜像 FROM scratch 来配置构建的</p>
+<pre><code class="language-sh">FROM scratch
+ADD centos-8-x86_64.tar.xz /
+LABEL \
+	org.label-schema.schema-version="1.0" \
+    org.label-schema.name="CentOS Base Image" \
+    org.label-schema.vendor="CentOS" \
+    org.label-schema.license="GPLv2"  \
+    org.label-schema.build-date="20201204"
+CMD ["/bin/bash"]
+</code></pre>
+<p>创建一个自己的 CentOS</p>
+<pre><code class="language-sh">#编写 dockerfile 的文件
+[root@zhourui home]# cd dockerfile/
+[root@zhourui dockerfile]# ls
+[root@zhourui dockerfile]# vim mydockerfile-centos
+[root@zhourui dockerfile]# cat mydockerfile-centos 
+FROM centos
+MAINTAINER zhourr&lt;813794474@qq.com&gt;
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH  	#进去后的工作目录，进去后 pwd 查看
+
+RUN yum -y install vim  	#安装 vim
+RUN yum -y install net-tools  #安装后可以使用 ifconfig （不安装只能用 ip add）
+
+EXPOSE 80
+
+CMD echo $MYPATH
+CMD echo "...end..."
+CMD /bin/bash
+
+#通过这个文件构建镜像
+-f 构建文件路径
+-t 镜像名:[tag]
+最后有个 .
+[root@zhourui dockerfile]# docker build  -f mydockerfile-centos -t mycentos:0.1 .
+...
+Successfully built ddba7ccc7eee
+Successfully tagged mycentos:0.1
+
+#测试运行
+docker run -it mycentos:0.1
+
+</code></pre>
+<p>默认的 centos 以下命令无法使用</p>
+<pre><code class="language-sh">[root@95c725dda358 /]# pwd
+/
+[root@95c725dda358 /]# vim
+bash: vim: command not found
+[root@95c725dda358 /]# ifconfig
+bash: ifconfig: command not found
+[root@95c725dda358 /]# 
+</code></pre>
+<p>测试运行自己创建的镜像这些命令就可以使用了。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215904703-760365842.png" alt="" loading="lazy"></p>
+<p>我们可以列出本地镜像的变更历史 docker history 镜像id</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424215918467-992898536.png" alt="" loading="lazy"></p>
+<p><strong>CMD和ENTRYPOINT的区别</strong></p>
+<pre><code class="language-sh">CMD 		#指定这个容器启动的时候要运行的命令，只有最后一个会生效，可被替代
+ENTRYPOINT	#指定这个容器启动的时候要运行的命令，可以追加命令
+</code></pre>
+<p>测试 CMD</p>
+<pre><code class="language-sh">[root@zhourui dockerfile]# vim dockerfile-cmd-test
+FROM centos
+CMD ["ls","-a"]
+
+#构建镜像
+[root@zhourui dockerfile]# docker build -f dockerfile-cmd-test -t cmdtest .
+....
+Successfully built a44c7103184f
+Successfully tagged cmdtest:latest
+# run 运行，可以看到 ls-a 命令生效
+[root@zhourui dockerfile]# docker run a44c7103184f
+.
+..
+.dockerenv
+bin
+dev
+etc
+home
+lib
+...
+
+#追加一个 l ，希望返回 ls-al
+[root@zhourui dockerfile]# docker run a44c7103184f -l
+docker: Error response from daemon: OCI runtime create failed: container_linux.go:367: starting container process caused: exec: "-l": executable file not found in $PATH: unknown.
+
+#此时报错，因为使用CMD，-l替换了["ls","-a"]，-l不是命令，所以报错
+#需要使用以下完整命令
+[root@zhourui dockerfile]# docker run a44c7103184f ls -al
+
+</code></pre>
+<p>测试 ENTRYPOINT</p>
+<pre><code class="language-sh">[root@zhourui dockerfile]# vim dockerfile-entrypoint
+FROM centos
+ENTRYPOINT ["ls","-a"]
+
+[root@zhourui dockerfile]# docker build -f dockerfile-entrypoint -t entrypointtest .
+...
+Successfully built 34773b8b0398
+Successfully tagged entrypointtest:latest
+[root@zhourui dockerfile]# docker run 34773b8b0398
+.
+..
+.dockerenv
+bin
+dev
+etc
+home
+lib
+...
+# 添加 -l，是可以直接追加到后面的，ls -a -l
+[root@zhourui dockerfile]# docker run 34773b8b0398 -l
+total 0
+drwxr-xr-x   1 root root   6 Mar 27 14:51 .
+drwxr-xr-x   1 root root   6 Mar 27 14:51 ..
+-rwxr-xr-x   1 root root   0 Mar 27 14:51 .dockerenv
+lrwxrwxrwx   1 root root   7 Nov  3 15:22 bin -&gt; usr/bin
+drwxr-xr-x   5 root root 340 Mar 27 14:51 dev
+drwxr-xr-x   1 root root  66 Mar 27 14:51 etc
+drwxr-xr-x   2 root root   6 Nov  3 15:22 home
+lrwxrwxrwx   1 root root   7 Nov  3 15:22 lib -&gt; usr/lib
+
+</code></pre>
+<p>Docker中很多命令都十分相似，需要去对比测试一下，才能发现其中的区别。</p>
+<h3 id="实战-tomcat镜像">实战 Tomcat镜像</h3>
+<ol>
+<li>
+<p>准备镜像文件 tomcat 压缩包，jdk压缩包（放到home/zhour-tar目录下）</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220054865-1384754019.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>编写 Dockerfile 文件，官方命名：<strong>Dockerfile</strong>，build的时候会自动寻找这个文件，就不需要 -f 指定了。(在home/zhour-tar目录下，vim Dockerfile)，压缩包会自动解压。</p>
+<pre><code class="language-sh">FROM centos
+MAINTAINER zhourr&lt;813794474@qq.com&gt;
+
+COPY readme.txt /usr/local/read.txt
+
+ADD jdk-8u281-linux-x64.tar.gz /usr/local/
+ADD apache-tomcat-9.0.44.tar.gz /usr/local/
+
+RUN yum -y install vim
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_281
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV CATALINA_HOME /usr/local/apache-tomcat-9.0.44
+ENV CATALINA_BASE /usr/local/apache-tomcat-9.0.44
+ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin
+
+EXPOSE 8080
+
+CMD /usr/local/apache-tomcat-9.0.44/bin/startup.sh &amp;&amp; tail -F /usr/local/apache-tomcat-9.0.44/bin/logs/catalina.out
+
+</code></pre>
+</li>
+<li>
+<p>构建镜像</p>
+<pre><code class="language-sh">[root@zhourui zhour-tar]# ls
+apache-tomcat-9.0.44.tar.gz  Dockerfile  jdk-8u281-linux-x64.tar.gz  readme.txt
+#构建
+[root@zhourui zhour-tar]# docker build -t diytomcat .
+
+</code></pre>
+</li>
+<li>
+<p>启动镜像</p>
+<pre><code class="language-sh">[root@zhourui zhour-tar]# docker run -d -p 3030:8080 --name zhoutomcat -v /home/zhour-tar/test:/usr/local/apache-tomcat-9.0.44/webapps/test -v /home/zhour-tar/tomcatlogs/:/usr/local/apache-tomcat-9.0.44/logs diytomcat
+
+</code></pre>
+</li>
+<li>
+<p>访问测试</p>
+</li>
+<li>
+<p>发布项目（配置了数据卷挂载，直接在容器外编写项目就可以发布了）在test中新建</p>
+<p>web.xml</p>
+<pre><code class="language-sh">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+         http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0"&gt;
+ &lt;/web-app&gt;
+</code></pre>
+<p>index.jsp</p>
+<pre><code class="language-sh">&lt;%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;title&gt;Hello zhourrr！！&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Hello World!&lt;br/&gt;
+&lt;%
+System.out.println("----my tomcat test----");
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</li>
+<li>
+<p>访问http://39.105.48.232:3030/test/</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220114002-894191632.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>日志查看，cd /home/zhour-tar/tomcatlogs。cat catalina.out</p>
+</li>
+</ol>
+<p>需要掌握 Dockersfile 的编写！！</p>
+<h3 id="发布镜像">发布镜像</h3>
+<p>在 Docker Hub 上注册账号，在服务器登录后就可以提交自己的镜像了。</p>
+<pre><code class="language-sh">[root@zhourui tomcatlogs]# docker login --help
+
+Usage:  docker login [OPTIONS] [SERVER]
+
+Log in to a Docker registry.
+If no server is specified, the default is defined by the daemon.
+
+Options:
+  -p, --password string   Password
+      --password-stdin    Take the password from stdin
+  -u, --username string   Username
+</code></pre>
+<p>登录</p>
+<pre><code class="language-sh">[root@zhourui tomcatlogs]# docker login -u zhourui88
+Password: 
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+
+</code></pre>
+<p>提交</p>
+<pre><code class="language-sh">[root@zhourui tomcatlogs]# docker push diytomcat
+Using default tag: latest
+The push refers to repository [docker.io/library/diytomcat]
+e21bfbb06ee5: Preparing 
+145f6d70801c: Preparing 
+f3ba2f2219d6: Preparing 
+f83a7c49f1e3: Preparing 
+2653d992f4ef: Preparing 
+denied: requested access to the resource is denied #拒绝
+#需要增加一个tag
+[root@zhourui tomcatlogs]# docker tag ea84d80641b1 zhourui88/tomcat:1.0
+#查看
+[root@zhourui tomcatlogs]# docker images
+REPOSITORY            TAG       IMAGE ID       CREATED             SIZE
+diytomcat             latest    ea84d80641b1   About an hour ago   640MB
+zhourui88/tomcat        1.0       ea84d80641b1   About an hour ago   640MB
+#提交
+[root@zhourui tomcatlogs]# docker push zhourui88/tomcat:1.0
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220222489-628523827.png" alt="" loading="lazy"></p>
+<p>提交的时候镜像也是按层级来提交的！</p>
+<p><strong>阿里云服务器</strong></p>
+<ol>
+<li>
+<p>登录阿里云</p>
+</li>
+<li>
+<p>找到容器镜像服务</p>
+</li>
+<li>
+<p>创建命名空间</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220233493-1775257207.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>创建容器镜像</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220243659-510212942.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>点击镜像仓库名 zhourui-test 浏览阿里云</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220257847-783902777.png" alt="" loading="lazy"></p>
+</li>
+</ol>
+<pre><code class="language-sh">#登录
+[root@zhourui /]#  sudo docker login --username=周锐822 registry.cn-beijing.aliyuncs.com
+#提交到阿里云，这里没有更改tag，显示上传成功，但是我没有找到镜像
+[root@zhourui /]# docker push zhourui88/tomcat:1.0
+The push refers to repository [docker.io/zhourui88/tomcat]
+e21bfbb06ee5: Layer already exists 
+145f6d70801c: Layer already exists 
+f3ba2f2219d6: Pushing [==========&gt;                                        ]  77.66MB/356.6MB
+f83a7c49f1e3: Layer already exists 
+
+#上传阿里云
+[root@zhourui /]# sudo docker tag ea84d80641b1 registry.cn-beijing.aliyuncs.com/docker-zhourui/zhourui-test:1.0
+[root@zhourui /]# docker images
+REPOSITORY                                                     TAG       IMAGE ID       CREATED        
+diytomcat                                                      latest    ea84d80641b1   3 hours ago         
+zhourui88/tomcat                                               1.0       ea84d80641b1   3 hours ago     
+registry.cn-beijing.aliyuncs.com/docker-zhourui/zhourui-test   1.0       ea84d80641b1   3 hours ago     
+[root@zhourui /]# docker push registry.cn-beijing.aliyuncs.com/docker-zhourui/zhourui-test:1.0
+
+</code></pre>
+<p>上传后查看</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220434310-767935991.png" alt="" loading="lazy"></p>
+<h3 id="小结-1">小结</h3>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220444967-1186397670.png" alt="" loading="lazy"></p>
+<h2 id="docker网络">Docker网络</h2>
+<h3 id="理解-dockers0">理解 Dockers0</h3>
+<p>ip addr</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220500011-525942048.png" alt="" loading="lazy"></p>
+<pre><code class="language-sh">#启动容器
+[root@zhourui /]# docker run -d -P --name tomcat01 tomcat
+72dee6c91e3f593c69858191014b9d228c6494b0aa049cd1f620350c1c46cd56
+#查看容器内部网络地址  eth0@if123 ip地址 docker分配的
+[root@zhourui /]# docker exec -it tomcat01 ip addr
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+122: eth0@if123: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+#Linux去ping容器的内部
+[root@zhourui /]# ping 172.17.0.2
+PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
+64 bytes from 172.17.0.2: icmp_seq=1 ttl=64 time=0.062 ms
+64 bytes from 172.17.0.2: icmp_seq=2 ttl=64 time=0.045 ms
+
+</code></pre>
+<p>原理：我们每启动一个 docker 容器，docker就会给docker容器分配一个ip，我们只要安装了docker，就会有一个网卡docker0.</p>
+<p>桥接模式，使用的技术是 evth-pair 技术</p>
+<p>这时再输入 ip addr，发现多了一个网卡</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220603182-871230449.png" alt="" loading="lazy"></p>
+<p>再启动一个 tomcat02 发现又多了一个网卡 (docker run -d -P --name tomcat02 tomcat)   ipaddr</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220613028-1014147656.png" alt="" loading="lazy"></p>
+<p>查看tomcat02 ip addr</p>
+<pre><code class="language-sh">[root@zhourui /]# docker exec -it tomcat02 ip addr
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+124: eth0@if125: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:11:00:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.17.0.3/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+</code></pre>
+<p>可以发现容器的网卡都是一对一对的，【122: eth0@if123】【124: eth0@if125】。</p>
+<p>evth-pair：就是一对虚拟设备接口，它们都是成对出现的，一段连着协议，一段彼此相连。</p>
+<p>所以，evth-pair就充当一个桥梁，连接各种虚拟网络设备。</p>
+<p>测试tomcat01和tomcat02之间能不能ping通：</p>
+<pre><code class="language-sh">[root@zhourui /]# docker exec -it tomcat02 ping 172.17.0.2
+PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
+64 bytes from 172.17.0.2: icmp_seq=1 ttl=64 time=0.091 ms
+64 bytes from 172.17.0.2: icmp_seq=2 ttl=64 time=0.069 ms
+#可以看到，容器之间是可以通信的
+</code></pre>
+<p>流程图理解</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220635207-741218550.png" alt="" loading="lazy"></p>
+<p>tomcat01 和 tomcat02 是公用一个路由器 docker0 。</p>
+<p>所有容器不指定网络的情况下，都是 docker0 路由的，doker会给容器分配一个默认的可用 ip。</p>
+<p>Docker使用的是 Linux 的桥接，宿主机中是 Docker 容器的网桥（Docker0）</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220650215-958649470.png" alt="" loading="lazy"></p>
+<p>Docker 中所有的网络接口都是虚拟的，虚拟的转发效率高。</p>
+<p>只要删除容器，对应的网桥就没了。</p>
+<p>docker network ls，docker network inspect  （桥接network id）可以查看</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220824674-1182391471.png" alt="" loading="lazy"></p>
+<h3 id="--link">--link</h3>
+<p>假设我们想通过容器的名字来ping，而不是通过ip，就需要使用 --link。</p>
+<pre><code class="language-sh">[root@zhourui /]# docker exec -it tomcat02 ping tomcat01
+ping: tomcat01: Name or service not known
+
+#通过--link可以解决
+[root@zhourui /]# docker run -d -P --name tomcat03 --link tomcat02 tomcat
+131bbb6e180687ff284ef2cabc78f4104dfc5d1018ee1e2f11a5b6e192bdc8bb
+[root@zhourui /]# docker exec -it tomcat03 ping tomcat02
+PING tomcat02 (172.17.0.3) 56(84) bytes of data.
+64 bytes from tomcat02 (172.17.0.3): icmp_seq=1 ttl=64 time=0.101 ms
+
+#反向ping
+[root@zhourui /]# docker exec -it tomcat02 ping tomcat03
+ping: tomcat03: Name or service not known
+
+</code></pre>
+<p>docker network ls，docker network inspect  （桥接network id）可以查看</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220852462-427874994.png" alt="" loading="lazy"></p>
+<p>--link 使用后，tomcat03在本地配置了tomcat02</p>
+<pre><code class="language-sh">[root@zhourui /]# docker exec -it tomcat03 cat /etc/hosts
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.17.0.3	tomcat02 1fff64acaf04
+172.17.0.4	131bbb6e1806
+</code></pre>
+<p>本质：在hosts的配置中增加了 tomcat02 的映射。</p>
+<p>真实开发中，已经不建议使用 --link 了。</p>
+<p>自定义网络，不使用 docker0。docker0不支持容器名连接访问。</p>
+<h3 id="自定义网络">自定义网络</h3>
+<p>查看所有的docker网络</p>
+<pre><code class="language-sh">[root@zhourui /]# docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+25000c3be4a4   bridge    bridge    local  #桥接
+b518cb3beba9   host      host      local
+bcd06ce03d47   none      null      local
+</code></pre>
+<p><strong>网络模式</strong></p>
+<p>bridge：桥接（docker默认）自己创建也使用 bridge 模式</p>
+<p>none：不配置网络</p>
+<p>host：和宿主机共享网络</p>
+<p>container：容器内网络联通（局限性很大）</p>
+<p>测试：</p>
+<pre><code class="language-sh">#直接启动，默认是 --net bridge 的，
+docker run -d -P --name tomcat01 tomcat
+docker run -d -P --name tomcat01 --net bridge tomcat
+
+#docker0特点，默认，域名不能访问，--link可以打通连接
+
+#自定义网络
+# --driver bridge
+# --subnet 192.168.0.0/16 
+# --gateway 192.168.0.1 
+[root@zhourui /]# docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+6219f386e2bfc7f837554de2b011ec1d649d6eaafa617fcf4bdd2d8091cf82b2
+[root@zhourui /]# docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+25000c3be4a4   bridge    bridge    local
+b518cb3beba9   host      host      local
+6219f386e2bf   mynet     bridge    local
+bcd06ce03d47   none      null      local
+
+</code></pre>
+<p>查看自己的网络：docker network inspect mynet</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424220913458-180354895.png" alt="" loading="lazy"></p>
+<p>创建两个容器，连上自己的网络</p>
+<pre><code class="language-sh">[root@zhourui /]# docker run -d -P --name tomcat-net-01 --net mynet tomcat
+c638c0cee8dff978e60532b9a1ddac74f10a45bfb6b542bf3fd3079f69ec5515
+[root@zhourui /]# docker run -d -P --name tomcat-net-02 --net mynet tomcat
+e9aee8d922b19af82f02e9e50b28a301ab10e7eb57828c454cb57b9ac5bdc0ae
+[root@zhourui /]# docker network inspect mynet
+[
+    {
+        "Name": "mynet",
+        "Id": "6219f386e2bfc7f837554de2b011ec1d649d6eaafa617fcf4bdd2d8091cf82b2",
+        "Created": "2021-03-28T17:29:39.571024726+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.0.0/16",
+                    "Gateway": "192.168.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "c638c0cee8dff978e60532b9a1ddac74f10a45bfb6b542bf3fd3079f69ec5515": {
+                "Name": "tomcat-net-01",
+                "EndpointID": "6d4ac08b616e2e33e8fb7a3e8659b5a6ff2e381083572dbe202f7b8598347177",
+                "MacAddress": "02:42:c0:a8:00:02",
+                "IPv4Address": "192.168.0.2/16",
+                "IPv6Address": ""
+            },
+            "e9aee8d922b19af82f02e9e50b28a301ab10e7eb57828c454cb57b9ac5bdc0ae": {
+                "Name": "tomcat-net-02",
+                "EndpointID": "187733df51f17912e402211643ce7136cbb725d85a0c1045ef7e903471d9f878",
+                "MacAddress": "02:42:c0:a8:00:03",
+                "IPv4Address": "192.168.0.3/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+#再次测试 ping 连接
+[root@zhourui /]# docker exec -it tomcat-net-01 ping 192.168.0.3
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=0.115 ms
+64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=0.067 ms
+64 bytes from 192.168.0.3: icmp_seq=3 ttl=64 time=0.068 ms
+^C
+--- 192.168.0.3 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 67ms
+rtt min/avg/max/mdev = 0.067/0.083/0.115/0.023 ms
+
+#不使用 --link。也可以ping名字了
+[root@zhourui /]# docker exec -it tomcat-net-01 ping tomcat-net-02
+PING tomcat-net-02 (192.168.0.3) 56(84) bytes of data.
+64 bytes from tomcat-net-02.mynet (192.168.0.3): icmp_seq=1 ttl=64 time=0.075 ms
+64 bytes from tomcat-net-02.mynet (192.168.0.3): icmp_seq=2 ttl=64 time=0.070 ms
+64 bytes from tomcat-net-02.mynet (192.168.0.3): icmp_seq=3 ttl=64 time=0.086 ms
+
+</code></pre>
+<p>自定义的网络donker帮我们维护好了关系，推荐使用自定义的网络。</p>
+<p>应用：<br>
+redis：不同的集群使用不同的网络，保证集群是安全和健康的（192.168.xxx.xxx）</p>
+<p>mysql：不同的集群使用不同的网络，保证集群是安全和健康的（192.182.xxx.xxx）</p>
+<h3 id="网络联通">网络联通</h3>
+<p>创建两个容器在默认的docker0网络下</p>
+<pre><code class="language-sh">[root@zhourui /]# docker run -d -P --name tomcat01 tomcat
+[root@zhourui /]# docker run -d -P --name tomcat02 tomcat
+</code></pre>
+<p>现在就有以下的四个容器在在 docker0 和 mynet 网络下。怎样去打通 tomcat01 连接到 mynet。</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424221015520-986047313.png" alt="" loading="lazy"></p>
+<p>通过 --help 查看命令</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424221023738-359024288.png" alt="" loading="lazy"></p>
+<p>测试打通 tomcat01 连接到 mynet</p>
+<pre><code class="language-sh">[root@zhourui /]# docker network connect mynet tomcat01
+[root@zhourui /]# docker network inspect mynet
+
+#打通之后，tomcat01被放到了 mynet 网络下，
+#一个容器两个 ip 地址
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424221033098-99405268.png" alt="" loading="lazy"></p>
+<p>测试</p>
+<pre><code class="language-sh">[root@zhourui /]# docker exec -it tomcat01 ping tomcat-net-01
+PING tomcat-net-01 (192.168.0.2) 56(84) bytes of data.
+64 bytes from tomcat-net-01.mynet (192.168.0.2): icmp_seq=1 ttl=64 time=0.092 ms
+#反向也是可以ping通的
+[root@zhourui /]# docker exec -it tomcat-net-01 ping tomcat01
+PING tomcat01 (192.168.0.4) 56(84) bytes of data.
+64 bytes from tomcat01.mynet (192.168.0.4): icmp_seq=1 ttl=64 time=0.118 ms
+#tomcat02 是没有连接上 mynet 的
+[root@zhourui /]# docker exec -it tomcat02 ping tomcat-net-01
+ping: tomcat-net-01: Name or service not known
+
+</code></pre>
+<p>结论：如果需要跨网络操作，就需要使用 docker network connect 网络 容器名称 来联通！！</p>
+<h3 id="部署redis集群">部署Redis集群</h3>
+<pre><code class="language-sh">#创建redis的网络
+docker network create redis --subnet 172.38.0.0/16
+
+#通过脚本创建6个redis配置
+for port in $(seq 1 6); \
+do \
+mkdir -p /mydata/redis/node-${port}/conf
+touch /mydata/redis/node-${port}/conf/redis.conf
+cat &lt;&lt; EOF &gt;/mydata/redis/node-${port}/conf/redis.conf
+port 6379
+bind 0.0.0.0
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 172.38.0.1${port}
+cluster-announce-port 6379
+cluster-announce-bus-port 16379
+appendonly yes
+EOF
+done
+
+docker run -p 637${port}:6379 -p 1637${port}:16379 --name redis-${port} \
+-v /mydata/redis/node-${port}/data:/data \
+-v /mydata/redis/node-${port}/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.1${port} redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf; \
+
+#=====================================================================
+#单个启动
+docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
+-v /mydata/redis/node-1/data:/data \
+-v /mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.11 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+
+docker run -p 6372:6379 -p 16372:16379 --name redis-2 \
+-v /mydata/redis/node-2/data:/data \
+-v /mydata/redis/node-2/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.12 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+
+docker run -p 6373:6379 -p 16373:16379 --name redis-3 \
+-v /mydata/redis/node-3/data:/data \
+-v /mydata/redis/node-3/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.13 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+
+#创建集群
+redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1
+
+[root@zhourui /]# docker exec -it redis-1 /bin/sh
+/data # redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 172.38.0.15:6379 to 172.38.0.11:6379
+Adding replica 172.38.0.16:6379 to 172.38.0.12:6379
+Adding replica 172.38.0.14:6379 to 172.38.0.13:6379
+M: 1524f57c751c662847b24edb3cf4433e42e11dae 172.38.0.11:6379
+   slots:[0-5460] (5461 slots) master
+M: 3d0a68b584e5935b6174d8b8e0603a14eb246393 172.38.0.12:6379
+   slots:[5461-10922] (5462 slots) master
+M: cce404917b84b790cf39ac1f6dff85c1c080c9a1 172.38.0.13:6379
+   slots:[10923-16383] (5461 slots) master
+S: 2fb9e53fde60fb288e87a8bccf37f2d521c5f5be 172.38.0.14:6379
+   replicates cce404917b84b790cf39ac1f6dff85c1c080c9a1
+S: d977bb4c2b2a45bbbeb74cc123bd87dba1acd257 172.38.0.15:6379
+   replicates 1524f57c751c662847b24edb3cf4433e42e11dae
+S: 317ccf18aefe00a7a45820b6509bd8c9fc1f7097 172.38.0.16:6379
+   replicates 3d0a68b584e5935b6174d8b8e0603a14eb246393
+Can I set the above configuration? (type 'yes' to accept): yes
+&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+..
+&gt;&gt;&gt; Performing Cluster Check (using node 172.38.0.11:6379)
+M: 1524f57c751c662847b24edb3cf4433e42e11dae 172.38.0.11:6379
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: cce404917b84b790cf39ac1f6dff85c1c080c9a1 172.38.0.13:6379
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+M: 3d0a68b584e5935b6174d8b8e0603a14eb246393 172.38.0.12:6379
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: 317ccf18aefe00a7a45820b6509bd8c9fc1f7097 172.38.0.16:6379
+   slots: (0 slots) slave
+   replicates 3d0a68b584e5935b6174d8b8e0603a14eb246393
+S: d977bb4c2b2a45bbbeb74cc123bd87dba1acd257 172.38.0.15:6379
+   slots: (0 slots) slave
+   replicates 1524f57c751c662847b24edb3cf4433e42e11dae
+S: 2fb9e53fde60fb288e87a8bccf37f2d521c5f5be 172.38.0.14:6379
+   slots: (0 slots) slave
+   replicates cce404917b84b790cf39ac1f6dff85c1c080c9a1
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+
+
+/data # redis-cli -c
+127.0.0.1:6379&gt; cluster info
+127.0.0.1:6379&gt; cluster nodes
+127.0.0.1:6379&gt; set a b
+-&gt; Redirected to slot [15495] located at 172.38.0.13:6379
+OK
+172.38.0.13:6379&gt; 
+
+#新建窗口  docker stop redis-3
+#获取 a 的值
+127.0.0.1:6379&gt; get a
+-&gt; Redirected to slot [15495] located at 172.38.0.14:6379
+"b"
+
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424221130647-811222688.png" alt="" loading="lazy"></p>
+<p>搭建redis集群完成！！</p>
+<h2 id="springboot打包dockers镜像">SpringBoot打包Dockers镜像</h2>
+<ol>
+<li>
+<p>构建一个SpringBoot项目</p>
+<pre><code class="language-java">@RestController
+public class HelloController {
+    @RequestMapping("/hello")
+    public String hello(){
+
+        return "Hello zhour!";
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>打包应用，package</p>
+</li>
+<li>
+<p>编写dockerfile</p>
+<pre><code class="language-sh">FROM java:8
+
+COPY *.jar /app.jar
+
+CMD ["---server port 8080---"]
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]
+</code></pre>
+</li>
+<li>
+<p>构建镜像（使用 ftp 将文件上传至服务器）</p>
+<pre><code class="language-sh">[root@zhourui idea]# ls
+demo-docker-0.0.1-SNAPSHOT.jar  Dockerfile
+[root@zhourui idea]# docker build -t boottestzr .
+
+</code></pre>
+</li>
+<li>
+<p>发布运行</p>
+<pre><code class="language-sh">[root@zhourui idea]# docker run -d -P --name ideaboot-web boottestzr
+</code></pre>
+</li>
+<li>
+<p>访问</p>
+<p><img src="https://img2020.cnblogs.com/blog/2140902/202104/2140902-20210424221141109-1903441422.png" alt="" loading="lazy"></p>
+</li>
+</ol>
+<p>如需浏览器访问，阿里云开发端口，或者运行时 -p 暴漏已开放的端口即可！！</p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 19:41</span>&nbsp;
+<a href="https://www.cnblogs.com/zhou-zr/">平遥</a>&nbsp;
+阅读(<span id="post_view_count">50</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14698345" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14698345);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 627239, cb_blogApp = 'zhou-zr', cb_blogUserGuid = 'ab717283-e836-4596-1c8c-08d83ba20c86';
+    var cb_entryId = 14698345, cb_entryCreatedDate = '2021-05-06 19:41', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 平遥
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvASw-v42EfZz4Kqhc66NEoaESK2Z3r0_eq6lw7U6oT83q_XlDEct44ltMEXoaXfLVtCmC44E6cAIN7UElAwxuJhJrNeenzUibAK5B-xaHBiWzKKWj0bXxqfHbNM_QkVoc" />
+</body>
+</html>

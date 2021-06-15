@@ -1,0 +1,1132 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。在之前的文章中，我们看到了关于Task的分析，本文我们重点看看在客户端如何发送Task" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。在之前的文章中，我们看到了关于Task的分析，本文我们重点看看在客户端如何发送Task" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码分析] 分布式任务队列 Celery 之 发送Task &amp; AMQP - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-04-19 08:40';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14672090.html">
+    <span>[源码分析] 分布式任务队列 Celery 之 发送Task &amp; AMQP</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。在之前的文章中，我们看到了关于Task的分析，本文我们重点看看在客户端如何发送Task，以及 Celery 的amqp对象如何使用。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码分析-分布式任务队列-celery-之-发送task--amqp">[源码分析] 分布式任务队列 Celery 之 发送Task &amp; AMQP</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码分析-分布式任务队列-celery-之-发送task--amqp">[源码分析] 分布式任务队列 Celery 之 发送Task &amp; AMQP</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-示例代码">0x01 示例代码</a><ul><li><a href="#11-服务端">1.1 服务端</a></li><li><a href="#12-客户端">1.2 客户端</a></li></ul></li><li><a href="#0x02-系统启动">0x02 系统启动</a><ul><li><a href="#21-产生celery">2.1 产生Celery</a></li><li><a href="#22-task-装饰器">2.2 task 装饰器</a><ul><li><a href="#221-添加任务">2.2.1 添加任务</a></li><li><a href="#222-绑定">2.2.2 绑定</a></li></ul></li><li><a href="#23-小结">2.3 小结</a></li></ul></li><li><a href="#0x03-amqp类">0x03 amqp类</a><ul><li><a href="#31-生成">3.1 生成</a></li><li><a href="#32-定义">3.2 定义</a></li></ul></li><li><a href="#0x04-发送task">0x04 发送Task</a><ul><li><a href="#41-apply_async-in-task">4.1 apply_async in task</a></li><li><a href="#42-send_task">4.2 send_task</a></li><li><a href="#43-生成消息内容">4.3 生成消息内容</a></li><li><a href="#44-send_task_message-in-amqp">4.4 send_task_message in amqp</a></li><li><a href="#45-publish-in-producer">4.5 publish in producer</a></li><li><a href="#46-redis-client">4.6 Redis Client</a></li><li><a href="#47-redis-内容">4.7 redis 内容</a><ul><li><a href="#471-delivery_tag-作用">4.7.1 delivery_tag 作用</a></li><li><a href="#472-delivery_tag-何时生成">4.7.2 delivery_tag 何时生成</a></li></ul></li></ul></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。</p>
+<p>在之前的文章中，我们看到了关于Task的分析，本文我们重点看看在客户端如何发送Task，以及 Celery 的amqp对象如何使用。</p>
+<p>在阅读之前，我们依然要提出几个问题，以此作为阅读时候的指引：</p>
+<ul>
+<li>客户端启动时候，Celery 应用 和 用户自定义 Task 是如何生成的？</li>
+<li>Task 装饰器起到了什么作用？</li>
+<li>发送 Task 时候，消息是如何组装的？</li>
+<li>发送 Task 时候，采用什么媒介（模块）来发送？amqp？</li>
+<li>Task 发送出去之后，在 Redis 之中如何存储？</li>
+</ul>
+<p>说明：在整理文章时，发现漏发了一篇，从而会影响大家阅读思路，特此补上，请大家谅解。</p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455431.html" target="_blank">源码分析] 消息队列 Kombu 之 mailbox</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455294.html" target="_blank">源码分析] 消息队列 Kombu 之 Hub</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455093.html" target="_blank">源码分析] 消息队列 Kombu 之 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455186.html" target="_blank">源码分析] 消息队列 Kombu 之 Producer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454934.html" target="_blank">源码分析] 消息队列 Kombu 之 启动过程</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454761.html" target="_blank">源码解析] 消息队列 Kombu 之 基本架构</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14562308.html" target="_blank">源码解析] 并行分布式框架 Celery 之架构 (1)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14562310.html" target="_blank">源码解析] 并行分布式框架 Celery 之架构 (2)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14563763.html" target="_blank">源码解析] 并行分布式框架 Celery 之 worker 启动 (1)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14563777.html" target="_blank">源码解析] 并行分布式框架 Celery 之 worker 启动 (2)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14612853.html" target="_blank">源码解析] 分布式任务队列 Celery 之启动 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14613110.html" target="_blank">源码解析] 并行分布式任务队列 Celery 之 Task是什么</a></p>
+<p><a href="https://www.cnblogs.com/rossiXYZ/p/14672090.html" target="_blank">[从源码学设计]celery 之 发送Task &amp; AMQP </a>   <strong>就是本文，从客户端角度讲解发送Task</strong></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14639556.html" target="_blank">源码解析] 并行分布式任务队列 Celery 之 消费动态流程</a>    <u>下一篇文章从服务端角度讲解收到 Task 如何消费</u></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14664004.html" target="_blank">源码解析] 并行分布式任务队列 Celery 之 多进程模型</a></p>
+<h2 id="0x01-示例代码">0x01 示例代码</h2>
+<p>我们首先给出示例代码。</p>
+<h3 id="11-服务端">1.1 服务端</h3>
+<p>示例代码服务端如下，这里使用了装饰器来包装待执行任务。</p>
+<pre><code class="language-python">from celery import Celery
+
+app = Celery('myTest', broker='redis://localhost:6379')
+
+@app.task
+def add(x,y):
+    return x+y
+
+if __name__ == '__main__':
+    app.worker_main(argv=['worker'])
+</code></pre>
+<h3 id="12-客户端">1.2 客户端</h3>
+<p>客户端发送代码如下，就是调用 add Task 来做加法计算：</p>
+<pre><code class="language-python">from myTest import add
+re = add.apply_async((2,17))
+</code></pre>
+<p>我们开始具体介绍，以下均是客户端的执行序列。</p>
+<h2 id="0x02-系统启动">0x02 系统启动</h2>
+<p>我们首先要介绍  <u>在客户端</u>，Celery 系统和 task（实例） 是如何启动的。</p>
+<h3 id="21-产生celery">2.1 产生Celery</h3>
+<p>如下代码首先会执行 myTest 这个 Celery。</p>
+<pre><code class="language-python">app = Celery('myTest', broker='redis://localhost:6379')
+</code></pre>
+<h3 id="22-task-装饰器">2.2 task 装饰器</h3>
+<p>Celery 使用了装饰器来包装待执行任务（因为各种语言的类似概念，在本文中可能会混用装饰器或者注解这两个术语）</p>
+<pre><code class="language-python">@app.task
+def add(x,y):
+    return x+y
+</code></pre>
+<p><u>task这个装饰器具体执行其实就是返回 <code>_create_task_cls</code> 这个内部函数执行的结果</u>。</p>
+<p>这个函数返回一个Proxy，Proxy 在真正执行到的时候，会执行 <code>_task_from_fun</code>。</p>
+<p><code>_task_from_fun</code> 的作用是：<u>将该task添加到全局变量中，即 当调用 <code>_task_from_fun</code> 时会将该任务添加到app任务列表中，以此达到所有任务共享的目的</u>。<strong>这样客户端才能知道这个 task</strong>。</p>
+<pre><code class="language-python">    def task(self, *args, **opts):
+        """Decorator to create a task class out of any callable. """
+        if USING_EXECV and opts.get('lazy', True):
+            from . import shared_task
+            return shared_task(*args, lazy=False, **opts)
+
+        def inner_create_task_cls(shared=True, filter=None, lazy=True, **opts):
+            _filt = filter
+
+            def _create_task_cls(fun):
+                if shared:
+                    def cons(app):
+                        return app._task_from_fun(fun, **opts) # 将该task添加到全局变量中，当调用_task_from_fun时会将该任务添加到app任务列表中，以此达到所有任务共享的目的
+                    cons.__name__ = fun.__name__
+                    connect_on_app_finalize(cons)
+                if not lazy or self.finalized:
+                    ret = self._task_from_fun(fun, **opts)
+                else:
+                    # return a proxy object that evaluates on first use
+                    ret = PromiseProxy(self._task_from_fun, (fun,), opts,
+                                       __doc__=fun.__doc__)
+                    self._pending.append(ret)
+                if _filt:
+                    return _filt(ret)
+                return ret
+
+            return _create_task_cls
+
+        if len(args) == 1:
+            if callable(args[0]):
+                return inner_create_task_cls(**opts)(*args) #执行在这里
+        return inner_create_task_cls(**opts)
+</code></pre>
+<p>我们具体分析下这个装饰器。</p>
+<h4 id="221-添加任务">2.2.1 添加任务</h4>
+<p>在初始化过程中，为每个app添加该任务时，会调用到<code>app._task_from_fun(fun, **options)</code>。</p>
+<p>具体作用是：</p>
+<ul>
+<li>判断各种参数配置；</li>
+<li>动态创建task；</li>
+<li>将任务添加到_tasks任务中；</li>
+<li>用task的bind方法绑定相关属性到该实例上；</li>
+</ul>
+<p>代码如下：</p>
+<pre><code class="language-python">    def _task_from_fun(self, fun, name=None, base=None, bind=False, **options):
+
+        name = name or self.gen_task_name(fun.__name__, fun.__module__)         # 如果传入了名字则使用，否则就使用moudle name的形式
+        base = base or self.Task                                                # 是否传入Task，否则用类自己的Task类 默认celery.app.task:Task
+
+        if name not in self._tasks:                                             # 如果要加入的任务名称不再_tasks中
+            run = fun if bind else staticmethod(fun)                            # 是否bind该方法是则直接使用该方法，否则就置为静态方法
+            task = type(fun.__name__, (base,), dict({
+                'app': self,                                                    # 动态创建Task类实例
+                'name': name,                                                   # Task的name
+                'run': run,                                                     # task的run方法
+                '_decorated': True,                                             # 是否装饰
+                '__doc__': fun.__doc__,
+                '__module__': fun.__module__,
+                '__header__': staticmethod(head_from_fun(fun, bound=bind)),
+                '__wrapped__': run}, **options))()                              
+            # for some reason __qualname__ cannot be set in type()
+            # so we have to set it here.
+            try:
+                task.__qualname__ = fun.__qualname__                            
+            except AttributeError:
+                pass
+            self._tasks[task.name] = task                                       # 将任务添加到_tasks任务中
+            task.bind(self)  # connects task to this app                        # 调用task的bind方法绑定相关属性到该实例上
+
+            add_autoretry_behaviour(task, **options)
+        else:
+            task = self._tasks[name]
+        return task  
+</code></pre>
+<h4 id="222-绑定">2.2.2 绑定</h4>
+<p>bind方法的作用是：<u>绑定相关属性到该实例上，因为只知道 task 名字或者代码是不够的，还需要在运行时候拿到 task 的实例</u>。</p>
+<pre><code class="language-python">@classmethod
+def bind(cls, app):
+    was_bound, cls.__bound__ = cls.__bound__, True
+    cls._app = app                                          # 设置类的_app属性
+    conf = app.conf                                         # 获取app的配置信息
+    cls._exec_options = None  # clear option cache
+
+    if cls.typing is None:
+        cls.typing = app.strict_typing
+
+    for attr_name, config_name in cls.from_config:          # 设置类中的默认值
+        if getattr(cls, attr_name, None) is None:           # 如果获取该属性为空
+            setattr(cls, attr_name, conf[config_name])      # 使用app配置中的默认值
+
+    # decorate with annotations from config.
+    if not was_bound:
+        cls.annotate()
+
+        from celery.utils.threads import LocalStack
+        cls.request_stack = LocalStack()                    # 使用线程栈保存数据
+
+    # PeriodicTask uses this to add itself to the PeriodicTask schedule.
+    cls.on_bound(app)
+
+    return app
+</code></pre>
+<h3 id="23-小结">2.3 小结</h3>
+<p>至此，<u>在客户端（使用者方），Celery 应用已经启动，一个task实例也已经生成，其属性都被绑定在实例上</u>。</p>
+<h2 id="0x03-amqp类">0x03 amqp类</h2>
+<p>在客户端调用 apply_async 的时候，会调用 app.send_task 来具体发送任务，其中用到 amqp，所以我们首先讲讲 amqp 类。</p>
+<h3 id="31-生成">3.1 生成</h3>
+<p>在 send_task 之中有如下代码，就是：</p>
+<pre><code class="language-python">    def send_task(self, ....):
+        """Send task by name.
+        """
+        parent = have_parent = None
+        amqp = self.amqp # 此时生成
+</code></pre>
+<p>此时的 self 是 Celery 应用本身，具体内容我们打印出来看看，从下面我们可以看到 Celery 应用是什么样子。</p>
+<pre><code class="language-python">self = {Celery} &lt;Celery myTest at 0x1eeb5590488&gt;
+ AsyncResult = {type} &lt;class 'celery.result.AsyncResult'&gt;
+ Beat = {type} &lt;class 'celery.apps.beat.Beat'&gt;
+ GroupResult = {type} &lt;class 'celery.result.GroupResult'&gt;
+ Pickler = {type} &lt;class 'celery.app.utils.AppPickler'&gt;
+ ResultSet = {type} &lt;class 'celery.result.ResultSet'&gt;
+ Task = {type} &lt;class 'celery.app.task.Task'&gt;
+ WorkController = {type} &lt;class 'celery.worker.worker.WorkController'&gt;
+ Worker = {type} &lt;class 'celery.apps.worker.Worker'&gt;
+ amqp = {AMQP} &lt;celery.app.amqp.AMQP object at 0x000001EEB5884188&gt;
+ amqp_cls = {str} 'celery.app.amqp:AMQP'
+ backend = {DisabledBackend} &lt;celery.backends.base.DisabledBackend object at 0x000001EEB584E248&gt;
+ clock = {LamportClock} 0
+ control = {Control} &lt;celery.app.control.Control object at 0x000001EEB57B37C8&gt;
+ events = {Events} &lt;celery.app.events.Events object at 0x000001EEB56C7188&gt;
+ loader = {AppLoader} &lt;celery.loaders.app.AppLoader object at 0x000001EEB5705408&gt;
+ main = {str} 'myTest'
+ pool = {ConnectionPool} &lt;kombu.connection.ConnectionPool object at 0x000001EEB57A9688&gt;
+ producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x000001EEB6297508&gt;
+ registry_cls = {type} &lt;class 'celery.app.registry.TaskRegistry'&gt;
+ tasks = {TaskRegistry: 10} {'myTest.add': &lt;@task: myTest.add of myTest at 0x1eeb5590488&gt;, 'celery.accumulate': &lt;@task: celery.accumulate of myTest at 0x1eeb5590488&gt;, 'celery.chord_unlock': &lt;@task: celery.chord_unlock of myTest at 0x1eeb5590488&gt;, 'celery.chunks': &lt;@task: celery.chunks of myTest at 0x1eeb5590488&gt;, 'celery.backend_cleanup': &lt;@task: celery.backend_cleanup of myTest at 0x1eeb5590488&gt;, 'celery.group': &lt;@task: celery.group of myTest at 0x1eeb5590488&gt;, 'celery.map': &lt;@task: celery.map of myTest at 0x1eeb5590488&gt;, 'celery.chain': &lt;@task: celery.chain of myTest at 0x1eeb5590488&gt;, 'celery.starmap': &lt;@task: celery.starmap of myTest at 0x1eeb5590488&gt;, 'celery.chord': &lt;@task: celery.chord of myTest at 0x1eeb5590488&gt;}
+</code></pre>
+<p>堆栈为：</p>
+<pre><code class="language-python">amqp, base.py:1205
+__get__, objects.py:43
+send_task, base.py:705
+apply_async, task.py:565
+&lt;module&gt;, myclient.py:4
+</code></pre>
+<p>为什么赋值语句就可以生成 amqp？是因为其被 cached_property 修饰。</p>
+<p>使用 cached_property 修饰过的函数，就变成是对象的属性，该对象第一次引用该属性时，会调用函数，对象第二次引用该属性时就直接从词典中取了，即 Caches the return value of the get method on first call。</p>
+<pre><code class="language-python">    @cached_property
+    def amqp(self):
+        """AMQP related functionality: :class:`~@amqp`."""
+        return instantiate(self.amqp_cls, app=self)
+</code></pre>
+<h3 id="32-定义">3.2 定义</h3>
+<p><u>AMQP类就是对amqp协议实现的再一次封装，在这里其实就是对 kombu 类的再一次封装</u>。</p>
+<pre><code class="language-python">class AMQP:
+    """App AMQP API: app.amqp."""
+
+    Connection = Connection
+    Consumer = Consumer
+    Producer = Producer
+
+    #: compat alias to Connection
+    BrokerConnection = Connection
+
+    queues_cls = Queues
+
+    #: Cached and prepared routing table.
+    _rtable = None
+
+    #: Underlying producer pool instance automatically
+    #: set by the :attr:`producer_pool`.
+    _producer_pool = None
+
+    # Exchange class/function used when defining automatic queues.
+    # For example, you can use ``autoexchange = lambda n: None`` to use the
+    # AMQP default exchange: a shortcut to bypass routing
+    # and instead send directly to the queue named in the routing key.
+    autoexchange = None
+</code></pre>
+<p>具体内容我们打印出来看看，我们可以看到 amqp 是什么样子。</p>
+<pre><code class="language-python">amqp = {AMQP}  
+ BrokerConnection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Connection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Consumer = {type} &lt;class 'kombu.messaging.Consumer'&gt;
+ Producer = {type} &lt;class 'kombu.messaging.Producer'&gt;
+ app = {Celery} &lt;Celery myTest at 0x252bd2903c8&gt;
+ argsrepr_maxsize = {int} 1024
+ autoexchange = {NoneType} None
+ default_exchange = {Exchange} Exchange celery(direct)
+ default_queue = {Queue} &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;
+ kwargsrepr_maxsize = {int} 1024
+ producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+ publisher_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+ queues = {Queues: 1} {'celery': &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;}
+ queues_cls = {type} &lt;class 'celery.app.amqp.Queues'&gt;
+ router = {Router} &lt;celery.app.routes.Router object at 0x00000252BDC6B248&gt;
+ routes = {tuple: 0} ()
+ task_protocols = {dict: 2} {1: &lt;bound method AMQP.as_task_v1 of &lt;celery.app.amqp.AMQP object at 0x00000252BDC74148&gt;&gt;, 2: &lt;bound method AMQP.as_task_v2 of &lt;celery.app.amqp.AMQP object at 0x00000252BDC74148&gt;&gt;}
+ utc = {bool} True
+  _event_dispatcher = {EventDispatcher} &lt;celery.events.dispatcher.EventDispatcher object at 0x00000252BE750348&gt;
+  _producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+  _rtable = {tuple: 0} ()
+</code></pre>
+<p>具体逻辑如下：</p>
+<pre><code class="language-python">+---------+
+| Celery  |    +----------------------------+
+|         |    |   celery.app.amqp.AMQP     |
+|         |    |                            |
+|         |    |                            |
+|         |    |          BrokerConnection +-----&gt;  kombu.connection.Connection
+|         |    |                            |
+|   amqp+-----&gt;+          Connection       +-----&gt;  kombu.connection.Connection
+|         |    |                            |
++---------+    |          Consumer         +-----&gt;  kombu.messaging.Consumer
+               |                            |
+               |          Producer         +-----&gt;  kombu.messaging.Producer
+               |                            |
+               |          producer_pool    +-----&gt;  kombu.pools.ProducerPool
+               |                            |
+               |          queues           +-----&gt;  celery.app.amqp.Queues
+               |                            |
+               |          router           +-----&gt;  celery.app.routes.Router
+               +----------------------------+
+</code></pre>
+<h2 id="0x04-发送task">0x04 发送Task</h2>
+<p>我们接着看看客户端如何发送task。</p>
+<pre><code class="language-python">from myTest import add
+re = add.apply_async((2,17))
+</code></pre>
+<p>总述下逻辑：</p>
+<ul>
+<li>Producer 初始化过程完成了连接用的内容，比如调用self.connect方法，到预定的Transport类中连接载体，并初始化Chanel，self.chanel = self.connection；</li>
+<li>调用 Message 封装消息；</li>
+<li>Exchange 将 routing_key 转为 queue；</li>
+<li>调用 amqp 发送消息；</li>
+<li>Channel 负责最终消息发布；</li>
+</ul>
+<p>我们下面详细解读下。</p>
+<h3 id="41-apply_async-in-task">4.1 apply_async in task</h3>
+<p>这里重要的是几点：</p>
+<ul>
+<li>进行了组装待发送任务的任务的参数，如 connection，queue，exchange，routing_key等</li>
+<li>如果是 task_always_eager，则产生一个 Kombu . producer；即如果是配置了本地直接执行则本地执行直接返回结果</li>
+<li>否则，调用 amqp 来发送 task（我们主要看这里）；</li>
+</ul>
+<p>缩减版代码如下：</p>
+<pre><code class="language-python">    def apply_async(self, args=None, kwargs=None, task_id=None, producer=None,
+                    link=None, link_error=None, shadow=None, **options):
+        """Apply tasks asynchronously by sending a message.
+        """
+        
+        preopts = self._get_exec_options()
+        options = dict(preopts, **options) if options else preopts
+
+        app = self._get_app()
+        if app.conf.task_always_eager:
+            # 获取 producer
+            with app.producer_or_acquire(producer) as eager_producer:      
+                serializer = options.get('serializer')
+                body = args, kwargs
+                content_type, content_encoding, data = serialization.dumps(
+                    body, serializer,
+                )
+                args, kwargs = serialization.loads(
+                    data, content_type, content_encoding,
+                    accept=[content_type]
+                )
+            with denied_join_result():
+                return self.apply(args, kwargs, task_id=task_id or uuid(),
+                                  link=link, link_error=link_error, **options)
+        else:
+            return app.send_task( #调用到这里
+                self.name, args, kwargs, task_id=task_id, producer=producer,
+                link=link, link_error=link_error, result_cls=self.AsyncResult,
+                shadow=shadow, task_type=self,
+                **options
+            )
+</code></pre>
+<p>此时如下：</p>
+<pre><code class="language-python">         1  apply_async       +-------------------+
+                              |                   |
+User  +---------------------&gt; | task: myTest.add  |
+                              |                   |
+                              +-------------------+
+</code></pre>
+<h3 id="42-send_task">4.2 send_task</h3>
+<p>此函数作用是生成任务信息，调用amqp发送任务：</p>
+<ul>
+<li>获取amqp实例；</li>
+<li>设置任务id，如果没有传入则生成任务id；</li>
+<li>生成路由值，如果没有则使用amqp的router；</li>
+<li>生成route信息；</li>
+<li>生成任务信息；</li>
+<li>如果有连接则生成生产者；</li>
+<li>发送任务消息；</li>
+<li>生成异步任务实例；</li>
+<li>返回结果；</li>
+</ul>
+<p>这里调用到了 Celery 应用。为啥还要调用到 Celery 应用本身呢？Task 自身没有关于 MQ 的任何消息，而只有一个绑定的 Celery 对象，所以从抽象层面就只能交给 Celery 了，而 Celery 却包含了所有你需要的信息，是可以完成这个任务的。</p>
+<p>具体如下：</p>
+<pre><code class="language-python">def send_task(self, name, ...):
+    """Send task by name.
+    """
+    parent = have_parent = None
+    amqp = self.amqp                                                    # 获取amqp实例
+    task_id = task_id or uuid()                                         # 设置任务id，如果没有传入则生成任务id
+    producer = producer or publisher  # XXX compat                      # 生成这
+    router = router or amqp.router                                      # 路由值，如果没有则使用amqp的router
+    options = router.route(
+        options, route_name or name, args, kwargs, task_type)           # 生成route信息
+
+    message = amqp.create_task_message( # 生成任务信息
+        task_id, name, args, kwargs, countdown, eta, group_id, group_index,
+        expires, retries, chord,
+        maybe_list(link), maybe_list(link_error),
+        reply_to or self.thread_oid, time_limit, soft_time_limit,
+        self.conf.task_send_sent_event,
+        root_id, parent_id, shadow, chain,
+        argsrepr=options.get('argsrepr'),
+        kwargsrepr=options.get('kwargsrepr'),
+    )
+
+    if connection:
+        producer = amqp.Producer(connection)                            # 如果有连接则生成生产者
+    
+    with self.producer_or_acquire(producer) as P:                       
+        with P.connection._reraise_as_library_errors():
+            self.backend.on_task_call(P, task_id)
+            amqp.send_task_message(P, name, message, **options)         # 发送任务消息 
+    
+    result = (result_cls or self.AsyncResult)(task_id)                  # 生成异步任务实例
+    if add_to_parent:
+        if not have_parent:
+            parent, have_parent = self.current_worker_task, True
+        if parent:
+            parent.add_trail(result)
+    return result                                                       # 返回结果
+</code></pre>
+<p>此时如下：</p>
+<pre><code class="language-python">         1  apply_async       +-------------------+
+                              |                   |
+User  +---------------------&gt; | task: myTest.add  |
+                              |                   |
+                              +--------+----------+
+                                       |
+                                       |
+                        2 send_task    |
+                                       |
+                                       v
+                                +------+--------+
+                                | Celery myTest |
+                                |               |
+                                +------+--------+
+                                       |
+                                       |
+                  3 send_task_message  |
+                                       |
+                                       v
+                               +-------+---------+
+                               |      amqp       |
+                               |                 |
+                               |                 |
+                               +-----------------+
+
+</code></pre>
+<h3 id="43-生成消息内容">4.3 生成消息内容</h3>
+<p>as_task_v2 会具体生成消息内容，消息体的预处理都是在这里完成的，例如检验和转换参数格式。</p>
+<p>大家可以看到如果实现一个消息，需要用到几个大部分，这里奇怪的是，对于一个异步调用，<code>task</code> 名和 <code>id</code> 都是放在 <code>headers</code> 里头的，而参数什么的却是放在 <code>body</code> 里面：</p>
+<ul>
+<li>headers，包括：task name, task id, expires, 等等；</li>
+<li>消息类型 和 编码方式：content-encoding，content-type；</li>
+<li>参数：这些就是 Celery 特有的，用来区分不同队列的，比如：exchange，routing_key 等等；</li>
+<li>body : 就是消息体；</li>
+</ul>
+<p>最终具体消息举例如下：</p>
+<pre><code class="language-json">{
+	"body": "W1syLCA4XSwge30sIHsiY2FsbGJhY2tzIjogbnVsbCwgImVycmJhY2tzIjogbnVsbCwgImNoYWluIjogbnVsbCwgImNob3JkIjogbnVsbH1d",
+	"content-encoding": "utf-8",
+	"content-type": "application/json",
+	"headers": {
+		"lang": "py",
+		"task": "myTest.add",
+		"id": "243aac4a-361b-4408-9e0c-856e2655b7b5",
+		"shadow": null,
+		"eta": null,
+		"expires": null,
+		"group": null,
+		"group_index": null,
+		"retries": 0,
+		"timelimit": [null, null],
+		"root_id": "243aac4a-361b-4408-9e0c-856e2655b7b5",
+		"parent_id": null,
+		"argsrepr": "(2, 8)",
+		"kwargsrepr": "{}",
+		"origin": "gen33652@DESKTOP-0GO3RPO"
+	},
+	"properties": {
+		"correlation_id": "243aac4a-361b-4408-9e0c-856e2655b7b5",
+		"reply_to": "b34fcf3d-da9a-3717-a76f-44b6a6362da1",
+		"delivery_mode": 2,
+		"delivery_info": {
+			"exchange": "",
+			"routing_key": "celery"
+		},
+		"priority": 0,
+		"body_encoding": "base64",
+		"delivery_tag": "fa1bc9c8-3709-4c02-9543-8d0fe3cf4e6c"
+	}
+}
+</code></pre>
+<p>具体代码如下，这里的 sent_event 是后续发送时候需要，并不体现在具体消息内容之中：</p>
+<pre><code class="language-python">def as_task_v2(self, task_id, name, args=None, kwargs=None, ......):
+
+    ......
+    
+    return task_message(
+        headers={
+            'lang': 'py',
+            'task': name,
+            'id': task_id,
+            'shadow': shadow,
+            'eta': eta,
+            'expires': expires,
+            'group': group_id,
+            'group_index': group_index,
+            'retries': retries,
+            'timelimit': [time_limit, soft_time_limit],
+            'root_id': root_id,
+            'parent_id': parent_id,
+            'argsrepr': argsrepr,
+            'kwargsrepr': kwargsrepr,
+            'origin': origin or anon_nodename()
+        },
+        properties={
+            'correlation_id': task_id,
+            'reply_to': reply_to or '',
+        },
+        body=(
+            args, kwargs, {
+                'callbacks': callbacks,
+                'errbacks': errbacks,
+                'chain': chain,
+                'chord': chord,
+            },
+        ),
+        sent_event={
+            'uuid': task_id,
+            'root_id': root_id,
+            'parent_id': parent_id,
+            'name': name,
+            'args': argsrepr,
+            'kwargs': kwargsrepr,
+            'retries': retries,
+            'eta': eta,
+            'expires': expires,
+        } if create_sent_event else None,
+    )
+</code></pre>
+<h3 id="44-send_task_message-in-amqp">4.4 send_task_message in amqp</h3>
+<p>amqp.send_task_message(P, name, message, **options) 是用来 amqp 发送任务。</p>
+<p>该方法主要是组装待发送任务的参数，如connection，queue，exchange，routing_key等，调用 producer 的 publish 发送任务。</p>
+<p>基本套路就是：</p>
+<ul>
+<li>获得 queue；</li>
+<li>获得 delivery_mode；</li>
+<li>获得 exchange；</li>
+<li>获取重试策略等；</li>
+<li>调用 producer 来发送消息;</li>
+</ul>
+<pre><code class="language-python">        def send_task_message(producer, name, message,
+                              exchange=None, routing_key=None, queue=None,
+                              event_dispatcher=None,
+                              retry=None, retry_policy=None,
+                              serializer=None, delivery_mode=None,
+                              compression=None, declare=None,
+                              headers=None, exchange_type=None, **kwargs):
+    				# 获得 queue, 获得 delivery_mode, 获得 exchange, 获取重试策略等
+
+            if before_receivers:
+                send_before_publish(
+                    sender=name, body=body,
+                    exchange=exchange, routing_key=routing_key,
+                    declare=declare, headers=headers2,
+                    properties=properties, retry_policy=retry_policy,
+                )
+            
+            ret = producer.publish(
+                body,
+                exchange=exchange,
+                routing_key=routing_key,
+                serializer=serializer or default_serializer,
+                compression=compression or default_compressor,
+                retry=retry, retry_policy=_rp,
+                delivery_mode=delivery_mode, declare=declare,
+                headers=headers2,
+                **properties
+            )
+            if after_receivers:
+                send_after_publish(sender=name, body=body, headers=headers2,
+                                   exchange=exchange, routing_key=routing_key)
+ 
+            .....
+  
+            if sent_event: # 这里就处理了sent_event
+                evd = event_dispatcher or default_evd
+                exname = exchange
+                if isinstance(exname, Exchange):
+                    exname = exname.name
+                sent_event.update({
+                    'queue': qname,
+                    'exchange': exname,
+                    'routing_key': routing_key,
+                })
+                evd.publish('task-sent', sent_event,
+                            producer, retry=retry, retry_policy=retry_policy)
+            return ret
+        return send_task_message
+</code></pre>
+<p>此时堆栈为：</p>
+<pre><code class="language-python">send_task_message, amqp.py:473
+send_task, base.py:749
+apply_async, task.py:565
+&lt;module&gt;, myclient.py:4
+</code></pre>
+<p>此时变量为：</p>
+<pre><code class="language-python">qname = {str} 'celery'
+queue = {Queue} &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;
+ ContentDisallowed = {type} &lt;class 'kombu.exceptions.ContentDisallowed'&gt;
+ alias = {NoneType} None
+ attrs = {tuple: 18} (('name', None), ('exchange', None), ('routing_key', None), ('queue_arguments', None), ('binding_arguments', None), ('consumer_arguments', None), ('durable', &lt;class 'bool'&gt;), ('exclusive', &lt;class 'bool'&gt;), ('auto_delete', &lt;class 'bool'&gt;), ('no_ack', None), ('alias', None), ('bindings', &lt;class 'list'&gt;), ('no_declare', &lt;class 'bool'&gt;), ('expires', &lt;class 'float'&gt;), ('message_ttl', &lt;class 'float'&gt;), ('max_length', &lt;class 'int'&gt;), ('max_length_bytes', &lt;class 'int'&gt;), ('max_priority', &lt;class 'int'&gt;))
+ auto_delete = {bool} False
+ binding_arguments = {NoneType} None
+ bindings = {set: 0} set()
+ can_cache_declaration = {bool} True
+ channel = {str} 'Traceback (most recent call last):\n  File "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.2.2\\plugins\\python-ce\\helpers\\pydev\\_pydevd_bundle\\pydevd_resolver.py", line 178, in _getPyDictionary\n    attr = getattr(var, n)\n  File "C:\\User
+ consumer_arguments = {NoneType} None
+ durable = {bool} True
+ exchange = {Exchange} Exchange celery(direct)
+ exclusive = {bool} False
+ expires = {NoneType} None
+ is_bound = {bool} False
+ max_length = {NoneType} None
+ max_length_bytes = {NoneType} None
+ max_priority = {NoneType} None
+ message_ttl = {NoneType} None
+ name = {str} 'celery'
+ no_ack = {bool} False
+ no_declare = {NoneType} None
+ on_declared = {NoneType} None
+ queue_arguments = {NoneType} None
+ routing_key = {str} 'celery'
+  _channel = {NoneType} None
+  _is_bound = {bool} False
+queues = {Queues: 1} {'celery': &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;}
+</code></pre>
+<p>此时逻辑如下：</p>
+<pre><code class="language-python">         1  apply_async       +-------------------+
+                              |                   |
+User  +---------------------&gt; | task: myTest.add  |
+                              |                   |
+                              +--------+----------+
+                                       |
+                                       |
+                          2 send_task  |
+                                       |
+                                       v
+                                +------+--------+
+                                | Celery myTest |
+                                |               |
+                                +------+--------+
+                                       |
+                                       |
+                  3 send_task_message  |
+                                       |
+                                       v
+                               +-------+---------+
+                               |      amqp       |
+                               +-------+---------+
+                                       |
+                                       |
+                            4 publish  |
+                                       |
+                                       v
+                                  +----+------+
+                                  | producer  |
+                                  |           |
+                                  +-----------+
+</code></pre>
+<h3 id="45-publish-in-producer">4.5 publish in producer</h3>
+<p>在 produer 之中，<u>调用 channel 来发送信息</u>。</p>
+<pre><code class="language-python">def _publish(self, body, priority, content_type, content_encoding,
+             headers, properties, routing_key, mandatory,
+             immediate, exchange, declare):
+    channel = self.channel
+    message = channel.prepare_message(
+        body, priority, content_type,
+        content_encoding, headers, properties,
+    )
+    if declare:
+        maybe_declare = self.maybe_declare
+        [maybe_declare(entity) for entity in declare]
+
+    # handle autogenerated queue names for reply_to
+    reply_to = properties.get('reply_to')
+    if isinstance(reply_to, Queue):
+        properties['reply_to'] = reply_to.name
+    return channel.basic_publish( # 发送消息
+        message,
+        exchange=exchange, routing_key=routing_key,
+        mandatory=mandatory, immediate=immediate,
+    )
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-python">body = {str} '[[2, 8], {}, {"callbacks": null, "errbacks": null, "chain": null, "chord": null}]'
+compression = {NoneType} None
+content_encoding = {str} 'utf-8'
+content_type = {str} 'application/json'
+declare = {list: 1} [&lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;]
+delivery_mode = {int} 2
+exchange = {str} ''
+exchange_name = {str} ''
+expiration = {NoneType} None
+headers = {dict: 15} {'lang': 'py', 'task': 'myTest.add', 'id': 'af0e4c14-a618-41b4-9340-1479cb7cde4f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': 'af0e4c14-a618-41b4-9340-1479cb7cde4f', 'parent_id': None, 'argsrepr': '(2, 8)', 'kwargsrepr': '{}', 'origin': 'gen11468@DESKTOP-0GO3RPO'}
+immediate = {bool} False
+mandatory = {bool} False
+priority = {int} 0
+properties = {dict: 3} {'correlation_id': 'af0e4c14-a618-41b4-9340-1479cb7cde4f', 'reply_to': '2c938063-64b8-35f5-ac9f-a1c0915b6f71', 'delivery_mode': 2}
+retry = {bool} True
+retry_policy = {dict: 4} {'max_retries': 3, 'interval_start': 0, 'interval_max': 1, 'interval_step': 0.2}
+routing_key = {str} 'celery'
+self = {Producer} &lt;Producer: &lt;promise: 0x1eeb62c44c8&gt;&gt;
+serializer = {str} 'json'
+</code></pre>
+<p>此时逻辑为：</p>
+<pre><code class="language-python">         1  apply_async       +-------------------+
+                              |                   |
+User  +---------------------&gt; | task: myTest.add  |
+                              |                   |
+                              +--------+----------+
+                                       |
+                          2 send_task  |
+                                       |
+                                       v
+                                +------+--------+
+                                | Celery myTest |
+                                |               |
+                                +------+--------+
+                                       |
+                  3 send_task_message  |
+                                       |
+                                       v
+                               +-------+---------+
+                               |      amqp       |
+                               +-------+---------+
+                                       |
+                            4 publish  |
+                                       |
+                                       v
+                                  +----+------+
+                                  | producer  |
+                                  |           |
+                                  +----+------+
+                                       |
+                                       |
+                      5 basic_publish  |
+                                       v
+                                  +----+------+
+                                  |  channel  |
+                                  |           |
+                                  +-----------+
+</code></pre>
+<h3 id="46-redis-client">4.6 Redis Client</h3>
+<p>Celery 最后是调用到 Redis Client 完成发送，堆栈如下：</p>
+<pre><code class="language-python">_put, redis.py:793
+basic_publish, base.py:605
+_publish, messaging.py:200
+_ensured, connection.py:525
+publish, messaging.py:178
+send_task_message, amqp.py:532
+send_task, base.py:749
+apply_async, task.py:565
+&lt;module&gt;, myclient.py:4
+</code></pre>
+<p>具体代码对于：</p>
+<pre><code class="language-python">def lpush(self, name, *values):
+    "Push ``values`` onto the head of the list ``name``"
+    return self.execute_command('LPUSH', name, *values)
+  
+# COMMAND EXECUTION AND PROTOCOL PARSING
+def execute_command(self, *args, **options):
+    "Execute a command and return a parsed response"
+    pool = self.connection_pool
+    command_name = args[0]
+    conn = self.connection or pool.get_connection(command_name, **options)
+    try:
+        conn.send_command(*args)
+        return self.parse_response(conn, command_name, **options)
+    except (ConnectionError, TimeoutError) as e:
+        conn.disconnect()
+        if not (conn.retry_on_timeout and isinstance(e, TimeoutError)):
+            raise
+        conn.send_command(*args)
+        return self.parse_response(conn, command_name, **options)
+    finally:
+        if not self.connection:
+            pool.release(conn)
+</code></pre>
+<p>变量如下：</p>
+<pre><code class="language-java">args = {tuple: 3} ('LPUSH', 'celery', '{"body": "W1syLCAxN10sIHt9LCB7ImNhbGxiYWNrcyI6IG51bGwsICJlcnJiYWNrcyI6IG51bGwsICJjaGFpbiI6IG51bGwsICJjaG9yZCI6IG51bGx9XQ==", "content-encoding": "utf-8", "content-type": "application/json", "headers": {"lang": "py", "task": "myTest.add", "id": "59bc4efc-df32-49cc-86ca-fcee613369f9", "shadow": null, "eta": null, "expires": null, "group": null, "group_index": null, "retries": 0, "timelimit": [null, null], "root_id": "59bc4efc-df32-49cc-86ca-fcee613369f9", "parent_id": null, "argsrepr": "(2, 17)", "kwargsrepr": "{}", "origin": "gen18117@me2koreademini"}, "properties": {"correlation_id": "59bc4efc-df32-49cc-86ca-fcee613369f9", "reply_to": "d8e56fd1-ef27-3181-bc29-b9fb63f4dbb7", "delivery_mode": 2, "delivery_info": {"exchange": "", "routing_key": "celery"}, "priority": 0, "body_encoding": "base64", "delivery_tag": "7ff8c477-8ee7-4e71-9e88-e0c4ffc32943"}}')
+
+options = {dict: 0} {}
+
+self = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+</code></pre>
+<p>至此一个任务就发送出去，等待着消费者消费掉任务。</p>
+<p>一个最终流程图如下：</p>
+<pre><code class="language-python">                apply_async              send_task              create_task_message
+ +-----------+                +------+              +---------+                     +------+
+ | user func +--------------&gt; | task | +-----------&gt;+  Celery | +-----------------&gt; | amqp |
+ +-----------+                +------+              +---------+                     +--+---+
+                                                                                       |
+                                                                    send_task_message  |
+                                                                                       |
+                                                                                       v
+                                    lpush           +---------+                 +------+---+
+                                 +----------------+ | Channel |  &lt;------------+ | Producer |
+                                 |                  +---------+                 +----------+
+                                 |                               basic_publish
+                                 |
++------------------------------------------------------------------------------------------+
+                                 |
+                                 |                                              Redis Client
+                                 v
+ +-------------------------------+----------------------------------+
+ |                                                                  |
+ | Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&lt;&gt;&gt; |
+ |                                                                  |
+ +-------------------------------+----------------------------------+
+                                 |
+                                 |  send_command
+                                 |
+                                 v
+         +-----------------------+---------------------------+
+         |  Redis Connection&lt;host=localhost,port=6379,db=0&gt;  |
+         +---------------------------------------------------+
+
+</code></pre>
+<h3 id="47-redis-内容">4.7 redis 内容</h3>
+<p>发送之后，task 就被存储在redis的队列之中。在redis 的结果是：</p>
+<pre><code class="language-python">127.0.0.1:6379&gt; keys *
+1) "_kombu.binding.reply.testMailbox.pidbox"
+2) "_kombu.binding.testMailbox.pidbox"
+3) "celery"
+4) "_kombu.binding.celeryev"
+5) "_kombu.binding.celery"
+6) "_kombu.binding.reply.celery.pidbox"
+127.0.0.1:6379&gt; lrange celery 0 -1
+1) "{\"body\": \"W1syLCA4XSwge30sIHsiY2FsbGJhY2tzIjogbnVsbCwgImVycmJhY2tzIjogbnVsbCwgImNoYWluIjogbnVsbCwgImNob3JkIjogbnVsbH1d\", \"content-encoding\": \"utf-8\", \"content-type\": \"application/json\", \"headers\": {\"lang\": \"py\", \"task\": \"myTest.add\", \"id\": \"243aac4a-361b-4408-9e0c-856e2655b7b5\", \"shadow\": null, \"eta\": null, \"expires\": null, \"group\": null, \"group_index\": null, \"retries\": 0, \"timelimit\": [null, null], \"root_id\": \"243aac4a-361b-4408-9e0c-856e2655b7b5\", \"parent_id\": null, \"argsrepr\": \"(2, 8)\", \"kwargsrepr\": \"{}\", \"origin\": \"gen33652@DESKTOP-0GO3RPO\"}, \"properties\": {\"correlation_id\": \"243aac4a-361b-4408-9e0c-856e2655b7b5\", \"reply_to\": \"b34fcf3d-da9a-3717-a76f-44b6a6362da1\", \"delivery_mode\": 2, \"delivery_info\": {\"exchange\": \"\", \"routing_key\": \"celery\"}, \"priority\": 0, \"body_encoding\": \"base64\", \"delivery_tag\": \"fa1bc9c8-3709-4c02-9543-8d0fe3cf4e6c\"}}"
+</code></pre>
+<h4 id="471-delivery_tag-作用">4.7.1 delivery_tag 作用</h4>
+<p>可以看到，最终消息中，有一个 delivery_tag 变量，这里要特殊说明下。</p>
+<p>可以认为 delivery_tag 是消息在 redis 之中的唯一标示，是 UUID 格式。</p>
+<p>具体举例如下:</p>
+<p><code>"delivery_tag": "fa1bc9c8-3709-4c02-9543-8d0fe3cf4e6c"</code>。</p>
+<p>后续 QoS 就使用 delivery_tag 来做各种处理，比如 ack, snack。</p>
+<pre><code class="language-python">with self.pipe_or_acquire() as pipe:
+    pipe.zadd(self.unacked_index_key, *zadd_args) \
+        .hset(self.unacked_key, delivery_tag,
+              dumps([message._raw, EX, RK])) \
+        .execute()
+    super().append(message, delivery_tag)
+</code></pre>
+<h4 id="472-delivery_tag-何时生成">4.7.2 delivery_tag 何时生成</h4>
+<p>我们关心的是在发送消息时候，何时生成 delivery_tag。</p>
+<p>结果发现是在 Channel 的 _next_delivery_tag 函数中，是在发送消息之前，对消息做了进一步增强。</p>
+<pre><code class="language-python">def _next_delivery_tag(self):
+    return uuid()
+</code></pre>
+<p>具体堆栈如下：</p>
+<pre><code class="language-python">_next_delivery_tag, base.py:595
+_inplace_augment_message, base.py:614
+basic_publish, base.py:599
+_publish, messaging.py:200
+_ensured, connection.py:525
+publish, messaging.py:178
+send_task_message, amqp.py:532
+send_task, base.py:749
+apply_async, task.py:565
+&lt;module&gt;, myclient.py:4
+</code></pre>
+<p>至此，客户端发送 task 的流程已经结束，有兴趣的同学可以再看看 [<a href="https://www.cnblogs.com/rossiXYZ/p/14639556.html" target="_blank">源码解析] 并行分布式任务队列 Celery 之 消费动态流程</a>    此文从服务端角度讲解收到 Task 如何消费。</p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://blog.csdn.net/qq_33339479/article/details/80961182" target="_blank">celery源码分析-Task的初始化与发送任务</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement" target="_blank">Celery 源码解析三： Task 对象的实现</a></p>
+<p><a href="https://www.cnblogs.com/jmilkfan-fanguiju/p/10589782.html" target="_blank">分布式任务队列 Celery —— 详解工作流</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-04-19 20:40</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">136</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14672090" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14672090);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14672090, cb_entryCreatedDate = '2021-04-19 20:40', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvLGvSBFXtUPUhQ6Ai4NSg_yOUqBWVUC5jgl4YtTAZ7vZtNbTUbjFpP8HFRVwTBjdyKjAPxCn8-tAHn7YjjIjTo0VTT4EiMoa9wdYUoFhe077COOcTrAN1K0Vo9oV6d7j4" />
+</body>
+</html>

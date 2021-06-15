@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="测试环境这个话题对于开发和测试同学一定不陌生，大家几乎每天都会接触。但是说到对测试环境的印象，却鲜有好评: 环境不稳定，测试五分钟，排查两小时 功能建设不全，导致验证不充分，遗漏缺陷 多人共用，互相踩" />
+    <meta property="og:description" content="测试环境这个话题对于开发和测试同学一定不陌生，大家几乎每天都会接触。但是说到对测试环境的印象，却鲜有好评: 环境不稳定，测试五分钟，排查两小时 功能建设不全，导致验证不充分，遗漏缺陷 多人共用，互相踩" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>谈谈测试环境管理与实践 - 大卡尔 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/jinsdu/custom.css?v=Dm0UA2AtdGGadgMS7iz/3KhcSrE=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/jinsdu/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/jinsdu/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/jinsdu/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 124070;
+        var currentBlogApp = 'jinsdu';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 07:14';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/jinsdu/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/jinsdu/">大卡尔</a>
+</h1>
+<h2>公众号: BigCarlJi。关注测开技术，工程效能提升，技术领导力，云原生等相关。</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/jinsdu/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E5%A4%A7%E5%8D%A1%E5%B0%94">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/jinsdu/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/14736491.html">
+    <span>谈谈测试环境管理与实践</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<p>测试环境这个话题对于开发和测试同学一定不陌生，大家几乎每天都会接触。但是说到对测试环境的印象，却鲜有好评:</p>
+<ul>
+<li>环境不稳定，测试五分钟，排查两小时</li>
+<li>功能建设不全，导致验证不充分，遗漏缺陷</li>
+<li>多人共用，互相踩踏</li>
+<li>随手改动不入库，消极对待，缺乏敬畏之心</li>
+</ul>
+<p>这些问题在行业内其实屡见不鲜。我甚至有听过运维同学"脏乱差"的评价。这里先不说他的评价是否有偏见，但是起码我认为，针对测试环境的管理有较大的改进空间，这是不争的事实。</p>
+<p>而本文将重拾这个看起来老生常谈的话题，希望能系统化的阐述我的认知，以期与大家对齐。如果不对或者不完善的地方，欢迎提出，笔者将非常乐于与大家讨论。</p>
+<p>首先我们要清晰的认知到，测试环境管理做的不好，不光有严重的质量风险，还会非常影响迭代效率，所以这件事情很重要。那在解决它之前，我们首先要去想想，对于测试环境我们到底有哪些诉求？</p>
+<h2 id="我们对测试环境的本质诉求是什么？">我们对测试环境的本质诉求是什么？</h2>
+<p>很明显，测试环境的定位就是满足产研侧的测试需求，保障产品迭代质量。所以从使用类型上，一般要支撑集成测试，系统测试，压力测试，甚至故障测试等。</p>
+<p>而这些环境背后，其实都伴随着 <strong>非功能性要求</strong> ，重点体现在:</p>
+<ul>
+<li>从使用者角度
+<ul>
+<li>想用就有，不要等待</li>
+<li>要低维护，高稳定
+<ul>
+<li>维护角度 - 我只关心我的测试需求，我不想干其他维护性工作</li>
+<li>稳定角度 - 我依赖的其他服务和业务要稳定，不要影响我测试</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>从企业角度
+<ul>
+<li>低成本，高效率
+<ul>
+<li>PS: 测试环境管理追求的是更高的研发迭代效率，但是成本是底线</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>除此之外，其实还有个非常关键的问题就是，要定义清楚测试环境管理的主体责任人是谁。这点很关键，没有责任人自然会滋生乱象。</p>
+<ul>
+<li><strong>研发</strong> 虽经常使用测试环境，但从投入产出比上，组织一般还是希望研发同学能多投入精力做更多创造性的事情</li>
+<li><strong>运维</strong> 本身负责线上环境的运维，可能有企业也会觉得把测试环境交给他们运维会顺水渠成，且现实确实是有不少企业就是这么干的。不过从人性的角度去分析，相比于线上环境，运维同学对测试环境的重视程度一定不够。而这也是为什么，很多企业的测试环境管理，也只是达到将就能用的水平的原因。</li>
+<li><strong>测试</strong> 测试同学算是测试环境的主要使用者，对测试环境的管理理应负有直接责任。不过现实中，经常看到的是，测试同学因本身测试任务较多，且测试环境管理也要求具备一定的系统运维能力。导致相对而言，测试同学要想做好测试环境管理，也不容易。</li>
+</ul>
+<p>不过，不管是哪个角色负责，其实症结还在ROI上。只要有充足的预算和人力，这些都不是问题。反之，就需要不断的优化和调整。</p>
+<p>当然人力成本是组织层面的考量，今天我们先按下不表。这里重点聊聊如何从技术上解决这些问题。</p>
+<h2 id="业界的思路？">业界的思路？</h2>
+<p>先来看看业界是怎么玩的。</p>
+<h3 id="阿里">阿里</h3>
+<p>阿里讲测试环境的文章不少，其中有一篇来自云效的文章，挺有借鉴价值。其重点聚焦了两个方向:</p>
+<ul>
+<li>
+<p>通过项目环境复用公共基础环境的模式，来解决资源问题<br>
+<img src="https://img2020.cnblogs.com/blog/293394/202105/293394-20210506190702806-1499222308.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>通过链路识别，请求染色，做到联调测试不串流量<br>
+<img src="https://img2020.cnblogs.com/blog/293394/202105/293394-20210506190717122-1190401730.png" alt="" loading="lazy"></p>
+</li>
+</ul>
+<p>当然，这些是借助阿里内部中间件实现的。不过在云原生环境下，其也开源了两个工具kt-connect和virtual-environment，虽产品化程度做的不够，但整体还是比较有想法的。</p>
+<h3 id="百度">百度</h3>
+<p>百度有篇文件介绍了其中间件技术在测试中的应用。文章说的比较清晰，这个中间件的架构是类似istio的模式，本质是通过代理来托管系统流量，从而实现控制链路的能力。而有了这个能力，对测试联调和环境复用自然就不在话下。同样的，对于录制/回放/mock/混沌等测试场景的能力实现上也能顺水渠成。</p>
+<p><img src="https://img2020.cnblogs.com/blog/293394/202105/293394-20210506190738471-53947085.png" alt="" loading="lazy"></p>
+<p>不过这个平台看起来有浓浓的背景局限，尤其是其控制平面的逻辑设计，感觉要玩转起来，需要一系列的基础设施的配合。所以这个应该是强百度业务和技术环境背景下的产物，对于使用者，也应该有一定的学习和理解成本。</p>
+<h3 id="商业化？">商业化？</h3>
+<p>其他企业如有赞、喜马拉雅等，基本上也都是采用改造服务，通过路由策略来实现隔离组，从而达到环境复用的能力。</p>
+<p>不过以上都是技术人的玩法，我在想测试环境管理这个方向有没有商业化价值呢？</p>
+<p>大家看下图，来自站点www.testenvironmentmanagement.com:</p>
+<p><img src="https://img2020.cnblogs.com/blog/293394/202105/293394-20210506190754891-336489764.png" alt="" loading="lazy"><br>
+<em>(PS: 2019年4月发布)</em></p>
+<p>见名识意，这些都是国外主打Test Environment Management(TEM)方向的企业，其中Plutora在2011年创立，2016年融了1340万$. Enov8 始于2008年，正式创立于2014年。整体感觉活的都还不错。</p>
+<p>研究这些企业会发现，他们会把价值重点落地在操作自动化，过程Visibility，以及自服务和降低成本上。尤其是降低成本这块，会推出计算器，让企业主一目了然的看到，使用了他们的TEM方案会降低多少人力成本，多少资源成本等等。</p>
+<p>另外，在TEM方向上，这些企业都会比较重视测试环境资源的自动或预约回收能力，以达到节约成本。这一点，感觉国内的玩家重视程度不够。</p>
+<p>当然，目前国内互联网ToB Saas企业也开始方兴未艾，比如我前老大的创业公司www.koderover.com，其拳头产品云原生持续交付平台，也有关注TEM方向，值得推荐。</p>
+<h2 id="认知自醒，我们需要坚守哪些原则？">认知自醒，我们需要坚守哪些原则？</h2>
+<p>测试环境抛开全局管理一说，我认为作为使用者，最重要的还是坚守以下原则:</p>
+<ul>
+<li>
+<p>重视服务部署环节，尽可能的遵循线上部署模式，比如：</p>
+<ul>
+<li>
+<p>基础系统一致(系统版本，内核版本等)</p>
+</li>
+<li>
+<p>中间件版本和部署姿势一致 - 千万不要想当然</p>
+</li>
+<li>
+<p>部署工具一致<em>(PS: 坚决抵制那种通过apt-get install在机器上随意安装的行为)。</em></p>
+</li>
+<li>
+<p>部署逻辑一致 - 模拟真实场景，避免测试遗漏(The wider the gap between test and production, the greater the probability that the delivered product will have more bugs/defects.), 包括:</p>
+<ul>
+<li>服务版本</li>
+<li>配置写法</li>
+<li>实例个数</li>
+<li>机房or区域情况等等</li>
+</ul>
+</li>
+</ul>
+<p><em>(PS: 切勿图省事，无脑部署最简单模式用于测试验收)</em></p>
+</li>
+<li>
+<p>谨记使用规范 - 改动一定要 <strong>入库,</strong> <strong>入库,</strong> <strong>入库</strong></p>
+</li>
+</ul>
+<p>您觉得呢？</p>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="https://developer.aliyun.com/article/755512" target="_blank">https://developer.aliyun.com/article/755512</a></li>
+<li><a href="https://mp.weixin.qq.com/s/rjToB9qxv47rUrwcBhzpjA" target="_blank">https://mp.weixin.qq.com/s/rjToB9qxv47rUrwcBhzpjA</a></li>
+<li><a href="https://tech.youzan.com/web-https-engineering-2/" target="_blank">https://tech.youzan.com/web-https-engineering-2/</a></li>
+<li><a href="https://www.heguang-tech.com/2020/solution/ximalaya/" target="_blank">https://www.heguang-tech.com/2020/solution/ximalaya/</a></li>
+<li><a href="https://www.testenvironmentmanagement.com/test-environment-management-tools-compared/" target="_blank">https://www.testenvironmentmanagement.com/test-environment-management-tools-compared/</a></li>
+<li><a href="https://www.enov8.com/roicalculator/" target="_blank">https://www.enov8.com/roicalculator/</a></li>
+</ul>
+<h3 id="往期推荐">往期推荐</h3>
+<ul>
+<li><a href="https://www.cnblogs.com/jinsdu/p/12240909.html" target="_blank">我们是如何做go系统覆盖率收集的？</a></li>
+<li><a href="https://www.cnblogs.com/jinsdu/p/13941773.html" target="_blank">聊聊Go代码覆盖率技术与最佳实践 </a></li>
+</ul>
+<h4 id="觉得不错，欢迎关注：">觉得不错，欢迎关注：</h4>
+<p><img src="https://img2018.cnblogs.com/blog/293394/202001/293394-20200129180656049-636977129.jpg" alt="" loading="lazy"></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 19:14</span>&nbsp;
+<a href="https://www.cnblogs.com/jinsdu/">大卡尔</a>&nbsp;
+阅读(<span id="post_view_count">0</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736491" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736491);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 124070, cb_blogApp = 'jinsdu', cb_blogUserGuid = '588609ad-466a-e011-a53f-842b2b196315';
+    var cb_entryId = 14736491, cb_entryCreatedDate = '2021-05-06 19:14', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 大卡尔
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    <div id="page_end_html">
+        <script language="javascript" type="text/javascript">
+//生成目录索引列表
+function GenerateContentList()
+{
+    var jquery_h3_list = $('#cnblogs_post_body h2');
+    if(jquery_h3_list.length>0)
+    {
+        var content = '<a name="_labelTop"></a>';
+        content    += '<div id="navCategory">';
+        content    += '<p style="font-size:18px"><b>阅读目录</b></p>';
+        content    += '<ul>';
+        for(var i =0;i<jquery_h3_list.length;i++)
+        {
+            var go_to_top = '<div style="text-align: right"><a href="#_labelTop">回到顶部</a><a name="_label' + i + '"></a></div>';
+            $(jquery_h3_list[i]).before(go_to_top);
+            var li_content = '<li><a href="#_label' + i + '">' + $(jquery_h3_list[i]).text() + '</a></li>';
+            content += li_content;
+        }
+        content    += '</ul>';
+        content    += '</div>';
+        if($('#cnblogs_post_body').length != 0 )
+        {
+            $($('#cnblogs_post_body')[0]).prepend(content);
+        }
+    }   
+}
+GenerateContentList();
+</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAju79lcZsSIqOTGQVPhqZkGsmgKIxf3qMPlS_6jAoebPLb9hjXtacDgHHu6N1hsKJOUd95E5Bfye876VeS6ZH6BWR6_vfjqfcl-MyKMtcOWnBY21YuhRuN5EJg4571rFs5I" />
+</body>
+</html>

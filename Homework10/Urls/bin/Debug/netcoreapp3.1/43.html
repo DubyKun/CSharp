@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="2021年3月的时候，Win UI 3终于来到了第一个稳定的支持版本，可用于创建发布到Micosoft Store的应用。据某软的说法，这个叫WinUI 3 Project Reunion 0.5的版" />
+    <meta property="og:description" content="2021年3月的时候，Win UI 3终于来到了第一个稳定的支持版本，可用于创建发布到Micosoft Store的应用。据某软的说法，这个叫WinUI 3 Project Reunion 0.5的版" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>.NET 5学习笔记（12）——WinUI 3 Project Reunion 0.5 - 楼上那个蜀黍 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/manupstairs/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/manupstairs/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/manupstairs/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 105048;
+        var currentBlogApp = 'manupstairs';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 06:20';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/manupstairs/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/manupstairs/">楼上那个蜀黍</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/manupstairs/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%A5%BC%E4%B8%8A%E9%82%A3%E4%B8%AA%E8%9C%80%E9%BB%8D">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/manupstairs/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14736354.html">
+    <span>.NET 5学习笔记（12）——WinUI 3 Project Reunion 0.5</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<p>2021年3月的时候，Win UI 3终于来到了第一个稳定的支持版本，可用于创建发布到Micosoft Store的应用。据某软的说法，这个叫WinUI 3 Project Reunion 0.5的版本，是可以被用于生产了，但按某软的尿性，一般1.1版本会比较靠谱……<br>首先我们要梳理一下Win UI 3和Project Reunion之间的关系，某软的改名部真是让人糟心啊，该出手的时候却和被裁员了一样……</p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181240950-1650935961.png" alt="" width="860" height="374" loading="lazy"></p>
+<p>WinUI 3是WinUI 2的后续版本，核心的不同之处，除了版本号大上一位以外，就是WinUI 3支持desktop/Win32程序，而WinUI 2仅支持UWP。但也别想太多，想要用上WinUI 3，得先升级到.NET 5，以及最低版本号为1809的Windows 10。</p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181352907-378180055.png" alt="" width="861" height="333" loading="lazy"></p>
+<p>Project Reunion就更让人迷惑了，相信我这货1.0的时候绝对会改名。简单理解Project Reunion定义了面向次世代的Windows App Development的工具集，只有钦定的API和Library才能被归属到Project Reunion之下。和同一套代码跑遍所有Win10的UWP不同，这次的目标是，只要是属于Project Reunion的Library，就能被以往的WinForms，WPF和C++/Win32的技术所使用。可以想象，被迫使用了新API的旧框架们，不得不迁移到最新的Win10，甚至Microsoft Store，简直机智啊！<br>下面一张图是Project Reunion对以MSIX格式打包，且通过Store发布的应用程序，所对应的Roadmap。<br>可以看到在今年底就会有正式版了。但是以MSIX打包的形式，在使用体验上我个人推测和现在的DesktopBridge的使用并无太大出入，无非就是API的更新。（个人不负责任的推测）</p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181428100-1729522339.png" alt="" width="866" height="395" loading="lazy"></p>
+<p>第二张图就有点意思了，这是对非打包格式的应用程序的支持情况。商店这种东西，个人消费者可能喜欢，但是对软件开发商来说，等于是脖子上的枷锁，对于公司IT而言更是法外之地。所以这一块的内容在未来确实很有看点，某软从Win8开始做商店，结果连游戏都卖不过Steam，何其悲剧！这次以何种形式来支持非打包的桌面应用，让我们拭目以待。</p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181650465-977892751.png" alt="" width="866" height="422" loading="lazy"></p>
+<p>扯得太远让我们回到WinUI 3 Project Reunion 0.5。当前这个版本可用于创建发布到商店的应用，但他只支持desktop，UWP的支持仍然是preview。同时虽然支持在VS2019 16.9以上版本中使用，但是全部特性比如热重载和实时可视化树还要等16.10版本。可以理解为库本身已经准备好了，但是配套还没有完善。<br>在安装Project Reunion 0.5 VSIX包之后，我们就可以在VS2019中使用WinUI项目模板创建WinUI3应用。</p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181815568-1804998677.png" alt="" width="874" height="580" loading="lazy"></p>
+<p>同时在WinUI3的Item Template中，我们可以看到下面这些项，一股熟悉的气息扑面而来。其实某软在这些年，至少桌面端XAML的技术延续是非常顺滑的。根本不存在抛弃老人，让他们35岁去送外卖这种事情。有兴趣的小伙伴来入坑Windows开发啊，三十年河东河西，万一哪天再次雄起了呢？这里推荐两篇Docs &amp; Learn上HelloWorld级别的课程，包教包会那种。<br><a href="https://docs.microsoft.com/zh-cn/learn/modules/introduction-to-windows10-dev/?WT.mc_id=WDIT-MVP-5002365" target="_blank">编写首个 Windows 10 应用 - Learn | Microsoft Docs</a><br><a href="https://docs.microsoft.com/zh-cn/learn/modules/introduction-to-windows10-dev/?WT.mc_id=WDIT-MVP-5002365" target="_blank">Windows 10 开发简介 - Learn | Microsoft Docs</a></p>
+<p><img src="https://img2020.cnblogs.com/blog/362529/202105/362529-20210506181914863-438237934.png" alt="" width="872" height="577" loading="lazy"></p>
+<p>总体来说，WinUI3是一个巨大的升级。WinUI2仅以NuGet包的形式供UWP项目使用，而WinUI 3升级为整个全新的项目模板。成为了和UWP，WPF项目模板对等的存在。</p>
+<p>本篇我们仅仅从概念上介绍了WinUI 3和Project Reunion，下一篇我们将尝试创建WinUI 3的项目来体验如何进行次世代Windows应用程序的开发。</p>
+<p>&nbsp;</p>
+<p>参考链接：<br><a href="https://docs.microsoft.com/zh-cn/windows/apps/winui/winui3?WT.mc_id=WDIT-MVP-5002365" target="_blank">Windows UI 库 3 - Project Reunion 0.5（2021 年 3 月）</a><br><a href="https://docs.microsoft.com/zh-cn/windows/apps/project-reunion/?WT.mc_id=WDIT-MVP-5002365" target="_blank">使用 Project Reunion 0.5 构建桌面 Windows 应用</a></p>
+<p>&nbsp;</p>
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 18:20</span>&nbsp;
+<a href="https://www.cnblogs.com/manupstairs/">楼上那个蜀黍</a>&nbsp;
+阅读(<span id="post_view_count">165</span>)&nbsp;
+评论(<span id="post_comment_count">3</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736354" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736354);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 105048, cb_blogApp = 'manupstairs', cb_blogUserGuid = '87c8ad1f-442a-e111-b988-842b2b196315';
+    var cb_entryId = 14736354, cb_entryCreatedDate = '2021-05-06 18:20', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 楼上那个蜀黍
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtXh4OmaZESWre5Yv02lQynS3sLm5Pp2_iQ7tamxdz8Xe6838lxsfRcswPIrq6Pd0dkM-Oq_5_Se0FjELHGflP6OflR1L8QQTsk0btY-9-GwEzx8ud2uDDbQDQutbE87yI" />
+</body>
+</html>

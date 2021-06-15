@@ -1,0 +1,1044 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>大卡尔 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/jinsdu/custom.css?v=Dm0UA2AtdGGadgMS7iz/3KhcSrE=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/jinsdu/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/jinsdu/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/jinsdu/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 124070;
+        var currentBlogApp = 'jinsdu';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/jinsdu/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/jinsdu/">大卡尔</a>
+</h1>
+<h2>公众号: BigCarlJi。关注测开技术，工程效能提升，技术领导力，云原生等相关。</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/jinsdu/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E5%A4%A7%E5%8D%A1%E5%B0%94">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/jinsdu/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+
+
+
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/14736491.html">
+    <span>
+            <span>[置顶]</span>
+        谈谈测试环境管理与实践
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：测试环境这个话题对于开发和测试同学一定不陌生，大家几乎每天都会接触。但是说到对测试环境的印象，却鲜有好评: 环境不稳定，测试五分钟，排查两小时 功能建设不全，导致验证不充分，遗漏缺陷 多人共用，互相踩踏 随手改动不入库，消极对待，缺乏敬畏之心 这些问题在行业内其实屡见不鲜。我甚至有听过运维同学&amp;quot;脏乱        <a href="https://www.cnblogs.com/jinsdu/p/14736491.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 19:14
+大卡尔
+<span data-post-id="14736491" class="post-view-count">阅读(50)</span> 
+<span data-post-id="14736491" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14736491" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736491" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/11/07.html">2020年11月7日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/13941773.html">
+    <span>
+            <span>[置顶]</span>
+        聊聊Go代码覆盖率技术与最佳实践
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：&amp;quot;聊点干货&amp;quot; 覆盖率技术基础 截止到Go1.15.2以前，关于覆盖率技术底层实现，以下知识点您应该知道： go语言采用的是插桩源码的形式，而不是待二进制执行时再去设置breakpoints。这就导致了当前go的测试覆盖率收集技术，一定是侵入式的，会修改目标程序源码。曾经有同学会问，插过桩的二进制能不        <a href="https://www.cnblogs.com/jinsdu/p/13941773.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-11-07 17:56
+大卡尔
+<span data-post-id="13941773" class="post-view-count">阅读(665)</span> 
+<span data-post-id="13941773" class="post-comment-count">评论(0)</span> 
+<span data-post-id="13941773" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13941773" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/06/22.html">2020年6月22日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/12240909.html">
+    <span>
+            <span>[置顶]</span>
+        我们是如何做go语言系统测试覆盖率收集的？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：工程效能领域，测试覆盖率度量总是绕不开的话题，我们也不例外。在七牛云，我们主要使用go语言构建云服务，在考虑系统测试覆盖率时，最早也是通过围绕原生go test -c -cover的能力来构建。这个方案，笔者还曾在 MTSC2018大会上有过专项分享。其实我们当时已经做了不少自动化工作，能够针对很多        <a href="https://www.cnblogs.com/jinsdu/p/12240909.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-06-22 09:00
+大卡尔
+<span data-post-id="12240909" class="post-view-count">阅读(1369)</span> 
+<span data-post-id="12240909" class="post-comment-count">评论(0)</span> 
+<span data-post-id="12240909" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12240909" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/01/12.html">2020年1月12日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/12183298.html">
+    <span>
+            <span>[置顶]</span>
+        高效测试框架推荐之Ginkgo
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：自2015年开始，七牛工效团队一直使用Go语言+ &quot;Ginkgo&quot; 的组合来编写自动化测试用例，积累了大约5000+的数量。在使用和维护过程中，我们觉得Ginkgo的很多设计理念和功能非常赞，因此特分享给大家。 本篇不是该框架的入门指导。如果您也编写或维护过大量自动化测试用例，希望能获得一些共鸣.         <a href="https://www.cnblogs.com/jinsdu/p/12183298.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-01-12 17:45
+大卡尔
+<span data-post-id="12183298" class="post-view-count">阅读(1603)</span> 
+<span data-post-id="12183298" class="post-comment-count">评论(1)</span> 
+<span data-post-id="12183298" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12183298" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2019/04/07.html">2019年4月7日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/10646278.html">
+    <span>
+            <span>[置顶]</span>
+        性能测试必知必会
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：说到性能测试，我们到底是想谈论什么？ 任何做产品的，都希望自己家的产品，品质优，性能好，服务海量用户，还不出问题。 任何使用产品的，都喜欢自己购买的产品功能全，性能优，不花一分冤枉钱。 不过理想很丰满，现实很骨感。实际产品的性能与开发周期，部署方式，软硬件性能等都息息相关。所以真正提到做性能测试的场        <a href="https://www.cnblogs.com/jinsdu/p/10646278.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2019-04-07 22:55
+大卡尔
+<span data-post-id="10646278" class="post-view-count">阅读(1447)</span> 
+<span data-post-id="10646278" class="post-comment-count">评论(3)</span> 
+<span data-post-id="10646278" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10646278" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2019/03/06.html">2019年3月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/10486645.html">
+    <span>
+            <span>[置顶]</span>
+        如何保障Go语言基础代码质量？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：为什么要谈这个topic？ 实践中，质量保障体系的建设，主要针对两个目标: 一是不断提高目标业务测试覆盖率，保障面向客户的产品质量；二就是尽可能的提高人效，增强迭代效率。而构建全链路质量卡点就是整个体系建设的核心手段。笔者用下图来描述这整个链路: 可以看到，虽然保障业务迭代的方向性正确排在最前面，但        <a href="https://www.cnblogs.com/jinsdu/p/10486645.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2019-03-06 23:58
+大卡尔
+<span data-post-id="10486645" class="post-view-count">阅读(1644)</span> 
+<span data-post-id="10486645" class="post-comment-count">评论(0)</span> 
+<span data-post-id="10486645" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10486645" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2017/09/11.html">2017年9月11日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/7507887.html">
+    <span>
+            <span>[置顶]</span>
+        如何负责一个项目的质量保证工作？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：问题 通常，我在面试测试相关候选人时，除了技术等硬性标准外，我还非常希望候选人回答这么一个问题 ——如果让你负责一个项目的质量保证工作，你会怎么做？ 之所以问这么个问题，主要是想考察候选人在过往的经历中，有没有全局性的思考如何把控一个项目的质量状况；有没有对自己日常的工作有个清晰的认识，甚或者有没有        <a href="https://www.cnblogs.com/jinsdu/p/7507887.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2017-09-11 23:23
+大卡尔
+<span data-post-id="7507887" class="post-view-count">阅读(2906)</span> 
+<span data-post-id="7507887" class="post-comment-count">评论(7)</span> 
+<span data-post-id="7507887" class="post-digg-count">推荐(5)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=7507887" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2017/01/24.html">2017年1月24日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/6347572.html">
+    <span>
+            <span>[置顶]</span>
+        Go并发编程实践
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：常用的Go并发编程实践+模型        <a href="https://www.cnblogs.com/jinsdu/p/6347572.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2017-01-24 18:17
+大卡尔
+<span data-post-id="6347572" class="post-view-count">阅读(1834)</span> 
+<span data-post-id="6347572" class="post-comment-count">评论(1)</span> 
+<span data-post-id="6347572" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=6347572" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2015/06/28.html">2015年6月28日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/4606113.html">
+    <span>
+            <span>[置顶]</span>
+        Java Fluent Restful API自动化测试框架
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：&amp;gt;这是一个Restful API自动化测试框架，这是一个能让你写出高可读性测试代码的测试框架！##项目目标##话说目前行业内，Restful API自动化测试框架已经不是稀罕物了，各个语言都有自己的实现机制。拿Java的Jersey来讲，它本身就提供了一个API测试框架-Jersey Test Fr...        <a href="https://www.cnblogs.com/jinsdu/p/4606113.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-06-28 21:31
+大卡尔
+<span data-post-id="4606113" class="post-view-count">阅读(3109)</span> 
+<span data-post-id="4606113" class="post-comment-count">评论(0)</span> 
+<span data-post-id="4606113" class="post-digg-count">推荐(3)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=4606113" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/14736491.html">
+    <span>
+        谈谈测试环境管理与实践
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：测试环境这个话题对于开发和测试同学一定不陌生，大家几乎每天都会接触。但是说到对测试环境的印象，却鲜有好评: 环境不稳定，测试五分钟，排查两小时 功能建设不全，导致验证不充分，遗漏缺陷 多人共用，互相踩踏 随手改动不入库，消极对待，缺乏敬畏之心 这些问题在行业内其实屡见不鲜。我甚至有听过运维同学&amp;quot;脏乱        <a href="https://www.cnblogs.com/jinsdu/p/14736491.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 19:14
+大卡尔
+<span data-post-id="14736491" class="post-view-count">阅读(50)</span> 
+<span data-post-id="14736491" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14736491" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736491" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/11/07.html">2020年11月7日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/13941773.html">
+    <span>
+        聊聊Go代码覆盖率技术与最佳实践
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：&amp;quot;聊点干货&amp;quot; 覆盖率技术基础 截止到Go1.15.2以前，关于覆盖率技术底层实现，以下知识点您应该知道： go语言采用的是插桩源码的形式，而不是待二进制执行时再去设置breakpoints。这就导致了当前go的测试覆盖率收集技术，一定是侵入式的，会修改目标程序源码。曾经有同学会问，插过桩的二进制能不        <a href="https://www.cnblogs.com/jinsdu/p/13941773.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-11-07 17:56
+大卡尔
+<span data-post-id="13941773" class="post-view-count">阅读(665)</span> 
+<span data-post-id="13941773" class="post-comment-count">评论(0)</span> 
+<span data-post-id="13941773" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13941773" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/09/12.html">2020年9月12日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/13657069.html">
+    <span>
+        基于Goc的Golang代码VSCode实时染色方案
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要："精准测试，代码实时染色那些事"        <a href="https://www.cnblogs.com/jinsdu/p/13657069.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-09-12 15:05
+大卡尔
+<span data-post-id="13657069" class="post-view-count">阅读(380)</span> 
+<span data-post-id="13657069" class="post-comment-count">评论(0)</span> 
+<span data-post-id="13657069" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13657069" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/06/22.html">2020年6月22日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/12240909.html">
+    <span>
+        我们是如何做go语言系统测试覆盖率收集的？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：工程效能领域，测试覆盖率度量总是绕不开的话题，我们也不例外。在七牛云，我们主要使用go语言构建云服务，在考虑系统测试覆盖率时，最早也是通过围绕原生go test -c -cover的能力来构建。这个方案，笔者还曾在 MTSC2018大会上有过专项分享。其实我们当时已经做了不少自动化工作，能够针对很多        <a href="https://www.cnblogs.com/jinsdu/p/12240909.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-06-22 09:00
+大卡尔
+<span data-post-id="12240909" class="post-view-count">阅读(1369)</span> 
+<span data-post-id="12240909" class="post-comment-count">评论(0)</span> 
+<span data-post-id="12240909" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12240909" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2020/01/12.html">2020年1月12日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/12183298.html">
+    <span>
+        高效测试框架推荐之Ginkgo
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：自2015年开始，七牛工效团队一直使用Go语言+ &quot;Ginkgo&quot; 的组合来编写自动化测试用例，积累了大约5000+的数量。在使用和维护过程中，我们觉得Ginkgo的很多设计理念和功能非常赞，因此特分享给大家。 本篇不是该框架的入门指导。如果您也编写或维护过大量自动化测试用例，希望能获得一些共鸣.         <a href="https://www.cnblogs.com/jinsdu/p/12183298.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-01-12 17:45
+大卡尔
+<span data-post-id="12183298" class="post-view-count">阅读(1603)</span> 
+<span data-post-id="12183298" class="post-comment-count">评论(1)</span> 
+<span data-post-id="12183298" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=12183298" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2019/04/07.html">2019年4月7日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/10646278.html">
+    <span>
+        性能测试必知必会
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：说到性能测试，我们到底是想谈论什么？ 任何做产品的，都希望自己家的产品，品质优，性能好，服务海量用户，还不出问题。 任何使用产品的，都喜欢自己购买的产品功能全，性能优，不花一分冤枉钱。 不过理想很丰满，现实很骨感。实际产品的性能与开发周期，部署方式，软硬件性能等都息息相关。所以真正提到做性能测试的场        <a href="https://www.cnblogs.com/jinsdu/p/10646278.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2019-04-07 22:55
+大卡尔
+<span data-post-id="10646278" class="post-view-count">阅读(1447)</span> 
+<span data-post-id="10646278" class="post-comment-count">评论(3)</span> 
+<span data-post-id="10646278" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10646278" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2019/03/06.html">2019年3月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/10486645.html">
+    <span>
+        如何保障Go语言基础代码质量？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：为什么要谈这个topic？ 实践中，质量保障体系的建设，主要针对两个目标: 一是不断提高目标业务测试覆盖率，保障面向客户的产品质量；二就是尽可能的提高人效，增强迭代效率。而构建全链路质量卡点就是整个体系建设的核心手段。笔者用下图来描述这整个链路: 可以看到，虽然保障业务迭代的方向性正确排在最前面，但        <a href="https://www.cnblogs.com/jinsdu/p/10486645.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2019-03-06 23:58
+大卡尔
+<span data-post-id="10486645" class="post-view-count">阅读(1644)</span> 
+<span data-post-id="10486645" class="post-comment-count">评论(0)</span> 
+<span data-post-id="10486645" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10486645" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2018/11/27.html">2018年11月27日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/10029837.html">
+    <span>
+        分布式程序如何进行线上灰度自动化验收?
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：前言 前面在 &quot;如何负责一个项目的质量保证工作&quot; 一文中，笔者将质量保障划分为三个阶段，研发质量，上线质量和线上质量。其中针对上线流程，特别提到灰度阶段，QA应该提供相应的验收机制。今天来具体说说 ，针对分布式程序如何打造一个方便好用的灰度验收工具。 我们知道，绝大多数分布式程序天然的支持灰度迭代，        <a href="https://www.cnblogs.com/jinsdu/p/10029837.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2018-11-27 23:53
+大卡尔
+<span data-post-id="10029837" class="post-view-count">阅读(784)</span> 
+<span data-post-id="10029837" class="post-comment-count">评论(0)</span> 
+<span data-post-id="10029837" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10029837" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2017/09/11.html">2017年9月11日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/7507887.html">
+    <span>
+        如何负责一个项目的质量保证工作？
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：问题 通常，我在面试测试相关候选人时，除了技术等硬性标准外，我还非常希望候选人回答这么一个问题 ——如果让你负责一个项目的质量保证工作，你会怎么做？ 之所以问这么个问题，主要是想考察候选人在过往的经历中，有没有全局性的思考如何把控一个项目的质量状况；有没有对自己日常的工作有个清晰的认识，甚或者有没有        <a href="https://www.cnblogs.com/jinsdu/p/7507887.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2017-09-11 23:23
+大卡尔
+<span data-post-id="7507887" class="post-view-count">阅读(2906)</span> 
+<span data-post-id="7507887" class="post-comment-count">评论(7)</span> 
+<span data-post-id="7507887" class="post-digg-count">推荐(5)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=7507887" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/jinsdu/archive/2017/09/01.html">2017年9月1日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/jinsdu/p/7465434.html">
+    <span>
+        Kubernetes e2e test and test framework
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：前言 Kubernetes的成功少不了大量工程师的共同参与，而他们之间如何高效的协作，非常值得我们探究。最近研究和使用了他们的e2e测试和框架，还是挺有启发的。 怎样才是好的e2e测试？ 不同的人写出的测试用例千差万别，尤其在用例，可能由开发人员编写的情形下，其情形可想而知。要知道，绝大多数开发人员        <a href="https://www.cnblogs.com/jinsdu/p/7465434.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2017-09-01 23:35
+大卡尔
+<span data-post-id="7465434" class="post-view-count">阅读(2585)</span> 
+<span data-post-id="7465434" class="post-comment-count">评论(2)</span> 
+<span data-post-id="7465434" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=7465434" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+
+<div class="topicListFooter">
+    <div id="nav_next_page">
+        
+    <a href="https://www.cnblogs.com/jinsdu/default.html?page=2">
+        下一页
+    </a>
+
+    </div>    
+</div>
+
+
+
+
+
+
+<script>
+    updatePostStats(
+        $(".post-view-count").map(function () { return this.dataset.postId }).get(),
+        function(id, count) { $(".post-view-count[data-post-id=" + id + "]").text("阅读(" + count + ")") },
+        function(id, count) { $(".post-comment-count[data-post-id=" + id + "]").text("评论(" + count + ")") },
+        function(id, count) { $(".post-digg-count[data-post-id=" + id + "]").text("推荐(" + count + ")") });
+</script>
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 大卡尔
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    <div id="page_end_html">
+        <script language="javascript" type="text/javascript">
+//生成目录索引列表
+function GenerateContentList()
+{
+    var jquery_h3_list = $('#cnblogs_post_body h2');
+    if(jquery_h3_list.length>0)
+    {
+        var content = '<a name="_labelTop"></a>';
+        content    += '<div id="navCategory">';
+        content    += '<p style="font-size:18px"><b>阅读目录</b></p>';
+        content    += '<ul>';
+        for(var i =0;i<jquery_h3_list.length;i++)
+        {
+            var go_to_top = '<div style="text-align: right"><a href="#_labelTop">回到顶部</a><a name="_label' + i + '"></a></div>';
+            $(jquery_h3_list[i]).before(go_to_top);
+            var li_content = '<li><a href="#_label' + i + '">' + $(jquery_h3_list[i]).text() + '</a></li>';
+            content += li_content;
+        }
+        content    += '</ul>';
+        content    += '</div>';
+        if($('#cnblogs_post_body').length != 0 )
+        {
+            $($('#cnblogs_post_body')[0]).prepend(content);
+        }
+    }   
+}
+GenerateContentList();
+</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvR5n8bmSPM_PlPtbTHgDX1fCjzBxJibhhM2XFNmHn_3zsz4mJ7Pme3tTO3g_5nsi8QDda7UgnpmfEJOGJFXs36PBWK46L39vuvIMQCh2__MBV29CCgTu_1aFc48yk2tEg" />
+</body>
+</html>

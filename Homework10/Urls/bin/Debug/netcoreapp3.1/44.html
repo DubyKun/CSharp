@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>楼上那个蜀黍 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/manupstairs/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/manupstairs/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/manupstairs/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 105048;
+        var currentBlogApp = 'manupstairs';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/manupstairs/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/manupstairs/">楼上那个蜀黍</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/manupstairs/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%A5%BC%E4%B8%8A%E9%82%A3%E4%B8%AA%E8%9C%80%E9%BB%8D">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/manupstairs/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+
+
+
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14736354.html">
+    <span>
+        .NET 5学习笔记（12）——WinUI 3 Project Reunion 0.5
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="cnblogs-post-body" id="postlist_postbody_14736354">
+        正文内容加载中...
+    </div>
+    <script type="text/javascript">getBlogPostBody(14736354);</script>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 18:20
+楼上那个蜀黍
+<span data-post-id="14736354" class="post-view-count">阅读(193)</span> 
+<span data-post-id="14736354" class="post-comment-count">评论(3)</span> 
+<span data-post-id="14736354" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736354" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2021/03/26.html">2021年3月26日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14582794.html">
+    <span>
+        2021年的UWP(6)——长生命周期Desktop Extension向UWP的反向通知
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上一篇我们讨论了UWP和Desktop Extension间的双向通讯，适用于Desktop Extension中存在用户交互的场景。本篇我们讨论最后一种情况，与前者不同的是，Desktop Extension和UWP保持相同的生命周期，同时规避AppServiceConnection可能被Wind        <a href="https://www.cnblogs.com/manupstairs/p/14582794.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-26 16:12
+楼上那个蜀黍
+<span data-post-id="14582794" class="post-view-count">阅读(583)</span> 
+<span data-post-id="14582794" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14582794" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14582794" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2021/03/10.html">2021年3月10日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14514229.html">
+    <span>
+        .NET 5学习笔记（11）—— Host Blazor WebAssembly in a Windows Service
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：实在是被某软忽悠瘸了，愤而写此一篇。希望能让同样需求的同学们少走弯路。某软在《在 Windows 服务中托管 ASP.NET Core》中，介绍了通过创建Worker Service工程，来将.NET Core和.NET 5的程序以Windows Service的形式运行。但是某软你得说明，托管AS        <a href="https://www.cnblogs.com/manupstairs/p/14514229.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-10 21:07
+楼上那个蜀黍
+<span data-post-id="14514229" class="post-view-count">阅读(474)</span> 
+<span data-post-id="14514229" class="post-comment-count">评论(3)</span> 
+<span data-post-id="14514229" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14514229" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2021/02/08.html">2021年2月8日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14388375.html">
+    <span>
+        .NET 5学习笔记（10）——Entity Framework Core之切换SQLServer和SQLite
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上一篇我们梳理了CodeFist的一般流程，本篇我们讨论如何在一套代码中，支持SQL Server和SQLite的切换。同时从本篇开始，我们从.NET Core 3.1 迁移到.NET 5。相信.NET 到了5这个版本，所有人都不会再怀疑某软跨平台的决心。而且SQL Server也从2017版本开始        <a href="https://www.cnblogs.com/manupstairs/p/14388375.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-08 12:21
+楼上那个蜀黍
+<span data-post-id="14388375" class="post-view-count">阅读(445)</span> 
+<span data-post-id="14388375" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14388375" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14388375" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2021/01/16.html">2021年1月16日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14287411.html">
+    <span>
+        .NET Core学习笔记（9）——Entity Framework Core之Code First
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上篇我们介绍了怎么通过已有的SQLServer表来创建实体类，本篇我们改用Code First的方式，由C#代码书写的实体类来生成SQLServer表。并且通过简单的Console APP往SQLServer表写入数据。首先我们先创建3个空的Projects，其中EfCodeFirst是作为启动项的        <a href="https://www.cnblogs.com/manupstairs/p/14287411.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-16 21:35
+楼上那个蜀黍
+<span data-post-id="14287411" class="post-view-count">阅读(249)</span> 
+<span data-post-id="14287411" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14287411" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14287411" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2020/12/31.html">2020年12月31日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14217206.html">
+    <span>
+        .NET Core学习笔记（8）——Entity Framework Core之Database First
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：曾经我以为再也不会去弄啥Database First，然鹅我错了。这个世界上就是有啪啪打脸和真香的时候。当小伙伴拿着做好的DB表结构和SQL脚本递过来的时候，我知道我没法拒绝。望着他突起的肱二头肌和充满杀意的脸庞，我怎能忍心说，来来来，我们Code First一把……DB First嘛，首先我们要确        <a href="https://www.cnblogs.com/manupstairs/p/14217206.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-12-31 15:51
+楼上那个蜀黍
+<span data-post-id="14217206" class="post-view-count">阅读(442)</span> 
+<span data-post-id="14217206" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14217206" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14217206" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2020/12/23.html">2020年12月23日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14178931.html">
+    <span>
+        2020年的UWP(5)——UWP和Desktop Extension的双向交互
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上一篇我们提到了怎么在Desktop Extension中等待并处理UWP端发出的request。本篇将讨论UWP和Desktop Extension双向交互的场景，即存在从两端各自发出request，交由对方接受处理。依然是回顾之前总结的四个场景分类： 执行后立即退出 等待request，处理完后        <a href="https://www.cnblogs.com/manupstairs/p/14178931.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-12-23 15:30
+楼上那个蜀黍
+<span data-post-id="14178931" class="post-view-count">阅读(419)</span> 
+<span data-post-id="14178931" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14178931" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14178931" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2020/11/30.html">2020年11月30日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/14065673.html">
+    <span>
+        2020年的UWP(4)——UWP和等待Request的Desktop Extension
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上一篇我们讨论了UWP和Desktop Extension交互中，Desktop Extension执行后立即退出的场景。下图是提到的四种场景分类： 执行后立即退出 等待request，处理完后退出 一或多个request/response周期 和UWP程序相同生命周期 本篇我们讨论第二种，Desk        <a href="https://www.cnblogs.com/manupstairs/p/14065673.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-11-30 23:42
+楼上那个蜀黍
+<span data-post-id="14065673" class="post-view-count">阅读(287)</span> 
+<span data-post-id="14065673" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14065673" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14065673" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2020/11/10.html">2020年11月10日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/13956235.html">
+    <span>
+        2020年的UWP(3)——UWP和desktop extension的简单交互
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：上一篇《2020年的UWP(2)——In Process App Service》中我们了解了UWP和Desktop Extension可以通过AppService进行数据交互。本篇我们就来梳理在不同场景，UWP和Desktop Extension可能存在的交互方式。 对Desktop Extens        <a href="https://www.cnblogs.com/manupstairs/p/13956235.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-11-10 21:52
+楼上那个蜀黍
+<span data-post-id="13956235" class="post-view-count">阅读(366)</span> 
+<span data-post-id="13956235" class="post-comment-count">评论(0)</span> 
+<span data-post-id="13956235" class="post-digg-count">推荐(3)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13956235" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/manupstairs/archive/2020/10/21.html">2020年10月21日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/manupstairs/p/13853418.html">
+    <span>
+        2020年的UWP（2）——In Process App Service
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：最早的时候App Service被定义为一种后台服务，类似于极简版的Windows Service。App Service作为Background Task在宿主UWP APP中运行，向其他UWP APP提供服务，可用于UWP APP间通讯及交换数据。 早期的App Service应用场景较为单一，        <a href="https://www.cnblogs.com/manupstairs/p/13853418.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-10-21 17:02
+楼上那个蜀黍
+<span data-post-id="13853418" class="post-view-count">阅读(430)</span> 
+<span data-post-id="13853418" class="post-comment-count">评论(0)</span> 
+<span data-post-id="13853418" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=13853418" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+
+<div class="topicListFooter">
+    <div id="nav_next_page">
+        
+    <a href="https://www.cnblogs.com/manupstairs/default.html?page=2">
+        下一页
+    </a>
+
+    </div>    
+</div>
+
+
+
+
+
+
+<script>
+    updatePostStats(
+        $(".post-view-count").map(function () { return this.dataset.postId }).get(),
+        function(id, count) { $(".post-view-count[data-post-id=" + id + "]").text("阅读(" + count + ")") },
+        function(id, count) { $(".post-comment-count[data-post-id=" + id + "]").text("评论(" + count + ")") },
+        function(id, count) { $(".post-digg-count[data-post-id=" + id + "]").text("推荐(" + count + ")") });
+</script>
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 楼上那个蜀黍
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvz8pSDwOkAWPJCZ4qaZ--wT-xb0pujB3_T4wPXbgsA9bLnqBNcP4Yyjnpy5E0d80uVpdNAva8_8sezKYwJhKVSdzu0v28pn_nqiYbbqCwdncQEbQL68xwNs4KLudia6_E" />
+</body>
+</html>

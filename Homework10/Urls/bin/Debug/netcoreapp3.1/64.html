@@ -1,0 +1,1518 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 mailbox 概念，顺便可以把之前几篇文章内容再次梳理下。" />
+    <meta property="og:description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 mailbox 概念，顺便可以把之前几篇文章内容再次梳理下。" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码分析] 消息队列 Kombu 之 mailbox - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-03-25 09:51';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14455431.html">
+    <span>[源码分析] 消息队列 Kombu 之 mailbox</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 mailbox 概念，顺便可以把之前几篇文章内容再次梳理下。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码分析-消息队列-kombu-之-mailbox">[源码分析] 消息队列 Kombu 之 mailbox</h1>
+<h2 id="0x00--摘要">0x00  摘要</h2>
+<p>本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 mailbox 概念，顺便可以把之前几篇文章内容再次梳理下。</p>
+<h2 id="0x01-示例代码">0x01 示例代码</h2>
+<p>本文实例代码来自 <a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control%EF%BC%8C%E6%B7%B1%E8%A1%A8%E6%84%9F%E8%B0%A2%E3%80%82" target="_blank">https://liqiang.io/post/celery-source-analysis-remote-manager-control，深表感谢。</a></p>
+<p>示例代码分为两部分˛</p>
+<p>Node可以理解为广播Consumer。Client可以认为是广播发起者。</p>
+<h3 id="11-node">1.1 Node</h3>
+<pre><code class="language-python">import sys
+import kombu
+from kombu import pidbox
+
+hostname = "localhost"
+connection = kombu.Connection('redis://localhost:6379')
+mailbox = pidbox.Mailbox("testMailbox", type="direct")
+node = mailbox.Node(hostname, state={"a": "b"})
+node.channel = connection.channel()
+
+def callback(body, message):
+    print(body)
+    print(message)
+
+def main(arguments):
+    consumer = node.listen(callback=callback)
+    try:
+        while True:
+            print('Consumer Waiting')
+            connection.drain_events()
+    finally:
+        consumer.cancel()
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
+</code></pre>
+<h3 id="12-client">1.2 client</h3>
+<pre><code class="language-python">import sys
+import kombu
+from kombu import pidbox
+
+def callback():
+    print("callback")
+
+def main(arguments):
+    connection = kombu.Connection('redis://localhost:6379')
+    mailbox = pidbox.Mailbox("testMailbox", type="direct")
+    bound = mailbox(connection)
+    bound._broadcast("print_msg", {'msg': 'Message for you'})
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
+</code></pre>
+<h2 id="0x02-核心思路">0x02 核心思路</h2>
+<p>广播功能是利用了Redis的 pubSub 机制完成。</p>
+<h3 id="21-redis-pubsub">2.1 Redis PubSub</h3>
+<p>为了支持消息多播，Redis单独使用了一个模块来支持消息多播，也就是PubSub。</p>
+<p>Redis作为消息发布和订阅之间的服务器，起到桥梁的作用，在Redis里面有一个channel的概念，也就是频道，发布者通过指定发布到某个频道，只要有订阅者订阅了该频道，该消息就会发送给订阅者。</p>
+<p>消费者可以启动多个，PubSub会保证它们收到的都是相同的消息序列。</p>
+<h3 id="22-概述">2.2 概述</h3>
+<p>在 Kombu 的 mailbox 实现中，分为 Consumer 和 Producer两部分。</p>
+<p>Consumer 模块，在 Kombu 的 Channel 类中，当<u>注册 listener 时候，实际就是利用了 redis 驱动的 PubSub功能，把 consumer 注册订阅到了一个 key 上。从而 Consumer 的 queue 和 回调函数 就通过 Channel 与 redis 联系起来</u>。这样后续就可以从 Redis 读取消息。</p>
+<pre><code class="language-python">psubscribe, client.py:3542
+_subscribe, redis.py:664
+_register_LISTEN, redis.py:322
+get, redis.py:375
+drain_events, base.py:960
+drain_events, connection.py:318
+main, node.py:24
+&lt;module&gt;, node.py:29
+</code></pre>
+<h2 id="0x03-consumer">0x03 Consumer</h2>
+<p>下面我们就依据示例代码，一步一步剖析如何完成广播功能。</p>
+<h3 id="31-建立connection">3.1 建立Connection</h3>
+<p>当完成以下代码之后，系统建立了Connection。</p>
+<pre><code class="language-python">connection = kombu.Connection('redis://localhost:6379')
+</code></pre>
+<p>具体如下图，我们把问题域分为用户领域和Kombu领域两部分，以便大家理解：</p>
+<pre><code class="language-python">user scope                 +            kombu scope
+                           |
+                           |
++------------+             |            +--------------------------------------+
+| connection | +----------------------&gt; | Connection: redis://localhost:6379// |
++------------+             |            +--------------------------------------+
+                           |
+                           |
+                           |
+                           |
+                           |
+                           +
+</code></pre>
+<h3 id="32-建立mailbox">3.2 建立mailbox</h3>
+<p>当完成以下代码之后，系统建立了Connection和mailbox。</p>
+<pre><code class="language-python">connection = kombu.Connection('redis://localhost:6379')
+mailbox = pidbox.Mailbox("testMailbox", type="fanout")
+</code></pre>
+<p>但是此时两者没有建立联系，而mailbox的某些成员变量也没有实际含义。</p>
+<p>mailbox变量举例如下：</p>
+<pre><code class="language-python">mailbox = {Mailbox} &lt;kombu.pidbox.Mailbox object at 0x7fea4b81df28&gt;
+ accept = {list: 1} ['json']
+ clock = {LamportClock} 0
+ connection = {NoneType} None
+ exchange = {Exchange} Exchange testMailbox.pidbox(fanout)
+ exchange_fmt = {str} '%s.pidbox'
+ namespace = {str} 'testMailbox'
+ node_cls = {type} &lt;class 'kombu.pidbox.Node'&gt;
+ oid = {str} '9386a23b-ae96-3c6c-b036-ae7646455ebb'
+ producer_pool = {NoneType} None
+ queue_expires = {NoneType} None
+ queue_ttl = {NoneType} None
+ reply_exchange = {Exchange} Exchange reply.testMailbox.pidbox(direct)
+ reply_exchange_fmt = {str} 'reply.%s.pidbox'
+ reply_queue = {Queue} &lt;unbound Queue 9386a23b-ae96-3c6c-b036-ae7646455ebb.reply.testMailbox.pidbox -&gt; &lt;unbound Exchange reply.testMailbox.pidbox(direct)&gt; -&gt; 9386a23b-ae96-3c6c-b036-ae7646455ebb&gt;
+ reply_queue_expires = {float} 10.0
+ reply_queue_ttl = {NoneType} None
+ serializer = {NoneType} None
+ type = {str} 'fanout'
+ unclaimed = {defaultdict: 0} defaultdict(&lt;class 'collections.deque'&gt;, {})
+</code></pre>
+<p>此时逻辑如下：</p>
+<pre><code class="language-python">user scope        +      kombu scope
+                  |
+                  |
++------------+    |       +--------------------------------------+
+| Connection|-----------&gt; | Connection: redis://localhost:6379// |
++------------+    |       +--------------------------------------+
+                  |
+                  |
+                  |                                           +----------------------------+
+                  |                                           | Exchange                   |
+                  |       +--------------------------+   +--&gt; |                            |
++---------+       |       | Mailbox                  |   |    | testMailbox.pidbox(fanout) |
+| mailbox|--------------&gt; |                          |   |    +----------------------------+
++---------+       |       |                          |   |
+                  |       |        exchange  +-----------+    +---------------------------------+
+                  |       |                          |        | Exchange                        |
+                  |       |        reply_exchange +--------&gt;  |                                 |
+                  |       |                          |        | reply.testMailbox.pidbox(direct)|
+                  |       |        reply_queue +---------+    +-------------------+-------------+
+                  |       |                          |   |                        ^
+                  |       |                          |   |    +--------+          |
+                  |       +--------------------------+   +--&gt; | Queue  +----------+
+                  |                                           +--------+
+                  |
+                  +
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132400116-74706502.png" alt="" loading="lazy"></p>
+<h3 id="33-建立node">3.3 建立Node</h3>
+<p>当完成以下代码之后，系统建立了Connection，mailbox和node。</p>
+<p>Node是mailbox中的概念，可以理解为是具体的邮箱。</p>
+<pre><code class="language-python">connection = kombu.Connection('redis://localhost:6379')
+mailbox = pidbox.Mailbox("testMailbox", type="fanout")
+node = mailbox.Node(hostname, state={"a": "b"})
+
+</code></pre>
+<p>node变量举例如下：</p>
+<pre><code class="language-python">node = {Node} &lt;kombu.pidbox.Node object at 0x7fea4b8bffd0&gt;
+ channel = {NoneType} None
+ handlers = {dict: 0} {}
+ hostname = {str} 'localhost'
+ mailbox = {Mailbox} &lt;kombu.pidbox.Mailbox object at 0x7fea4b81df28&gt;
+ state = {dict: 1} {'a': 'b'}
+
+</code></pre>
+<p>逻辑如下图：</p>
+<pre><code class="language-python">user scope        +
+                  |
+                  |
++------------+    |       +--------------------------------------+
+| Connection|-----------&gt; | Connection: redis://localhost:6379// |
++------------+    |       +--------------------------------------+
+                  |
+                  |
+                  |                                               +----------------------------+
+                  |                                               | Exchange                   |
+                  |       +------------------------------+   +--&gt; |                            |
++---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |
+| mailbox|--------------&gt; |                              |   |    +----------------------------+
++---------+       |       |                              |   |
+                  |       |        exchange  +---------------+    +---------------------------------+
+                  |       |                              |        | Exchange                        |
+                  |       |        reply_exchange +------------&gt;  |                                 |
+                  |       |                              |        | reply.testMailbox.pidbox(direct)|
+                  |       |        reply_queue +-------------+    +-------------------+-------------+
+                  |       |                              |   |                        ^
+                  |       |                              |   |    +--------+          |
+                  |       +-------------------------+----+   +--&gt; | Queue  +----------+
+                  |                                 ^             +--------+
+                  |                                 |
+                  |       +---------------------+   |
++-----+           |       |                     |   |
+|node | +----------------&gt;+ Node      channel   |   |
++-----+           |       |                     |   |
+                  |       |           mailbox +-----+
+                  |       |                     |
+                  +       +---------------------+
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132421583-1500912091.png" alt="" loading="lazy"></p>
+<h3 id="34-建立channel">3.4 建立channel</h3>
+<p>经过如下代码之后，这才建立channel。</p>
+<pre><code class="language-python">connection = kombu.Connection('redis://localhost:6379')
+mailbox = pidbox.Mailbox("testMailbox", type="fanout")
+node = mailbox.Node(hostname, state={"a": "b"})
+node.channel = connection.channel()
+</code></pre>
+<h4 id="341-联系">3.4.1 联系</h4>
+<p>这里关于channel，Connection 与 Transport 的联系解释如下：</p>
+<ul>
+<li>Connection：对 MQ 连接的抽象，一个 Connection 就对应一个 MQ 的连接；Connection 是 AMQP 对 连接的封装；</li>
+<li>Channel：与AMQP中概念类似，可以理解成共享一个Connection的多个轻量化连接；Channel 是 AMQP 对 MQ 的操作的封装；</li>
+<li>Transport：kombu 支持将不同的消息中间件以插件的方式进行灵活配置，使用transport这个术语来表示一个具体的消息中间件，可以认为是对broker的抽象：
+<ul>
+<li>对 MQ 的操作必然离不开连接，但是，Kombu 并不直接让 Channel 使用 Connection 来发送/接受请求，而是引入了一个新的抽象 Transport，T<u>ransport 负责具体的 MQ 的操作，也就是说 Channel 的操作都会落到 Transport 上执行</u>。引入transport这个抽象概念可以使得后续添加对non-AMQP的transport非常简单；</li>
+<li>Transport是真实的 MQ 连接，也是真正连接到 MQ(redis/rabbitmq) 的实例，区分底层消息队列的实现；</li>
+<li>当前Kombu中build-in支持有Redis、Beanstalk、Amazon SQS、CouchDB,、MongoDB,、ZeroMQ,、ZooKeeper、SoftLayer MQ和Pyro；</li>
+</ul>
+</li>
+</ul>
+<h4 id="342-channel">3.4.2 Channel</h4>
+<p>在 Transport 有两个channels 列表：</p>
+<pre><code class="language-python">self._avail_channels
+self.channels
+</code></pre>
+<p>如果_avail_channels 有内容则直接获取，否则生成一个新的Channel。</p>
+<p>在真正连接时候，会调用 establish_connection 放入self._avail_channels。</p>
+<pre><code class="language-python">def establish_connection(self):
+    # creates channel to verify connection.
+    # this channel is then used as the next requested channel.
+    # (returned by ``create_channel``).
+    self._avail_channels.append(self.create_channel(self))
+    return self     # for drain events
+</code></pre>
+<p>Channel关键初始化代码如下：</p>
+<pre><code class="language-python">class Channel(virtual.Channel):
+    """Redis Channel."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._queue_cycle = cycle_by_name(self.queue_order_strategy)()
+        self.Client = self._get_client()
+
+        self.active_fanout_queues = set()
+        self.auto_delete_queues = set()
+        self._fanout_to_queue = {}
+        self.handlers = {'BRPOP': self._brpop_read, 'LISTEN': self._receive}
+
+        self.connection.cycle.add(self)  # add to channel poller. # 加入消息循环
+
+            if register_after_fork is not None:
+                register_after_fork(self, _after_fork_cleanup_channel)
+</code></pre>
+<h4 id="343-multichannelpoller">3.4.3 MultiChannelPoller</h4>
+<p>MultiChannelPoller 定义如下，可以理解为执行engine，主要作用是：</p>
+<ul>
+<li>收集channel；</li>
+<li>建立fd到channel的映射；</li>
+<li>建立channel到socks的映射；</li>
+<li>使用poll；</li>
+</ul>
+<pre><code class="language-python">class MultiChannelPoller:
+
+    def __init__(self):
+        # active channels
+        self._channels = set()
+        # file descriptor -&gt; channel map.
+        self._fd_to_chan = {}
+        # channel -&gt; socket map
+        self._chan_to_sock = {}
+        # poll implementation (epoll/kqueue/select)
+        self.poller = poll()
+        # one-shot callbacks called after reading from socket.
+        self.after_read = set()
+
+    def add(self, channel):
+        self._channels.add(channel)
+</code></pre>
+<p>最后Channel变量举例如下：</p>
+<pre><code class="language-python">self = {Channel} &lt;kombu.transport.redis.Channel object at 0x7ffc6d9c5fd0&gt;
+ Client = {type} &lt;class 'redis.client.Redis'&gt;
+ Message = {type} &lt;class 'kombu.transport.virtual.base.Message'&gt;
+ QoS = {type} &lt;class 'kombu.transport.redis.QoS'&gt;
+ active_fanout_queues = {set: 0} set()
+ active_queues = {set: 0} set()
+ async_pool = {ConnectionPool} ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;
+ auto_delete_queues = {set: 0} set()
+ body_encoding = {str} 'base64'
+ channel_id = {int} 1
+ client = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+ connection = {Transport} &lt;kombu.transport.redis.Transport object at 0x7ffc6d9c5f60&gt;
+ cycle = {FairCycle} &lt;FairCycle: 0/0 []&gt;
+ exchange_types = {dict: 3} {'direct': &lt;kombu.transport.virtual.exchange.DirectExchange object at 0x7ffc6d9c5f98&gt;, 'topic': &lt;kombu.transport.virtual.exchange.TopicExchange object at 0x7ffc6d9c5d68&gt;, 'fanout': &lt;kombu.transport.virtual.exchange.FanoutExchange object at 0x7ffc6d9d2b70&gt;}
+ handlers = {dict: 2} {'BRPOP': &lt;bound method Channel._brpop_read of &lt;kombu.transport.redis.Channel object at 0x7ffc6d9c5fd0&gt;&gt;, 'LISTEN': &lt;bound method Channel._receive of &lt;kombu.transport.redis.Channel object at 0x7ffc6d9c5fd0&gt;&gt;}
+ health_check_interval = {int} 25
+ keyprefix_fanout = {str} '/0.'
+ keyprefix_queue = {str} '_kombu.binding.%s'
+ pool = {ConnectionPool} ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;
+ priority_steps = {list: 4} [0, 3, 6, 9]
+ qos = {QoS} &lt;kombu.transport.redis.QoS object at 0x7ffc6d9fbc88&gt;
+ queue_order_strategy = {str} 'round_robin'
+ state = {BrokerState} &lt;kombu.transport.virtual.base.BrokerState object at 0x7ffc6d969e10&gt;
+ subclient = {PubSub} &lt;redis.client.PubSub object at 0x7ffc6d9fbd68&gt;
+
+</code></pre>
+<p>最后Transport变量举例如下：</p>
+<pre><code class="language-python">connection = {Transport} &lt;kombu.transport.redis.Transport object at 0x7ffc6d9c5f60&gt;
+ Channel = {type} &lt;class 'kombu.transport.redis.Channel'&gt;
+ Cycle = {type} &lt;class 'kombu.utils.scheduling.FairCycle'&gt;
+ Management = {type} &lt;class 'kombu.transport.virtual.base.Management'&gt;
+ channels = {list: 1} [&lt;kombu.transport.redis.Channel object at 0x7ffc6da8c748&gt;]
+ client = {Connection} &lt;Connection: redis://localhost:6379// at 0x7ffc6d5f0e80&gt;
+ connection_errors = {tuple: 8} (&lt;class 'amqp.exceptions.ConnectionError'&gt;, &lt;class 'kombu.exceptions.InconsistencyError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'redis.exceptions.ConnectionError'&gt;, &lt;class 'redis.exceptions.AuthenticationError'&gt;, &lt;class 'redis.exceptions.TimeoutError'&gt;)
+ cycle = {MultiChannelPoller} &lt;kombu.transport.redis.MultiChannelPoller object at 0x7ffc6d9d2198&gt;
+  after_read = {set: 0} set()
+  eventflags = {int} 25
+  fds = {dict: 0} {}
+  poller = {_poll} &lt;kombu.utils.eventio._poll object at 0x7ffc6d9d21d0&gt;
+ driver_name = {str} 'redis'
+ driver_type = {str} 'redis'
+ implements = {Implements: 3} {'asynchronous': True, 'exchange_type': frozenset({'direct', 'fanout', 'topic'}), 'heartbeats': False}
+ manager = {Management} &lt;kombu.transport.virtual.base.Management object at 0x7ffc6da8c6d8&gt;
+ state = {BrokerState} &lt;kombu.transport.virtual.base.BrokerState object at 0x7ffc6d969e10&gt;
+
+</code></pre>
+<p>此时逻辑如下：</p>
+<pre><code class="language-python">                                                                      +-----------------------+    +-----------------------+
+                                                                      | Transport             |    | MultiChannelPoller    |
+user scope        +                                                   |                       |    |                       |
+                  |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+
+                  |       |                                      |    |                       |    +-----------------------+  |
++------------+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        |
+| Connection|-----------&gt; |                                      |    |                       |      |                        |
++------------+    |       |                                      |    |     _avail_channels+---------+                        |
+                  |       |                       connection+-------&gt; |                       |      |                        |
+                  |       |                                      |    +-----------------------+      |                        v
+                  |       +--------------------------------------+                                   |      +-----------------+---+
+                  |                                                                                  +-----&gt;+ Channel             |     +-----------+
+                  |                                               +----------------------------+            |            cycle +------&gt; | FairCycle |
+                  |                                               | Exchange                   |            |                     |     |           |
+                  |       +------------------------------+   +--&gt; |                            |            |                     |     +-----------+
++---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |            |           handlers+-----+
+| mailbox|--------------&gt; |                              |   |    +----------------------------+            +----+----------------+   |
++---------+       |       |                              |   |                                                   ^                    |
+                  |       |        exchange  +---------------+    +---------------------------------+            |                    v
+                  |       |                              |        | Exchange                        |            |    +---------------+---------------+
+                  |       |        reply_exchange +------------&gt;  |                                 |            |    |  'BRPOP': Channel._brpop_read |
+                  |       |                              |        | reply.testMailbox.pidbox(direct)|            |    |                               |
+                  |       |        reply_queue +-------------+    +-------------------+-------------+            |    |  'LISTEN': Channel._receive   |
+                  |       |                              |   |                        ^                          |    |                               |
+                  |       |                              |   |    +--------+          |                          |    +-------------------------------+
+                  |       +-------------------------+----+   +--&gt; | Queue  +----------+                          |
+                  |                                 ^             +--------+                                     |
+                  |                                 |                                                            |
+                  |       +---------------------+   |                                                            |
++-----+           |       |                     |   |                                                            |
+|node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+
++-----+           |       |                     |   |
+                  |       |           mailbox +-----+
+                  |       |                     |
+                  +       +---------------------+
+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132449316-1457415438.png" alt="" loading="lazy"></p>
+<h3 id="35-建立-consumer">3.5 建立 Consumer</h3>
+<p>如下代码建立一个Consumer，也建立了对应的Queue。就是说，广播还是需要依赖Consumer完成，或者说是借助Consumer功能。</p>
+<pre><code class="language-python">def main(arguments):
+    consumer = node.listen(callback=callback)
+
+</code></pre>
+<p>listen代码如下：</p>
+<pre><code class="language-python">def listen(self, channel=None, callback=None):
+    consumer = self.Consumer(channel=channel,
+                             callbacks=[callback or self.handle_message],
+                             on_decode_error=self.on_decode_error)
+    consumer.consume()
+    return consumer
+
+</code></pre>
+<p>此时对应Queue变量如下：</p>
+<pre><code class="language-python">queue = {Queue} &lt;unbound Queue localhost.testMailbox.pidbox -&gt; &lt;unbound Exchange testMailbox.pidbox(fanout)&gt; -&gt; &gt;
+ ContentDisallowed = {type} &lt;class 'kombu.exceptions.ContentDisallowed'&gt;
+ alias = {NoneType} None
+ auto_delete = {bool} True
+ binding_arguments = {NoneType} None
+ bindings = {set: 0} set()
+ can_cache_declaration = {bool} False
+ channel = {str} 'line 178, in _getPyDictionary\n    attr = getattr(var, n)\n  File "
+ consumer_arguments = {NoneType} None
+ durable = {bool} False
+ exchange = {Exchange} Exchange testMailbox.pidbox(fanout)
+
+</code></pre>
+<p>逻辑如下：</p>
+<pre><code class="language-python">                                                                       +-----------------------+    +-----------------------+
+                                                                       | Transport             |    | MultiChannelPoller    |
+ user scope        +                                                   |                       |    |                       |
+                   |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+
+                   |       |                                      |    |                       |    +-----------------------+  |
+ +------------+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        |
+ | Connection|-----------&gt; |                                      |    |                       |      |                        |
+ +------------+    |       |                                      |    |     _avail_channels+---------+                        |
+                   |       |                       connection+-------&gt; |                       |      |                        |
+                   |       |                                      |    +-----------------------+      |                        v
+                   |       +--------------------------------------+                                   |      +-----------------+---+
+                   |                                                                                  +-----&gt;+ Channel             |     +-----------+
+                   |                                               +----------------------------+            |            cycle +------&gt; | FairCycle |
+                   |                                               | Exchange                   |            |                     |     |           |
+                   |       +------------------------------+   +--&gt; |                            |  &lt;-----+   |                     |     +-----------+
+ +---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |        |   |           handlers+-----+
+ | mailbox|--------------&gt; |                              |   |    +----------------------------+        |   +-+--+----------------+   |
+ +---------+       |       |                              |   |                                          |     ^  ^                    |
+                   |       |        exchange  +---------------+    +---------------------------------+   |     |  |                    v
+                   |       |                              |        | Exchange                        |   |     |  |    +---------------+---------------+
+                   |       |        reply_exchange +------------&gt;  |                                 |   |     |  |    |  'BRPOP': Channel._brpop_read |
+                   |       |                              |        | reply.testMailbox.pidbox(direct)|   |     |  |    |                               |
+                   |       |        reply_queue +-------------+    +-------------------+-------------+   |     |  |    |  'LISTEN': Channel._receive   |
+                   |       |                              |   |                        ^                 |     |  |    |                               |
+                   |       |                              |   |    +--------+          |                 |     |  |    +-------------------------------+
+                   |       +-------------------------+----+   +--&gt; | Queue  +----------+                 |     |  |
+                   |                                 ^             +--------+                            |     |  |
+                   |                                 |                                                   |     |  |
+                   |       +---------------------+   |                                                   |     |  |
+ +-----+           |       |                     |   |                                                   |     |  |
+ |node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+
+ +-----+           |       |                     |   |                                                   |     |
+                   |       |           mailbox +-----+                                                   |     |
+                   |       |                     |        +----------------------------------------------------+
+                   |       +---------------------+        |                                              |
+                   |                                      |                                              |
+                   |                                      |                                              |
+                   |       +------------------------+     |         +-----------------------------------------------------------------------------+
++----------+       |       |                        |     |         | Queue                              |                                        |
+| consumer |       |       | Consumer    channel  +-------+         |                                    +                                        |
++----------+       |       |                        |               |                                 exchange                                    |
+                   |       |             queues  +---------------&gt;  |                                                                             |
+                   |       |                        |               |                                                                             |
++-----------+      |       |             callbacks  |               |     &lt;localhost.testMailbox.pidbox -&gt; Exchange testMailbox.pidbox(fanout)&gt;   |
+| callback  |      |       |                  +     |               |                                                                             |
++------+----+      |       +------------------------+               +-----------------------------------------------------------------------------+
+       ^           |                          |
+       |           |                          |
+       +--------------------------------------+
+                   |
+                   +
+
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132521310-481590432.png" alt="" loading="lazy"></p>
+<h4 id="351-binding-写入redis">3.5.1 binding 写入Redis</h4>
+<p>此时会把binding关系写入Redis，这样后续就可以利用这个binding来进行路由。</p>
+<p>具体堆栈如下：</p>
+<pre><code class="language-python">sadd, client.py:2243
+_queue_bind, redis.py:817
+queue_bind, base.py:568
+bind_to, entity.py:674
+queue_bind, entity.py:662
+_create_queue, entity.py:617
+declare, entity.py:606
+declare, messaging.py:417
+revive, messaging.py:404
+__init__, messaging.py:382
+Consumer, pidbox.py:78
+listen, pidbox.py:91
+main, node.py:20
+&lt;module&gt;, node.py:29
+
+</code></pre>
+<p>逻辑如图，此时出现了Redis。</p>
+<pre><code class="language-python"> user scope        +      Kombu                                        +-----------------------+    +-----------------------+                              +          redis
+                   |                                                   | Transport             |    | MultiChannelPoller    |                              |
+                   |                                                   |                       |    |                       |                              |
+                   |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+                           |
+                   |       |                                      |    |                       |    +-----------------------+  |                           |
+ +------------+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        |                           |
+ | Connection|-----------&gt; |                                      |    |                       |      |                        |                           |
+ +------------+    |       |                                      |    |     _avail_channels+---------+                        |                           |
+                   |       |                       connection+-------&gt; |                       |      |                        |                           |
+                   |       |                                      |    +-----------------------+      |                        v                           |
+                   |       +--------------------------------------+                                   |      +-----------------+---+                       |
+                   |                                                                                  +-----&gt;+ Channel             |     +-----------+     |
+                   |                                               +----------------------------+            |            cycle +------&gt; | FairCycle |     |
+                   |                                               | Exchange                   |            |                     |     |           |     |
+                   |       +------------------------------+   +--&gt; |                            |  &lt;-----+   |                     |     +-----------+     |
+ +---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |        |   |           handlers+-----+                   |
+ | mailbox|--------------&gt; |                              |   |    +----------------------------+        |   +-+--+----------------+   |                   |
+ +---------+       |       |                              |   |                                          |     ^  ^                    |                   |
+                   |       |        exchange  +---------------+    +---------------------------------+   |     |  |                    v                   |
+                   |       |                              |        | Exchange                        |   |     |  |    +---------------+---------------+   |
+                   |       |        reply_exchange +------------&gt;  |                                 |   |     |  |    |  'BRPOP': Channel._brpop_read |   |
+                   |       |                              |        | reply.testMailbox.pidbox(direct)|   |     |  |    |                               |   |
+                   |       |        reply_queue +-------------+    +-------------------+-------------+   |     |  |    |  'LISTEN': Channel._receive   |   |
+                   |       |                              |   |                        ^                 |     |  |    |                               |   |
+                   |       |                              |   |    +--------+          |                 |     |  |    +-------------------------------+   |
+                   |       +-------------------------+----+   +--&gt; | Queue  +----------+                 |     |  |                                        |
+                   |                                 ^             +--------+                            |     |  |                                        |
+                   |                                 |                                                   |     |  |                                        |  +----------------------------------------------------+
+                   |       +---------------------+   |                                                   |     |  |                                        |  |      _kombu.binding.testMailbox.pidbox             |
+ +-----+           |       |                     |   |                                                   |     |  |                                        |  |                                                    |
+ |node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+                                        |  |                                                    |
+ +-----+           |       |                     |   |                                                   |     |                                           |  |   "\x06\x16\x06\x16localhost.testMailbox.pidbox"   |
+                   |       |           mailbox +-----+                                                   |     |                                           |  |                                                    |
+                   |       |                     |        +----------------------------------------------------+                                           |  +---------+------------------------------------------+
+                   |       +---------------------+        |                                              |                                                 |            ^
+                   |                                      |                                              |                                                 |            |
+                   |                                      |                                              |                                                 |            |
+                   |       +------------------------+     |         +-----------------------------------------------------------------------------+        |            |
++----------+       |       |                        |     |         | Queue                              |                                        |        |            |
+| consumer |       |       | Consumer    channel  +-------+         |                                    +                                        |        |            |
++----------+       |       |                        |               |                                 exchange                                    |        |            |
+                   |       |             queues  +---------------&gt;  |                                                                             |        |            |
+                   |       |                        |               |                                                                             | +-------------------+
++-----------+      |       |             callbacks  |               |     &lt;localhost.testMailbox.pidbox -&gt; Exchange testMailbox.pidbox(fanout)&gt;   |        |
+| callback  |      |       |                  +     |               |                                                                             |        |
++------+----+      |       +------------------------+               +-----------------------------------------------------------------------------+        |
+       ^           |                          |                                                                                                            |
+       |           |                          |                                                                                                            |
+       +--------------------------------------+                                                                                                            +
+                   |
+                   +
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132547781-1261453179.png" alt="" loading="lazy"></p>
+<h4 id="352-配置">3.5.2 配置</h4>
+<p>代码来到了kombu/transport/virtual/base.py，这里工作如下：</p>
+<ul>
+<li>把 consumer 的 queue 加入到 Channel;</li>
+<li>把回调函数加入到 Channel；</li>
+<li>把 Consumer 加入循环；</li>
+</ul>
+<p>这样，Comuser 的 queue 和 回调函数 就通过 Channel 联系起来。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">    def basic_consume(self, queue, no_ack, callback, consumer_tag, **kwargs):
+        """Consume from `queue`."""
+        self._tag_to_queue[consumer_tag] = queue
+        self._active_queues.append(queue)
+
+        def _callback(raw_message):
+            message = self.Message(raw_message, channel=self)
+            if not no_ack:
+                self.qos.append(message, message.delivery_tag)
+            return callback(message)
+
+        self.connection._callbacks[queue] = _callback
+        self._consumers.add(consumer_tag)
+
+        self._reset_cycle()
+
+</code></pre>
+<p>调用堆栈如下：</p>
+<pre><code class="language-python">basic_consume, base.py:635
+basic_consume, redis.py:598
+consume, entity.py:738
+_basic_consume, messaging.py:594
+consume, messaging.py:473
+listen, pidbox.py:92
+main, node.py:20
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>此时依然在Channel</p>
+<pre><code class="language-python">self = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fc252239908&gt;
+ Client = {type} &lt;class 'redis.client.Redis'&gt;
+ Message = {type} &lt;class 'kombu.transport.virtual.base.Message'&gt;
+ active_fanout_queues = {set: 1} {'localhost.testMailbox.pidbox'}
+ active_queues = {set: 0} set()
+ async_pool = {ConnectionPool} ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;
+ auto_delete_queues = {set: 1} {'localhost.testMailbox.pidbox'}
+ body_encoding = {str} 'base64'
+ channel_id = {int} 1
+ client = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+ closed = {bool} False
+ codecs = {dict: 1} {'base64': &lt;kombu.transport.virtual.base.Base64 object at 0x7fc25218f5c0&gt;}
+ connection = {Transport} &lt;kombu.transport.redis.Transport object at 0x7fc2522295f8&gt;
+ cycle = {FairCycle} &lt;FairCycle: 0/1 ['localhost.testMailbox.pidbox']&gt;
+ deadletter_queue = {NoneType} None
+ default_priority = {int} 0
+ do_restore = {bool} True
+ exchange_types = {dict: 3} {'direct': &lt;kombu.transport.virtual.exchange.DirectExchange object at 0x7fc252239fd0&gt;, 'topic': &lt;kombu.transport.virtual.exchange.TopicExchange object at 0x7fc252239f60&gt;, 'fanout': &lt;kombu.transport.virtual.exchange.FanoutExchange object at 0x7fc252239f28&gt;}
+ handlers = {dict: 2} {'BRPOP': &lt;bound method Channel._brpop_read of &lt;kombu.transport.redis.Channel object at 0x7fc252239908&gt;&gt;, 'LISTEN': &lt;bound method Channel._receive of &lt;kombu.transport.redis.Channel object at 0x7fc252239908&gt;&gt;}
+ keyprefix_fanout = {str} '/0.'
+ keyprefix_queue = {str} '_kombu.binding.%s'
+ pool = {ConnectionPool} ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;
+ priority_steps = {list: 4} [0, 3, 6, 9]
+ qos = {QoS} &lt;kombu.transport.redis.QoS object at 0x7fc252264320&gt;
+ queue_order_strategy = {str} 'round_robin'
+ state = {BrokerState} &lt;kombu.transport.virtual.base.BrokerState object at 0x7fc25218f6a0&gt;
+ subclient = {PubSub} &lt;redis.client.PubSub object at 0x7fc252264400&gt;
+</code></pre>
+<p>具体循环如下：</p>
+<pre><code class="language-python">def _reset_cycle(self):
+    self._cycle = FairCycle(
+        self._get_and_deliver, self._active_queues, Empty)
+</code></pre>
+<p>FairCycle定义如下：</p>
+<pre><code class="language-python">class FairCycle:
+    """Cycle between resources.
+
+    Consume from a set of resources, where each resource gets
+    an equal chance to be consumed from.
+
+    Arguments:
+        fun (Callable): Callback to call.
+        resources (Sequence[Any]): List of resources.
+        predicate (type): Exception predicate.
+    """
+
+    def __init__(self, fun, resources, predicate=Exception):
+        self.fun = fun
+        self.resources = resources
+        self.predicate = predicate
+        self.pos = 0
+
+    def _next(self):
+        while 1:
+            try:
+                resource = self.resources[self.pos]
+                self.pos += 1
+                return resource
+            except IndexError:
+                self.pos = 0
+                if not self.resources:
+                    raise self.predicate()
+
+    def get(self, callback, **kwargs):
+        """Get from next resource."""
+        for tried in count(0):  # for infinity
+            resource = self._next()
+            try:
+                return self.fun(resource, callback, **kwargs)
+            except self.predicate:
+                # reraise when retries exchausted.
+                if tried &gt;= len(self.resources) - 1:
+                    raise
+</code></pre>
+<p>回调函数如下：</p>
+<pre><code class="language-python">fun = {method} &lt;bound method AbstractChannel._get_and_deliver of &lt;kombu.transport.redis.Channel object at 0x7fc252239908&gt;&gt;
+resources = {list: 1} ['localhost.testMailbox.pidbox']
+
+</code></pre>
+<p>逻辑如下：</p>
+<pre><code class="language-python"> user scope        +      Kombu                                        +-----------------------+    +-----------------------+                                   +          redis
+                   |                                                   | Transport             |    | MultiChannelPoller    |                                   |
+                   |                                                   |                       |    |                       |                                   |
+                   |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+                                |
+                   |       |                                      |    |                       |    +-----------------------+  |                                |
+ +------------+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        v                                |
+ | Connection|-----------&gt; |                                      |    |                       |      |      +-----------------+---+                            |
+ +------------+    |       |                                      |    |     _avail_channels+---------+      | Channel             |  &lt;------------+            |
+                   |       |                       connection+-------&gt; |                       |      |      |                     |               |            |
+                   |       |                                      |    +-----------------------+      |      |     _active_queues +------------------------+    |
+                   |       +--------------------------------------+                                   |      |                     |               |       |    |
+                   |                                                                                  +-----&gt;+                     |     +---------+-+     |    |
+                   |                                               +----------------------------+            |            cycle +------&gt; | FairCycle |     |    |
+                   |                                               | Exchange                   |            |                     |     |           |     |    |
+                   |       +------------------------------+   +--&gt; |                            |  &lt;-----+   |                     |     +-----------+     |    |
+ +---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |        |   |           handlers+-----+                   |    |
+ | mailbox|--------------&gt; |                              |   |    +----------------------------+        |   +-+--+----------------+   |                   |    |
+ +---------+       |       |                              |   |                                          |     ^  ^                    |                   |    |
+                   |       |        exchange  +---------------+    +---------------------------------+   |     |  |                    v                   |    |
+                   |       |                              |        | Exchange                        |   |     |  |    +---------------+---------------+   |    |
+                   |       |        reply_exchange +------------&gt;  |                                 |   |     |  |    |  'BRPOP': Channel._brpop_read |   |    |
+                   |       |                              |        | reply.testMailbox.pidbox(direct)|   |     |  |    |                               |   |    |
+                   |       |        reply_queue +-------------+    +-------------------+-------------+   |     |  |    |  'LISTEN': Channel._receive   |   |    |
+                   |       |                              |   |                        ^                 |     |  |    |                               |   |    |
+                   |       |                              |   |    +--------+          |                 |     |  |    +-------------------------------+   |    |
+                   |       +-------------------------+----+   +--&gt; | Queue  +----------+                 |     |  |                                        |    |
+                   |                                 ^             +--------+                            |     |  |                                        |    |
+                   |                                 |                                                   |     |  |                                        |    |  +----------------------------------------------------+
+                   |       +---------------------+   |                                                   |     |  |                                        |    |  |      _kombu.binding.testMailbox.pidbox             |
+ +-----+           |       |                     |   |                                                   |     |  |                                        |    |  |                                                    |
+ |node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+                                        |    |  |                                                    |
+ +-----+           |       |                     |   |                                                   |     |                                           |    |  |   "\x06\x16\x06\x16localhost.testMailbox.pidbox"   |
+                   |       |           mailbox +-----+                                                   |     |                                           |    |  |                                                    |
+                   |       |                     |        +----------------------------------------------------+                                           |    |  +---------+------------------------------------------+
+                   |       +---------------------+        |                                              |                                                 |    |            ^
+                   |                                      |                                              |                                                 |    |            |
+                   |                                      |                                              |                                                 |    |            |
+                   |       +------------------------+     |         +-----------------------------------------------------------------------------+        |    |            |
++----------+       |       |                        |     |         | Queue                              |                                        |        |    |            |
+| consumer |       |       | Consumer    channel  +-------+         |                                    +                                        |  &lt;-----+    |            |
++----------+       |       |                        |               |                                 exchange                                    |             |            |
+                   |       |             queues  +---------------&gt;  |                                                                             |             |            |
+                   |       |                        |               |                                                                             | +------------------------+
++-----------+      |       |             callbacks  |               |     &lt;localhost.testMailbox.pidbox -&gt; Exchange testMailbox.pidbox(fanout)&gt;   |             |
+| callback  |      |       |                  +     |               |                                                                             |             |
++------+----+      |       +------------------------+               +-----------------------------------------------------------------------------+             |
+       ^           |                          |                                                                                                                 |
+       |           |                          |                                                                                                                 |
+       +--------------------------------------+                                                                                                                 +
+                   |
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132609287-1000313774.png" alt="" loading="lazy"></p>
+<h4 id="353-配置负载均衡">3.5.3 配置负载均衡</h4>
+<p>回到 Channel 类，这里最后会配置负载均衡，就是具体下一次使用哪一个 Queue 的消息。</p>
+<pre><code class="language-python">def basic_consume(self, queue, *args, **kwargs):
+    if queue in self._fanout_queues:
+        exchange, _ = self._fanout_queues[queue]
+        self.active_fanout_queues.add(queue)
+        self._fanout_to_queue[exchange] = queue
+    ret = super().basic_consume(queue, *args, **kwargs)
+
+    # Update fair cycle between queues.
+    #
+    # We cycle between queues fairly to make sure that
+    # each queue is equally likely to be consumed from,
+    # so that a very busy queue will not block others.
+    #
+    # This works by using Redis's `BRPOP` command and
+    # by rotating the most recently used queue to the
+    # and of the list.  See Kombu github issue #166 for
+    # more discussion of this method.
+    self._update_queue_cycle()
+    return ret
+  
+  
+def _update_queue_cycle(self):
+    self._queue_cycle.update(self.active_queues)
+</code></pre>
+<p>堆栈如下：</p>
+<pre><code class="language-python">update, scheduling.py:75
+_update_queue_cycle, redis.py:1018
+basic_consume, redis.py:610
+consume, entity.py:738
+_basic_consume, messaging.py:594
+consume, messaging.py:473
+listen, pidbox.py:92
+main, node.py:20
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>策略如下：</p>
+<pre><code class="language-python">class round_robin_cycle:
+    """Iterator that cycles between items in round-robin."""
+
+    def __init__(self, it=None):
+        self.items = it if it is not None else []
+
+    def update(self, it):
+        """Update items from iterable."""
+        self.items[:] = it
+
+    def consume(self, n):
+        """Consume n items."""
+        return self.items[:n]
+
+    def rotate(self, last_used):
+        """Move most recently used item to end of list."""
+        items = self.items
+        try:
+            items.append(items.pop(items.index(last_used)))
+        except ValueError:
+            pass
+        return last_used
+</code></pre>
+<p>逻辑如下：</p>
+<pre><code class="language-python"> user scope        +      Kombu                                        +-----------------------+    +-----------------------+                                   +          redis
+                   |                                                   | Transport             |    | MultiChannelPoller    |                                   |
+                   |                                                   |                       |    |                       |                                   |
+                   |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+                                |
+                   |       |                                      |    |                       |    +-----------------------+  |                                |
+ +------------+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        v                                |
+ | Connection|-----------&gt; |                                      |    |                       |      |      +-----------------+---+                            |
+ +------------+    |       |                                      |    |     _avail_channels+---------+      | Channel             |  &lt;------------+            |
+                   |       |                       connection+-------&gt; |                       |      |      |                     |               |            |
+                   |       |                                      |    +-----------------------+      |      |     _active_queues +------------------------+    |
+                   |       +--------------------------------------+                                   |      |                     |               |       |    |
+                   |                                                                                  +-----&gt;+            cycle +------&gt;  +--------+--+    |    |
+                   |                                               +----------------------------+            |                     |      | FairCycle |    |    |
+                   |                                               | Exchange                   |            |                     |      +-----------+    |    |
+                   |       +------------------------------+   +--&gt; |                            |  &lt;-----+   |       _queue_cycle+-----------+             |    |
+ +---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |        |   |                     |         |             |    |
+ | mailbox|--------------&gt; |                              |   |    +----------------------------+        |   |           handlers  |         v             |    |
+ +---------+       |       |                              |   |                                          |   |               +     |      round_robin_cycle|    |
+                   |       |        exchange  +---------------+    +---------------------------------+   |   +-+--+----------------+                       |    |
+                   |       |                              |        | Exchange                        |   |     ^  ^          |                             |    |
+                   |       |        reply_exchange +------------&gt;  |                                 |   |     |  |          |                             |    |
+                   |       |                              |        | reply.testMailbox.pidbox(direct)|   |     |  |          |                             |    |
+                   |       |        reply_queue +-------------+    +-------------------+-------------+   |     |  |          v                             |    |
+                   |       |                              |   |                        ^                 |     |  |    +-----+-------------------------+   |    |
+                   |       |                              |   |    +--------+          |                 |     |  |    |  'BRPOP': Channel._brpop_read |   |    |
+                   |       +-------------------------+----+   +--&gt; | Queue  +----------+                 |     |  |    |                               |   |    |
+                   |                                 ^             +--------+                            |     |  |    |  'LISTEN': Channel._receive   |   |    |
+                   |                                 |                                                   |     |  |    |                               |   |    |  +----------------------------------------------------+
+                   |       +---------------------+   |                                                   |     |  |    +-------------------------------+   |    |  |      _kombu.binding.testMailbox.pidbox             |
+ +-----+           |       |                     |   |                                                   |     |  |                                        |    |  |                                                    |
+ |node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+                                        |    |  |                                                    |
+ +-----+           |       |                     |   |                                                   |     |                                           |    |  |   "\x06\x16\x06\x16localhost.testMailbox.pidbox"   |
+                   |       |           mailbox +-----+                                                   |     |                                           |    |  |                                                    |
+                   |       |                     |        +----------------------------------------------------+                                           |    |  +---------+------------------------------------------+
+                   |       +---------------------+        |                                              |                                                 |    |            ^
+                   |                                      |                                              |                                                 |    |            |
+                   |                                      |                                              |                                                 |    |            |
+                   |       +------------------------+     |         +-----------------------------------------------------------------------------+        |    |            |
++----------+       |       |                        |     |         | Queue                              |                                        |        |    |            |
+| consumer |       |       | Consumer    channel  +-------+         |                                    +                                        |  &lt;-----+    |            |
++----------+       |       |                        |               |                                 exchange                                    |             |            |
+                   |       |             queues  +---------------&gt;  |                                                                             |             |            |
+                   |       |                        |               |                                                                             | +------------------------+
++-----------+      |       |             callbacks  |               |     &lt;localhost.testMailbox.pidbox -&gt; Exchange testMailbox.pidbox(fanout)&gt;   |             |
+| callback  |      |       |                  +     |               |                                                                             |             |
++------+----+      |       +------------------------+               +-----------------------------------------------------------------------------+             |
+       ^           |                          |                                                                                                                 |
+       |           |                          |                                                                                                                 |
+       +--------------------------------------+                                                                                                                 +
+                   |
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132626695-1582808963.png" alt="" loading="lazy"></p>
+<h3 id="36-消费">3.6 消费</h3>
+<h4 id="321-消费主体">3.2.1 消费主体</h4>
+<p>如下代码完成消费。</p>
+<pre><code class="language-python">def main(arguments):
+    consumer = node.listen(callback=callback)
+    try:
+        while True:
+            print('Consumer Waiting')
+            connection.drain_events()
+    finally:
+        consumer.cancel()
+
+</code></pre>
+<p>具体就是使用 drain_events 里读取消息，其代码如下：</p>
+<pre><code class="language-python">def drain_events(self, connection, timeout=None):
+    time_start = monotonic()
+    get = self.cycle.get
+    polling_interval = self.polling_interval
+    if timeout and polling_interval and polling_interval &gt; timeout:
+        polling_interval = timeout
+    while 1:
+        try:
+            get(self._deliver, timeout=timeout)
+        except Empty:
+            if timeout is not None and monotonic() - time_start &gt;= timeout:
+                raise socket.timeout()
+            if polling_interval is not None:
+                sleep(polling_interval)
+        else:
+            break
+
+</code></pre>
+<h4 id="322-业务逻辑">3.2.2 业务逻辑</h4>
+<h5 id="3221-注册">3.2.2.1 注册</h5>
+<p>get方法功能如下（需要注意的是，每次消费都要使用一次get函数，即，都要进行注册，消费....）：</p>
+<ul>
+<li>注册响应方式；</li>
+<li>进行poll操作，这是通用操作，或者 BRPOP，或者 LISTEN；</li>
+<li>调用 handle_event 进行读取redis，具体消费；</li>
+</ul>
+<pre><code class="language-python">def get(self, callback, timeout=None):
+    self._in_protected_read = True
+    try:
+        for channel in self._channels:
+            if channel.active_queues:           # BRPOP mode?
+                if channel.qos.can_consume():
+                    self._register_BRPOP(channel)
+            if channel.active_fanout_queues:    # LISTEN mode?
+                self._register_LISTEN(channel)
+
+        events = self.poller.poll(timeout)
+        if events:
+            for fileno, event in events:
+                ret = self.handle_event(fileno, event) # 具体读取redis，进行消费
+                if ret:
+                    return
+        # - no new data, so try to restore messages.
+        # - reset active redis commands.
+        self.maybe_restore_messages()
+        raise Empty()
+    finally:
+        self._in_protected_read = False
+        while self.after_read:
+            try:
+                fun = self.after_read.pop()
+            except KeyError:
+                break
+            else:
+                fun()
+
+</code></pre>
+<p>因为这里利用了pubsub，所以调用到 channel._subscribe 来注册订阅，具体如下：</p>
+<pre><code class="language-python">def _register_LISTEN(self, channel):
+    """Enable LISTEN mode for channel."""
+    if not self._client_registered(channel, channel.subclient, 'LISTEN'):
+        channel._in_listen = False
+        self._register(channel, channel.subclient, 'LISTEN')
+    if not channel._in_listen:
+        channel._subscribe()  # send SUBSCRIBE
+
+</code></pre>
+<p>具体类如下：</p>
+<pre><code class="language-python">self = {MultiChannelPoller} &lt;kombu.transport.redis.MultiChannelPoller object at 0x7fc2522297f0&gt;
+
+</code></pre>
+<p>_register会把channel，socket fd的信息结合起来，作用就是：如果对应的socket fd有poll，就会调用对应的channel。</p>
+<pre><code class="language-python">def _register(self, channel, client, type):
+    if (channel, client, type) in self._chan_to_sock:
+        self._unregister(channel, client, type)
+    if client.connection._sock is None:   # not connected yet.
+        client.connection.connect()
+    sock = client.connection._sock
+    self._fd_to_chan[sock.fileno()] = (channel, type)
+    self._chan_to_sock[(channel, client, type)] = sock
+    self.poller.register(sock, self.eventflags)
+</code></pre>
+<p>具体_subscribe就是与具体redis联系，进行注册。</p>
+<p>这样，对于 consumer 来说，redis 也联系上了，poll 也联系上了，下面就可以消费了。</p>
+<pre><code class="language-python">def _subscribe(self):
+    keys = [self._get_subscribe_topic(queue)
+            for queue in self.active_fanout_queues]
+    if not keys:
+        return
+    c = self.subclient
+    if c.connection._sock is None:
+        c.connection.connect()
+    self._in_listen = c.connection
+    c.psubscribe(keys)
+</code></pre>
+<p>堆栈如下：</p>
+<pre><code class="language-python">_subscribe, redis.py:663
+_register_LISTEN, redis.py:322
+get, redis.py:375
+drain_events, base.py:960
+drain_events, connection.py:318
+main, node.py:24
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>相应变量如下，这里 client 是 redis 驱动的 PubSub 对象：</p>
+<pre><code class="language-python">c = {PubSub} &lt;redis.client.PubSub object at 0x7fc252264400&gt;
+
+keys = {list: 1} ['/0.testMailbox.pidbox']
+
+self = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fc252239908&gt;
+</code></pre>
+<p>此时逻辑如下：</p>
+<pre><code class="language-python">                                                                                                                                                                +
+user scope         +      Kombu                                                                                                                                 |          redis
+                   |                                                                               psubscribe                                                   |
+                   |                                                                                                                                            |           +----------------------------+
+        +---------------------&gt;   drain_events   +---------------------------------------------------------------------------------------------------------------------&gt;    |  '/0.testMailbox.pidbox'   |
+        |          |                                                                                                                                            |           +----------------------------+
+        |          |                                                                                                                                            |
+        |          |                                                   +-----------------------+    +-----------------------+                                   |
+        |          |                                                   | Transport             |    | MultiChannelPoller    |                                   |
+        |          |                                                   |                       |    |                       |                                   |
+        |          |       +--------------------------------------+    |            cycle +-------&gt; |           _channels +----+                                |
+        |          |       |                                      |    |                       |    +-----------------------+  |                                |
+ +------+-----+    |       | Connection: redis://localhost:6379// |    |            channels +--------+                        v                                |
+ | Connection|-----------&gt; |                                      |    |                       |      |      +-----------------+---+                            |
+ +------------+    |       |                                      |    |     _avail_channels+---------+      | Channel             |  &lt;------------+            |
+                   |       |                       connection+-------&gt; |                       |      |      |                     |               |            |
+                   |       |                                      |    +-----------------------+      |      |     _active_queues +------------------------+    |
+                   |       +--------------------------------------+                                   |      |                     |               |       |    |
+                   |                                                                                  +-----&gt;+            cycle +------&gt;  +--------+--+    |    |
+                   |                                               +----------------------------+            |                     |      | FairCycle |    |    |
+                   |                                               | Exchange                   |            |                     |      +-----------+    |    |
+                   |       +------------------------------+   +--&gt; |                            |  &lt;-----+   |       _queue_cycle+-----------+             |    |
+ +---------+       |       | Mailbox                      |   |    | testMailbox.pidbox(fanout) |        |   |                     |         |             |    |
+ | mailbox|--------------&gt; |                              |   |    +----------------------------+        |   |           handlers  |         v             |    |
+ +---------+       |       |                              |   |                                          |   |               +     |      round_robin_cycle|    |
+                   |       |        exchange  +---------------+    +---------------------------------+   |   +-+--+----------------+                       |    |
+                   |       |                              |        | Exchange                        |   |     ^  ^          |                             |    |
+                   |       |        reply_exchange +------------&gt;  |                                 |   |     |  |          |                             |    |
+                   |       |                              |        | reply.testMailbox.pidbox(direct)|   |     |  |          |                             |    |
+                   |       |        reply_queue +-------------+    +-------------------+-------------+   |     |  |          v                             |    |
+                   |       |                              |   |                        ^                 |     |  |    +-----+-------------------------+   |    |
+                   |       |                              |   |    +--------+          |                 |     |  |    |  'BRPOP': Channel._brpop_read |   |    |
+                   |       +-------------------------+----+   +--&gt; | Queue  +----------+                 |     |  |    |                               |   |    |
+                   |                                 ^             +--------+                            |     |  |    |  'LISTEN': Channel._receive   |   |    |
+                   |                                 |                                                   |     |  |    |                               |   |    |  +----------------------------------------------------+
+                   |       +---------------------+   |                                                   |     |  |    +-------------------------------+   |    |  |      _kombu.binding.testMailbox.pidbox             |
+ +-----+           |       |                     |   |                                                   |     |  |                                        |    |  |                                                    |
+ |node | +----------------&gt;+ Node      channel+-------------------------------------------------------------------+                                        |    |  |                                                    |
+ +-----+           |       |                     |   |                                                   |     |                                           |    |  |   "\x06\x16\x06\x16localhost.testMailbox.pidbox"   |
+                   |       |           mailbox +-----+                                                   |     |                                           |    |  |                                                    |
+                   |       |                     |        +----------------------------------------------------+                                           |    |  +---------+------------------------------------------+
+                   |       +---------------------+        |                                              |                                                 |    |            ^
+                   |                                      |                                              |                                                 |    |            |
+                   |                                      |                                              |                                                 |    |            |
+                   |       +------------------------+     |         +-----------------------------------------------------------------------------+        |    |            |
++----------+       |       |                        |     |         | Queue                              |                                        |        |    |            |
+| consumer |       |       | Consumer    channel  +-------+         |                                    +                                        |  &lt;-----+    |            |
++----------+       |       |                        |               |                                 exchange                                    |             |            |
+                   |       |             queues  +---------------&gt;  |                                                                             |             |            |
+                   |       |                        |               |                                                                             | +------------------------+
++-----------+      |       |             callbacks  |               |     &lt;localhost.testMailbox.pidbox -&gt; Exchange testMailbox.pidbox(fanout)&gt;   |             |
+| callback  |      |       |                  +     |               |                                                                             |             |
++------+----+      |       +------------------------+               +-----------------------------------------------------------------------------+             |
+       ^           |                          |                                                                                                                 |
+       |           |                          |                                                                                                                 |
+       +--------------------------------------+                                                                                                                 +
+                   |
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227132643878-309982049.png" alt="" loading="lazy"></p>
+<h5 id="3222-消费">3.2.2.2 消费</h5>
+<p>前小节提到了，handle_event 之中会具体读取redis，进行消费。</p>
+<p>当接受到信息之后，会调用如下：</p>
+<pre><code class="language-python">def _deliver(self, message, queue):
+    try:
+        callback = self._callbacks[queue]
+    except KeyError:
+        self._reject_inbound_message(message)
+    else:
+        callback(message)
+</code></pre>
+<p>堆栈如下：</p>
+<pre><code class="language-python">_deliver, base.py:975
+_receive_one, redis.py:721
+_receive, redis.py:692
+on_readable, redis.py:358
+handle_event, redis.py:362
+get, redis.py:380
+drain_events, base.py:960
+drain_events, connection.py:318
+main, node.py:24
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>此时变量如下，就是 basic_consume 之中的 _callback ：</p>
+<pre><code class="language-python">self._callbacks = {dict: 1} 
+ 'localhost.testMailbox.pidbox' = {function} &lt;function Channel.basic_consume.&lt;locals&gt;._callback at 0x7fc2522c1840&gt;
+</code></pre>
+<p>继续调用，处理信息</p>
+<pre><code class="language-python">def receive(self, body, message):
+    """Method called when a message is received.
+
+    This dispatches to the registered :attr:`callbacks`.
+
+    Arguments:
+        body (Any): The decoded message body.
+        message (~kombu.Message): The message instance.
+
+    Raises:
+        NotImplementedError: If no consumer callbacks have been
+            registered.
+    """
+    callbacks = self.callbacks
+    [callback(body, message) for callback in callbacks]
+</code></pre>
+<p>堆栈如下：</p>
+<pre><code class="language-python">receive, messaging.py:583
+_receive_callback, messaging.py:620
+_callback, base.py:630
+_deliver, base.py:980
+_receive_one, redis.py:721
+_receive, redis.py:692
+on_readable, redis.py:358
+handle_event, redis.py:362
+get, redis.py:380
+drain_events, base.py:960
+drain_events, connection.py:318
+main, node.py:24
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>变量如下：</p>
+<pre><code class="language-python">body = {dict: 5} {'method': 'print_msg', 'arguments': {'msg': 'Message for you'}, 'destination': None, 'pattern': None, 'matcher': None}
+
+message = {Message} &lt;Message object at 0x7fc2522e20d8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': '7dd6ad01-4162-42c3-b8db-bb40dc7dfda0', 'body_length': 119, 'properties': {}, 'delivery_info': {'exchange': 'testMailbox.pidbox', 'rout
+
+self = {Consumer} &lt;Consumer: [&lt;Queue localhost.testMailbox.pidbox -&gt; &lt;Exchange testMailbox.pidbox(fanout) bound to chan:1&gt; -&gt;  bound to chan:1&gt;]&gt;
+</code></pre>
+<p>最后调用到用户方法：</p>
+<pre><code class="language-python">callback, node.py:15
+&lt;listcomp&gt;, messaging.py:586
+receive, messaging.py:586
+_receive_callback, messaging.py:620
+_callback, base.py:630
+_deliver, base.py:980
+_receive_one, redis.py:721
+_receive, redis.py:692
+on_readable, redis.py:358
+handle_event, redis.py:362
+get, redis.py:380
+drain_events, base.py:960
+drain_events, connection.py:318
+main, node.py:24
+&lt;module&gt;, node.py:29
+</code></pre>
+<p>这样，mailbox 的 consumer 端就分析完毕。</p>
+<h2 id="0x04-producer">0x04 Producer</h2>
+<p>Producer 就是发送邮件，此处逻辑要简单许多。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">def main(arguments):
+    connection = kombu.Connection('redis://localhost:6379')
+    mailbox = pidbox.Mailbox("testMailbox", type="fanout")
+    bound = mailbox(connection)
+    bound._broadcast("print_msg", {'msg': 'Message for you'})
+</code></pre>
+<h3 id="41-mailbox">4.1 Mailbox</h3>
+<p>现在位于Mailbox，可以看到就是调用 _publish。</p>
+<pre><code class="language-python">def _broadcast(self, command, arguments=None, destination=None,
+               reply=False, timeout=1, limit=None,
+               callback=None, channel=None, serializer=None,
+               pattern=None, matcher=None):
+
+    arguments = arguments or {}
+    reply_ticket = reply and uuid() or None
+    chan = channel or self.connection.default_channel
+
+    # Set reply limit to number of destinations (if specified)
+    if limit is None and destination:
+        limit = destination and len(destination) or None
+
+    serializer = serializer or self.serializer
+    self._publish(command, arguments, destination=destination,
+                  reply_ticket=reply_ticket,
+                  channel=chan,
+                  timeout=timeout,
+                  serializer=serializer,
+                  pattern=pattern,
+                  matcher=matcher)
+
+    if reply_ticket:
+        return self._collect(reply_ticket, limit=limit,
+                             timeout=timeout,
+                             callback=callback,
+                             channel=chan)
+</code></pre>
+<p>变量如下：</p>
+<pre><code class="language-python">arguments = {dict: 1} {'msg': 'Message for you'}
+self = {Mailbox} &lt;kombu.pidbox.Mailbox object at 0x7fccf19514e0&gt;
+</code></pre>
+<p>继续调用 _publish，其中如果需要回复，则做相应设置，否则直接调用 producer 进行发送。</p>
+<pre><code class="language-python">def _publish(self, type, arguments, destination=None,
+             reply_ticket=None, channel=None, timeout=None,
+             serializer=None, producer=None, pattern=None, matcher=None):
+    message = {'method': type,
+               'arguments': arguments,
+               'destination': destination,
+               'pattern': pattern,
+               'matcher': matcher}
+    chan = channel or self.connection.default_channel
+    exchange = self.exchange
+    if reply_ticket:
+        maybe_declare(self.reply_queue(channel))
+        message.update(ticket=reply_ticket,
+                       reply_to={'exchange': self.reply_exchange.name,
+                                 'routing_key': self.oid})
+    serializer = serializer or self.serializer
+    with self.producer_or_acquire(producer, chan) as producer:
+        producer.publish(
+            message, exchange=exchange.name, declare=[exchange],
+            headers={'clock': self.clock.forward(),
+                     'expires': time() + timeout if timeout else 0},
+            serializer=serializer, retry=True,
+        )
+</code></pre>
+<p>此时变量如下：</p>
+<pre><code class="language-python">exchange = {Exchange} Exchange testMailbox.pidbox(fanout)
+message = {dict: 5} {'method': 'print_msg', 'arguments': {'msg': 'Message for you'}, 'destination': None, 'pattern': None, 'matcher': None}
+</code></pre>
+<h3 id="42-producer">4.2 producer</h3>
+<p>下面产生了producer。于是由producer进行操作。</p>
+<pre><code class="language-python">def _publish(self, body, priority, content_type, content_encoding,
+             headers, properties, routing_key, mandatory,
+             immediate, exchange, declare):
+    channel = self.channel
+    message = channel.prepare_message(
+        body, priority, content_type,
+        content_encoding, headers, properties,
+    )
+
+    # handle autogenerated queue names for reply_to
+    reply_to = properties.get('reply_to')
+    if isinstance(reply_to, Queue):
+        properties['reply_to'] = reply_to.name
+    return channel.basic_publish(
+        message,
+        exchange=exchange, routing_key=routing_key,
+        mandatory=mandatory, immediate=immediate,
+    )
+</code></pre>
+<h3 id="43-channel">4.3 Channel</h3>
+<p>继续执行到 Channel，就是要对 redis 进行处理了。</p>
+<pre><code class="language-python">def basic_publish(self, message, exchange, routing_key, **kwargs):
+    """Publish message."""
+    self._inplace_augment_message(message, exchange, routing_key)
+    if exchange:
+        return self.typeof(exchange).deliver(  # 这里
+            message, exchange, routing_key, **kwargs
+        )
+    # anon exchange: routing_key is the destination queue
+    return self._put(routing_key, message, **kwargs)
+</code></pre>
+<h3 id="44-fanoutexchange">4.4 FanoutExchange</h3>
+<p>直接用 Exchange 进行发送。</p>
+<pre><code class="language-python">class FanoutExchange(ExchangeType):
+    """Fanout exchange.
+
+    The `fanout` exchange implements broadcast messaging by delivering
+    copies of all messages to all queues bound to the exchange.
+
+    To support fanout the virtual channel needs to store the table
+    as shared state.  This requires that the `Channel.supports_fanout`
+    attribute is set to true, and the `Channel._queue_bind` and
+    `Channel.get_table` methods are implemented.
+    """
+
+    type = 'fanout'
+
+    def lookup(self, table, exchange, routing_key, default):
+        return {queue for _, _, queue in table}
+
+    def deliver(self, message, exchange, routing_key, **kwargs):
+        if self.channel.supports_fanout:
+            self.channel._put_fanout(
+                exchange, message, routing_key, **kwargs)
+</code></pre>
+<h3 id="45-channel">4.5 Channel</h3>
+<p>流程进入到 Channel，这时候调用 redis 驱动进行发送。</p>
+<pre><code class="language-python">def _put_fanout(self, exchange, message, routing_key, **kwargs):
+    """Deliver fanout message."""
+    with self.conn_or_acquire() as client:
+        client.publish(
+            self._get_publish_topic(exchange, routing_key),
+            dumps(message),
+        )
+</code></pre>
+<h3 id="46-redis-驱动">4.6 redis 驱动</h3>
+<p>最后，redis 驱动进行发送。</p>
+<pre><code class="language-python">def publish(self, channel, message):
+    """
+    Publish ``message`` on ``channel``.
+    Returns the number of subscribers the message was delivered to.
+    """
+    return self.execute_command('PUBLISH', channel, message)
+</code></pre>
+<p>关键变量如下：</p>
+<pre><code class="language-python">channel = {str} '/0.testMailbox.pidbox'
+message = {str} '{"body": "eyJtZXRob2QiOiAicHJpbnRfbXNnIiwgImFyZ3VtZW50cyI6IHsibXNnIjogIk1lc3NhZ2UgZm9yIHlvdSJ9LCAiZGVzdGluYXRpb24iOiBudWxsLCAicGF0dGVybiI6IG51bGwsICJtYXRjaGVyIjogbnVsbH0=", "content-encoding": "utf-8", "content-type": "application/json", "headers": {"cloc
+self = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+</code></pre>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://liqiang.io/post/kombu-source-code-analysis-part-1" target="_blank">Kombu 源码解析一</a></p>
+<p><a href="https://liqiang.io/post/kombu-source-code-analysis-part-2" target="_blank">Kombu 源码解析二</a></p>
+<p><a href="https://liqiang.io/post/kombu-source-code-analysis-part-3" target="_blank">Kombu 源码解析三</a></p>
+<p><a href="https://liqiang.io/post/kombu-source-code-analysis-part-4" target="_blank">Kombu 源码解析四</a></p>
+<p><a href="https://liqiang.io/post/kombu-source-code-analysis-part-5" target="_blank">Kombu 源码解析五</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-03-25 21:51</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">53</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14455431" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14455431);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14455431, cb_entryCreatedDate = '2021-03-25 21:51', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvaRZYvB2TgLGeb-VvgZt-4qMBz9L_FMPX-dYgsI4zuOlS-qF_7Iw9A9SxtSsEC2Lx6M2QCh-y2L7QkRI9QN6d_LRfOYjfoPmw5kMc0IEjFai1mVmBA6eqjuoQlmH_fx8I" />
+</body>
+</html>

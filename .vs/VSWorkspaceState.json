@@ -1,7 +1,12 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Homework10\\Urls",
+    "\\Homework10\\Urls\\bin",
+    "\\Homework10\\Urls\\bin\\Debug",
+    "\\Homework10\\Urls\\bin\\Debug\\netcoreapp3.1",
     "\\Homework7\\HomeworkWinForm"
   ],
+  "SelectedNode": "\\Homework10",
   "PreviewInSolutionExplorer": false
 }

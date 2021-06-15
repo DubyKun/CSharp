@@ -1,0 +1,1816 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。因为 Celery 通过多进程来提高执行效率，所以本文将带领大家初步了解 Celery" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。因为 Celery 通过多进程来提高执行效率，所以本文将带领大家初步了解 Celery" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码解析] 并行分布式任务队列 Celery 之 多进程模型 - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-04-15 07:04';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14664004.html">
+    <span>[源码解析] 并行分布式任务队列 Celery 之 多进程模型</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。因为 Celery 通过多进程来提高执行效率，所以本文将带领大家初步了解 Celery 之 多进程架构和模型。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码解析-并行分布式任务队列-celery-之-多进程模型">[源码解析] 并行分布式任务队列 Celery 之 多进程模型</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码解析-并行分布式任务队列-celery-之-多进程模型">[源码解析] 并行分布式任务队列 Celery 之 多进程模型</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-consumer-组件-pool-bootstep">0x01 Consumer 组件 Pool bootstep</a><ul><li><a href="#11-bootsteps">1.1 bootsteps</a></li></ul></li><li><a href="#0x02-进程池入口----taskpool">0x02 进程池入口 -- TaskPool</a><ul><li><a href="#21-进程池初始化">2.1 进程池初始化</a></li><li><a href="#22-进程池启动-start">2.2 进程池启动 start</a></li></ul></li><li><a href="#0x03-进程池实现----asynpool">0x03 进程池实现 -- AsynPool</a><ul><li><a href="#31-实例化">3.1 实例化</a></li><li><a href="#32-建立通讯机制-queues">3.2 建立通讯机制 queues</a><ul><li><a href="#321-_simplequeue">3.2.1 _SimpleQueue</a></li><li><a href="#322-pipe">3.2.2 Pipe</a></li><li><a href="#323-connection">3.2.3 Connection</a></li></ul></li><li><a href="#33--进程池基类构造方法">3.3  进程池基类构造方法</a><ul><li><a href="#331-建立子进程">3.3.1 建立子进程</a><ul><li><a href="#3311-子进程工作代码">3.3.1.1 子进程工作代码</a></li><li><a href="#3312-子进程抽象封装-----workerprocess">3.3.1.2 子进程抽象封装 --- WorkerProcess</a><ul><li><a href="#33121-workerprocess-具体执行">3.3.1.2.1 WorkerProcess 具体执行</a></li><li><a href="#33122-基类-baseprocess">3.3.1.2.2 基类 BaseProcess</a></li><li><a href="#33123-加入进程列表">3.3.1.2.3 加入进程列表</a></li></ul></li><li><a href="#3313--fork-过程">3.3.1.3  fork 过程</a></li></ul></li><li><a href="#342-辅助管理-supervisor">3.4.2 辅助管理 Supervisor</a></li><li><a href="#333-给子进程分配任务------taskhandler">3.3.3 给子进程分配任务 ---- TaskHandler</a></li><li><a href="#343-处理子进程返回-----resulthandler">3.4.3 处理子进程返回 --- ResultHandler</a></li></ul></li><li><a href="#35-配置file-到-queue-的关系">3.5 配置file 到 queue 的关系</a></li><li><a href="#36-asynpool-总体结果">3.6 AsynPool 总体结果</a></li></ul></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。因为 Celery 通过多进程来提高执行效率，所以本文将带领大家初步了解 Celery 之 多进程架构和模型。</p>
+<p>通过本文，大家可以了解为了实现一个多进程架构，Celery 都有哪些思考，做了哪些抽象，比如：</p>
+<ul>
+<li>Celery 作为一个整体系统如何把多进程模型融入进来，从而得到进程池；</li>
+<li>如何根据不同 OS 实例化不同的多进程模型；</li>
+<li>如何建立父子进程之间的通讯机制，如何读写分离；</li>
+<li>如何生成子进程，子进程工作逻辑为何，如何抽象子进程；</li>
+<li>如何辅助管理子进程；</li>
+<li>如何给子进程分配任务；</li>
+<li>如何处理子进程返回；</li>
+</ul>
+<p>我们先给出一个粗略逻辑，让大家有一个大致逻辑，便于后续的理解。下图中需要注意的是：</p>
+<ul>
+<li>TaskHandler 是父进程给子进程分配任务的逻辑；</li>
+<li>ResultHandler 是父进程处理子进程返回的逻辑；</li>
+<li>Supervisor 是辅助管理handler；</li>
+<li>Worker 是子进程逻辑业务代码，<code>_pool</code> 是进程池，ForkProcess（也就是 WorkerProcess）是子进程抽象，每个子进程抽象都会运行 Worker。</li>
+</ul>
+<p>这几个逻辑概念一定要分清楚。</p>
+<pre><code class="language-python">+--------------------------+
+| AsynPool                 |
+|                          |
+|                          |
+|         ResultHandler  +-------&gt;  celery.concurrency.asynpool.ResultHandler
+|                          |
+|         Supervisor     +-------&gt;  billiard.pool.Supervisor
+|                          |
+|         TaskHandler    +-------&gt;  billiard.pool.TaskHandler
+|                          |
+|         TimeoutHandler +-------&gt;  billiard.pool.TimeoutHandler
+|                          |
+|         Worker         +-------&gt;  celery.concurrency.asynpool.Worker
+|                          |
+|         _pool +-----------------+---&gt;  &lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;
++--------------------------+      |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;
+                                  |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;
+                                  |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-4, started daemon)&gt;
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105732270-1451579482.png" alt="" loading="lazy"></p>
+<p>多进程入口位于 Consumer 的 pool step，所以我们从 Consumer 组件启动入手。</p>
+<h2 id="0x01-consumer-组件-pool-bootstep">0x01 Consumer 组件 Pool bootstep</h2>
+<p>首先，Consumer Pool 启动从 bootsteps 开始。<u>这个 Bootstep 是 worker 真正的执行引擎</u>。</p>
+<p>这里的 Pool bootstrap 之所以又做了一层封装，是因为它需要设定一个伸缩值，也就是所谓的 autoscaler。因为我们这里已经构建了各种池，后面有 task 直接往 Pool 里头丢就行。</p>
+<h3 id="11-bootsteps">1.1 bootsteps</h3>
+<p>代码位于：celery/worker/components.py。这就是一个入口，目的为：</p>
+<ul>
+<li>做各种配置；</li>
+<li>引入 TaskPool，TaskPool 是 worker 多进程的入口；</li>
+</ul>
+<pre><code class="language-python">class Pool(bootsteps.StartStopStep):
+
+    def __init__(self, w, autoscale=None, **kwargs):
+        w.pool = None
+        if isinstance(autoscale, str):
+            max_c, _, min_c = autoscale.partition(',')
+            autoscale = [int(max_c), min_c and int(min_c) or 0]
+        w.autoscale = autoscale
+        if w.autoscale:
+            w.max_concurrency, w.min_concurrency = w.autoscale
+        super().__init__(w, **kwargs)
+
+    def create(self, w):
+        
+        semaphore = None
+        max_restarts = None
+        
+        if w.app.conf.worker_pool in GREEN_POOLS:  # pragma: no cover  判断worker_pool是在'eventlet', 'gevent'中默认的是prefork
+        threaded = not w.use_eventloop or IS_WINDOWS            # user_eventloop是否为True和是否是windows如果是则使用线程
+        procs = w.min_concurrency                               # 最小缓冲池个数，默认为4
+        w.process_task = w._process_task                        # 将worker的_process_task绑定到process_task
+        if not threaded:                                        # 不使用线程的话
+            semaphore = w.semaphore = LaxBoundedSemaphore(procs)  # 通过LaxBoundedSemaphore实现原子操作，利用队列实现
+            w._quick_acquire = w.semaphore.acquire                # 将相关的操作方法赋值给worker
+            w._quick_release = w.semaphore.release                
+            max_restarts = 100                                    # 最大重启次数
+            if w.pool_putlocks and w.pool_cls.uses_semaphore:     # 通过查看类配置是否更新process_task方法
+                w.process_task = w._process_task_sem              # 默认配置更新process_task
+        allow_restart = w.pool_restarts                           # 是否允许重启        
+ 
+        pool = w.pool = self.instantiate(
+            w.pool_cls, w.min_concurrency,  # w.pool_cls默认是prefork.TaskPool
+            initargs=(w.app, w.hostname),
+            maxtasksperchild=w.max_tasks_per_child,
+            max_memory_per_child=w.max_memory_per_child,
+            timeout=w.time_limit,
+            soft_timeout=w.soft_time_limit,
+            putlocks=w.pool_putlocks and threaded,
+            lost_worker_timeout=w.worker_lost_wait,
+            threads=threaded,
+            max_restarts=max_restarts,
+            allow_restart=allow_restart,
+            forking_enable=True,
+            semaphore=semaphore,
+            sched_strategy=self.optimization,
+            app=w.app,
+        )
+        _set_task_join_will_block(pool.task_join_will_block)
+        return pool
+</code></pre>
+<p>这里  w.pool_cls 是 &lt;class 'celery.concurrency.prefork.TaskPool'&gt;，逻辑如下：</p>
+<pre><code class="language-java">+-------------------------------+
+| Pool(bootsteps.StartStopStep) |
+|                               |
+|                               |
+|  celery/worker/components.py  |
++---------------+---------------+
+                |
+                |
+                |
+                v
+            __init__
+                +
+                |
+                |
+                |
+                v
+             create
+                +
+                |
+                |
+                v
+       +--------+----------+
+       |       TaskPool    |
+       |                   |
+       |            Pool +-------&gt;  celery.concurrency.asynpool.AsynPool
+       |                   |
+       |            app  +-------&gt;  Celery
+       |                   |
+       +-------------------+
+
+</code></pre>
+<h2 id="0x02-进程池入口----taskpool">0x02 进程池入口 -- TaskPool</h2>
+<p><u>TaskPool 是多进程的入口，这里对于所有操作系统都是统一的</u>。</p>
+<p>因为 这里  w.pool_cls 是 &lt;class 'celery.concurrency.prefork.TaskPool'&gt;，所以代码来到TaskPool，在初始化时候，instantiate会先来到基类 BasePool，位置在：celery/concurrency/base.py。</p>
+<h3 id="21-进程池初始化">2.1 进程池初始化</h3>
+<p>这里 <code>__init__</code>注意的为：self.app = app ，<u>即初始化时会传入 celery 应用自己</u>。</p>
+<pre><code class="language-python">class BasePool:
+    """Task pool."""
+
+    Timer = timer2.Timer
+    _state = None
+    _pool = None
+
+    def __init__(self, limit=None, putlocks=True, forking_enable=True,
+                 callbacks_propagate=(), app=None, **options):
+        self.limit = limit
+        self.putlocks = putlocks
+        self.options = options
+        self.forking_enable = forking_enable
+        self.callbacks_propagate = callbacks_propagate
+        self.app = app
+</code></pre>
+<h3 id="22-进程池启动-start">2.2 进程池启动 start</h3>
+<p>Blueprint 会调用start。</p>
+<pre><code class="language-python">class Blueprint:
+    def start(self, parent):
+        self.state = RUN
+        if self.on_start:
+            self.on_start()
+        for i, step in enumerate(s for s in parent.steps if s is not None):
+            self.started = i + 1
+            step.start(parent)
+</code></pre>
+<p>由于<code>TaskPool</code>中没有声明<code>start</code>函数，因此这里会调用到其父类<code>BasePool</code>中定义的函数，定义如下</p>
+<pre><code class="language-python">class BasePool(object):
+    """Task pool."""
+
+    def start(self):
+        self._does_debug = logger.isEnabledFor(logging.DEBUG)
+        self.on_start()
+        self._state = self.RUN
+</code></pre>
+<p>这里会调用到<code>on_start</code>函数，由于各子类覆盖了该函数，因此会调用子类中的<code>on_start</code>函数，同样地，以<code>TaskPool</code>为例，<code>on_start</code>函数的定义如下</p>
+<pre><code class="language-python">class TaskPool(BasePool):
+    """Multiprocessing Pool implementation."""
+
+    Pool = AsynPool
+    BlockingPool = BlockingPool
+
+    uses_semaphore = True
+    write_stats = None
+
+    def on_start(self):
+        forking_enable(self.forking_enable)
+        Pool = (self.BlockingPool if self.options.get('threads', True)
+                else self.Pool) # 若使用多线程则使用BlockingPool否则使用AsynPool
+        P = self._pool = Pool(processes=self.limit,
+                              initializer=process_initializer,
+                              on_process_exit=process_destructor,
+                              enable_timeouts=True,
+                              synack=False,
+                              **self.options) # 创建Pool
+
+        # Create proxy methods 创建代理
+        self.on_apply = P.apply_async # 将pool中的方法设置到Pool类上
+        self.maintain_pool = P.maintain_pool
+        self.terminate_job = P.terminate_job
+        self.grow = P.grow
+        self.shrink = P.shrink
+        self.flush = getattr(P, 'flush', None)  # FIXME add to billiard
+</code></pre>
+<p>可以看到，<code>on_start</code>函数主要完成了3个工作</p>
+<ul>
+<li>根据选项参数确定使用<code>BlockingPool</code>还是<code>AsynPool</code>(分别为<code>billiard.pool.Pool</code>和<code>celery.concurrency.asynpool.AsyncPool</code>)；</li>
+<li>创建<code>Pool；</code></li>
+<li>创建代理方法；</li>
+</ul>
+<p><u>这里 windows 系统中，对应的 _pool 为 &lt;class 'billiard.pool.Pool'&gt;，mac系统则为：AsyncPool</u>。</p>
+<p>此时具体逻辑如下：</p>
+<pre><code class="language-java">+------------------------------+
+| Pool(bootsteps.StartStopStep)|
++-------------+--------------+
+              |
+              |
+              |
+            1 | instantiate
+              |                          2 on_start
+              |        +--------------------------------+
+              v        |                                |
+      +-------+--------+--+                             |
+      |    TaskPool       |                             |
+      |                   |      +------+               |
+      |       app   +----------&gt; |celery|               |
+      |                   |      +------+               |
+      |                   |                             |
+      |                   |      +-----------+          |
+      |      _pool  +----------&gt; | AsynPool  |          |
+      |                   |      +-----------+          |
+      +----------------+--+                             |
+                       ^                                |
+                       |                                |
+                       +--------------------------------+
+</code></pre>
+<h2 id="0x03-进程池实现----asynpool">0x03 进程池实现 -- AsynPool</h2>
+<p><u>_pool 是根据操作系统的不同进行了分别实现</u>。可以看到这里配置了管道，file，queue，以及真实的 具体线程池。</p>
+<p>假设系统为 mac，于是来到了 AsynPool 这个进程池。位置在：celery/concurrency/asynpool.py</p>
+<h3 id="31-实例化">3.1 实例化</h3>
+<p>主要是执行了进程池 <code>Pool </code>的实例化。这个实例化就是 prefork 的具体实现。这个 <em>Pool</em> 其实就是 <em>AsyncPool</em>。</p>
+<p>具体工作为：</p>
+<ul>
+<li>
+<p>配置调度策略；</p>
+</li>
+<li>
+<p>根据本机配置进程数量，就是需要 fork 的子进程数量，默认是 cpu 核数，如果在命令行制定了 -c 参数，则是 -c 参数的值；</p>
+</li>
+<li>
+<p>创建出来一堆读和写的管道。根据流向的不同和主进程与子进程的不同，之后会分别关闭对应的的一端的管道，比如父进程把写关闭，子进程就把读关闭。并会用抽象的数据结构进行封装以便于管理。这个数据结构的实例用来为主进程和即将 fork 的子进程提供双向的数据传输。同样的，会根据子进程的数量创建出多个管道实例来；</p>
+</li>
+<li>
+<p>调用基类构造方法。这里为 fork 的关键所在；</p>
+</li>
+<li>
+<p>根据建立子进程结果，配置file 到 queue 的关系；</p>
+</li>
+</ul>
+<p>代码如下：</p>
+<pre><code class="language-python">class AsynPool(_pool.Pool):
+    """AsyncIO Pool (no threads)."""
+
+    ResultHandler = ResultHandler
+    Worker = Worker
+
+    def WorkerProcess(self, worker):
+        worker = super().WorkerProcess(worker)
+        worker.dead = False
+        return worker
+
+    def __init__(self, processes=None, synack=False,
+                 sched_strategy=None, proc_alive_timeout=None,
+                 *args, **kwargs):
+        self.sched_strategy = SCHED_STRATEGIES.get(sched_strategy,
+                                                   sched_strategy)
+        processes = self.cpu_count() if processes is None else processes #需要 fork 的子进程数量，默认是 cpu 核数，如果在命令行制定了 -c 参数，则是 -c 参数的值
+        self.synack = synack
+        # create queue-pairs for all our processes in advance.
+        self._queues = {
+            self.create_process_queues(): None for _ in range(processes) #创建出来一堆读和写的管道
+        }
+
+        # inqueue fileno -&gt; process mapping
+        self._fileno_to_inq = {}
+        # outqueue fileno -&gt; process mapping
+        self._fileno_to_outq = {}
+        # synqueue fileno -&gt; process mapping
+        self._fileno_to_synq = {}
+
+        # We keep track of processes that haven't yet
+        # sent a WORKER_UP message.  If a process fails to send
+        # this message within _proc_alive_timeout we terminate it
+        # and hope the next process will recover.
+        self._proc_alive_timeout = (
+            PROC_ALIVE_TIMEOUT if proc_alive_timeout is None
+            else proc_alive_timeout
+        )
+        self._waiting_to_start = set()
+
+        # denormalized set of all inqueues.
+        self._all_inqueues = set()
+
+        # Set of fds being written to (busy)
+        self._active_writes = set()
+
+        # Set of active co-routines currently writing jobs.
+        self._active_writers = set()
+
+        # Set of fds that are busy (executing task)
+        self._busy_workers = set()
+        self._mark_worker_as_available = self._busy_workers.discard
+
+        # Holds jobs waiting to be written to child processes.
+        self.outbound_buffer = deque()
+
+        self.write_stats = Counter()
+
+        super().__init__(processes, *args, **kwargs) #调用基类构造方法
+
+        for proc in self._pool:
+            # create initial mappings, these will be updated
+            # as processes are recycled, or found lost elsewhere.
+            self._fileno_to_outq[proc.outqR_fd] = proc
+            self._fileno_to_synq[proc.synqW_fd] = proc
+
+        self.on_soft_timeout = getattr(
+            self._timeout_handler, 'on_soft_timeout', noop,
+        )
+        self.on_hard_timeout = getattr(
+            self._timeout_handler, 'on_hard_timeout', noop,
+        )
+</code></pre>
+<h3 id="32-建立通讯机制-queues">3.2 建立通讯机制 queues</h3>
+<p>实例化代码中，queues 的建立需要重点说明，因为<u>父进程 和 子进程 之间使用 queue 来进行通讯</u>。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">self._queues = {
+    self.create_process_queues(): None for _ in range(processes)
+}
+</code></pre>
+<p>这里创建出来一堆读和写的管道，这里进程数量为 4，因此建立 4 组管道列表，每组列表包括两个_SimpleQueue，具体如下。</p>
+<pre><code class="language-java">self._queues = {dict: 4} 
+ (&lt;billiard.queues._SimpleQueue object&gt;, &lt;billiard.queues._SimpleQueue object at 0x = {NoneType} 
+ (&lt;billiard.queues._SimpleQueue object&gt;, &lt;billiard.queues._SimpleQueue object at 0x = {NoneType} 
+ (&lt;billiard.queues._SimpleQueue object&gt;, &lt;billiard.queues._SimpleQueue object at 0x = {NoneType} 
+ (&lt;billiard.queues._SimpleQueue object&gt;, &lt;billiard.queues._SimpleQueue object at 0x = {NoneType} 
+ __len__ = {int} 4
+</code></pre>
+<p>建立 queues 方法如下，这里建立了 inq, outq, synq：</p>
+<pre><code class="language-java">def create_process_queues(self):
+    """Create new in, out, etc. queues, returned as a tuple."""
+    # NOTE: Pipes must be set O_NONBLOCK at creation time (the original
+    # fd), otherwise it won't be possible to change the flags until
+    # there's an actual reader/writer on the other side.
+    inq = _SimpleQueue(wnonblock=True)
+    outq = _SimpleQueue(rnonblock=True)
+    synq = None
+    if self.synack:
+        synq = _SimpleQueue(wnonblock=True)
+    return inq, outq, synq
+</code></pre>
+<h4 id="321-_simplequeue">3.2.1 _SimpleQueue</h4>
+<p>_SimpleQueue为一个locked pipe，即管道。定义如下：</p>
+<pre><code class="language-python">class _SimpleQueue(object):
+    '''
+    Simplified Queue type -- really just a locked pipe
+    '''
+    def __init__(self, rnonblock=False, wnonblock=False, ctx=None):
+        self._reader, self._writer = connection.Pipe(
+            duplex=False, rnonblock=rnonblock, wnonblock=wnonblock,
+        )
+        self._poll = self._reader.poll
+        self._rlock = self._wlock = None
+</code></pre>
+<p>变量举例如下：</p>
+<pre><code class="language-java">self._poll = {method} &lt;bound method _ConnectionBase.poll of &lt;billiard.connection.Connection self = {_SimpleQueue} &lt;billiard.queues._SimpleQueue object at 0x7fc46ae049e8&gt;
+  _reader = {Connection} &lt;billiard.connection.Connection object at 0x7fc46ae68c18&gt;
+  _writer = {Connection} &lt;billiard.connection.Connection object at 0x7fc46ae726a0&gt;
+</code></pre>
+<h4 id="322-pipe">3.2.2 Pipe</h4>
+<p>上文中，<code>_SimpleQueue 的 self._reader, self._writer</code> 是 pipe 类型，所以需要看看。</p>
+<p>pipe 的定义如下：</p>
+<p>其实就建立了两个Connection，返回给_SimpleQueue，<u>这两个Connection一个为读抽象，一个为写抽象</u>。</p>
+<pre><code class="language-python">if sys.platform != 'win32':
+
+    def Pipe(duplex=True, rnonblock=False, wnonblock=False):
+        '''
+        Returns pair of connection objects at either end of a pipe
+        '''
+        if duplex:
+            s1, s2 = socket.socketpair()
+            s1.setblocking(not rnonblock)
+            s2.setblocking(not wnonblock)
+            c1 = Connection(detach(s1))
+            c2 = Connection(detach(s2))
+        else:
+            fd1, fd2 = os.pipe()
+            if rnonblock:
+                setblocking(fd1, 0)
+            if wnonblock:
+                setblocking(fd2, 0)
+            c1 = Connection(fd1, writable=False)
+            c2 = Connection(fd2, readable=False)
+
+        return c1, c2
+</code></pre>
+<h4 id="323-connection">3.2.3 Connection</h4>
+<p>上面又涉及到了 Connection，注意这里不是 Kombu 的connection，<u>而是多进程内部自己的 Connection 定义</u>。</p>
+<pre><code class="language-python">class Connection(_ConnectionBase):
+    """
+    Connection class based on an arbitrary file descriptor (Unix only), or
+    a socket handle (Windows).
+    """
+</code></pre>
+<p>Connection 是 基于 file descriptor 的连接类。</p>
+<pre><code class="language-python">class _ConnectionBase(object):
+    _handle = None
+
+    def __init__(self, handle, readable=True, writable=True):
+        if isinstance(handle, _SocketContainer):
+            self._socket = handle.sock  # keep ref so not collected
+            handle = handle.sock.fileno()
+        handle = handle.__index__()
+        self._handle = handle
+        self._readable = readable
+        self._writable = writable
+</code></pre>
+<p>现在变量如下：</p>
+<pre><code class="language-java">c1 = {Connection} &lt;billiard.connection.Connection object at 0x7fc46ae68c18&gt;
+c2 = {Connection} &lt;billiard.connection.Connection object at 0x7fc46ae726a0&gt;
+</code></pre>
+<p>于是 AsynPool 最终如下：</p>
+<pre><code class="language-java">    +------------------------------+                                                                     +----------------+
+    | Pool(bootsteps.StartStopStep)|                                          +-----------------+        | Connection     |
+    +-------------+--------------+                                            |  _SimpleQueue   |        |                |
+                  |                                                           |                 |        |        _write  |
+                  |                                                           |      _reader +---------&gt; |        _read   |
+                  |                                                           |                 |        |        _send   |
+                1 | instantiate                                               |                 |        |        _recv   |
+                  |                                                           |                 |        |        _handle |
+ 2 on_start       |                                                           |                 |        +----------------+
+                  |                                                           |      _poll   +---------&gt;  _ConnectionBase.poll
++-------------+   |                                                           |                 |
+|             |   |                                                           |                 |        +------------+
+|             |   v                                                           |      _writer +---------&gt; | Connection |
+|         +---+---+-----------+                                               |                 |        +------------+
+|         |    TaskPool       |                                               +-------+---------+
+|         |                   |      +------+                                         ^
+|         |       app   +----------&gt; |celery|                                         |
+|         |                   |      +------+                                         |
+|         |                   |                                                       +
+|         |                   |      +--------------------------+     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)
+|         |      _pool  +----------&gt; | AsynPool                 |     |
+|         |                   |      |                          |     |
+|         +---+---------------+      |               _queues +-------&gt;-----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)
+|             ^                      |                          |     |
+|             |                      |                          |     |
+|             |                      +--------------------------+     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)
++-------------+                                                       |
+                                                                      |
+                                                                      +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105758249-934870663.png" alt="" loading="lazy"></p>
+<h3 id="33--进程池基类构造方法">3.3  进程池基类构造方法</h3>
+<p>我们要再说说 <u>AsynPool 的基类，这是 Celery 作者专门为 python 多进程做的修改，封装。这里建立了各种 消息处理函数，并且建立了子进程</u>。</p>
+<p>位置在：billiard/pool.py</p>
+<p>这里关键工作如下：</p>
+<ul>
+<li>
+<p>用 self._Process = self._ctx.Process 设置成为 <code>&lt;class 'billiard.context.ForkProcess'&gt;</code>；</p>
+</li>
+<li>
+<p>根据子进程数量通过 _create_worker_process(i) 建立子进程;</p>
+</li>
+<li>
+<p>建立 self._worker_handler = self.Supervisor(self)；</p>
+</li>
+<li>
+<p>建立分配任务 TaskHandler；</p>
+</li>
+<li>
+<p>建立 TimeoutHandler；</p>
+</li>
+<li>
+<p>建立 ResultHandler;</p>
+</li>
+</ul>
+<p>具体代码如下：</p>
+<pre><code class="language-python">class Pool(object):
+    '''
+    Class which supports an async version of applying functions to arguments.
+    '''
+
+    def __init__(self, processes=None, initializer=None, initargs=(),..., **kwargs):
+        self._ctx = context or get_context()
+        self._setup_queues()
+        self._taskqueue = Queue()
+        self._cache = {}
+        self._state = RUN
+        .....
+        self.readers = {}
+
+        self._processes = self.cpu_count() if processes is None else processes
+        self.max_restarts = max_restarts or round(self._processes * 100)
+        self.restart_state = restart_state(max_restarts, max_restart_freq or 1)
+        self._Process = self._ctx.Process
+        self._pool = []
+        self._poolctrl = {}
+        self._on_ready_counters = {}
+        self.putlocks = putlocks
+        self._putlock = semaphore or LaxBoundedSemaphore(self._processes)
+        for i in range(self._processes):
+            self._create_worker_process(i)
+
+        self._worker_handler = self.Supervisor(self)
+        if threads:
+            self._worker_handler.start()
+
+        self._task_handler = self.TaskHandler(self._taskqueue,
+                                              self._quick_put,
+                                              self._outqueue,
+                                              self._pool,
+                                              self._cache)
+        if threads:
+            self._task_handler.start()
+
+        # Thread killing timedout jobs.
+        if self.enable_timeouts:
+            self._timeout_handler = self.TimeoutHandler(
+                self._pool, self._cache,
+                self.soft_timeout, self.timeout,
+            )
+            self._timeout_handler_mutex = Lock()
+            self._timeout_handler_started = False
+            self._start_timeout_handler()
+            # If running without threads, we need to check for timeouts
+            # while waiting for unfinished work at shutdown.
+            if not threads:
+                self.check_timeouts = self._timeout_handler.handle_event
+
+        # Thread processing results in the outqueue.
+        self._result_handler = self.create_result_handler()
+        self.handle_result_event = self._result_handler.handle_event
+
+        if threads:
+            self._result_handler.start()
+
+        self._terminate = Finalize(
+            self, self._terminate_pool,
+            args=(self._taskqueue, self._inqueue, self._outqueue,
+                  self._pool, self._worker_handler, self._task_handler,
+                  self._result_handler, self._cache,
+                  self._timeout_handler,
+                  self._help_stuff_finish_args()),
+            exitpriority=15,
+        )
+</code></pre>
+<p>下面我们具体一一分析。</p>
+<h4 id="331-建立子进程">3.3.1 建立子进程</h4>
+<p>如下代码建立子进程。</p>
+<pre><code class="language-python">for i in range(self._processes):
+    self._create_worker_process(i)
+</code></pre>
+<p>_create_worker_process 主要工作如下：</p>
+<ul>
+<li>
+<p><em>inq, outq, synq = self.get_process_queues()</em> 拿到的是一个读和写的管道的抽象对象。这个管道是之前预先创建好的（就是上面 <em>self.create_process_queues()</em> 创建的）。主要是给即将 fork 的子进程用的，子进程会监听这管道数据结构抽象实例中的读事件，还可以从写管道写数据。</p>
+</li>
+<li>
+<p><u><em>w</em>，也就是 <em>self.WorkerProcess</em> 的实例，其实是对 fork 出来的子进程的一个抽象封装。</u>用来方便快捷的管理子进程，抽象成一个进程池，这个 <em>w</em> 会记录 fork 出来的子进程的一些 meta 信息，比如 pid，管道的读写的 fd 等等，并注册在主进程中，主进程可以利用它进行任务分发；</p>
+</li>
+<li>
+<p><u>把 WorkerProcess 的实例记录在 self._pool</u>，<strong>这个很重要，父进程就是用此变量来知道有哪几个子进程</strong>；</p>
+</li>
+<li>
+<p><em>w.start()</em> 中包含具体的 fork 过程；</p>
+</li>
+</ul>
+<p>代码如下：</p>
+<pre><code class="language-python">def _create_worker_process(self, i):
+    sentinel = self._ctx.Event() if self.allow_restart else None
+    inq, outq, synq = self.get_process_queues()
+    on_ready_counter = self._ctx.Value('i')
+    
+    w = self.WorkerProcess(self.Worker(
+        inq, outq, synq, self._initializer, self._initargs,
+        self._maxtasksperchild, sentinel, self._on_process_exit,
+        # Need to handle all signals if using the ipc semaphore,
+        # to make sure the semaphore is released.
+        sigprotection=self.threads,
+        wrap_exception=self._wrap_exception,
+        max_memory_per_child=self._max_memory_per_child,
+        on_ready_counter=on_ready_counter,
+    ))
+    self._pool.append(w)
+    self._process_register_queues(w, (inq, outq, synq))
+    w.name = w.name.replace('Process', 'PoolWorker')
+    w.daemon = True
+    w.index = i
+    w.start()
+    self._poolctrl[w.pid] = sentinel
+    self._on_ready_counters[w.pid] = on_ready_counter
+    if self.on_process_up:
+        self.on_process_up(w)
+    return w
+</code></pre>
+<p>因为提到了 self.WorkerProcess(self.Worker...，所以我们分别介绍下 WorkerProcess 与 Worker。</p>
+<p>此时逻辑简略如下：</p>
+<pre><code class="language-python">    +----------------+
+    |  StartStopStep |
+    +-------+--------+
+            |
+            |   start
+            |
+            v
++-----------+-------------------+
+|        BasePool               |
+|   celery/concurrency/base.py  |
++-----------+-------------------+
+            |
+            |   start
+            |
+            v
++-----------+-------------------+
+|        TaskPool               |
+| celery/concurrency/prefork.py |
++-----------+-------------------+
+            |
+            |  on_start
+            |
+            v
++-----------+--------------------+
+|        AsynPool                |
+| celery/concurrency/asynpool.py |
++-----------+--------------------+
+            |
+            |
+            v
+   +--------+------------+
+   |  class Pool(object) |
+   |   billiard/pool.py  |
+   +--------+------------+
+            |
+       +----+------+
+       |           |
+       v           v                          +----------------------+
+   __init__    _create_worker_process  +---&gt;  | class Worker(object) |
+                                              +----------------------+
+
+</code></pre>
+<h5 id="3311-子进程工作代码">3.3.1.1 子进程工作代码</h5>
+<p>Worker 是子进程的工作代码。也有几种不同的实现方式，比如：</p>
+<p>celery.concurrency.asynpool.Worker，billiard/pool.Worker <u>都是子进程工作循环</u>。</p>
+<p>以 billiard/pool.Worker 为例看看。</p>
+<p>Worker  init 之中主要工作为：配置各种fd。</p>
+<p>这里 obj.inqW_fd = self.inq._writer.fileno()   就为从 queues 的对应的 Connection 得到对应的 fd ：</p>
+<pre><code class="language-python">class _ConnectionBase(object):
+    _handle = None
+
+    def fileno(self):
+        """File descriptor or handle of the connection"""
+        self._check_closed()
+        return self._handle
+</code></pre>
+<p>具体 Worker 定义如下：</p>
+<pre><code class="language-python">class Worker(object):
+
+    def __init__(self, inq, outq, synq=None, initializer=None, initargs=(),...):
+        ......
+        self.max_memory_per_child = max_memory_per_child
+        self._shutdown = sentinel
+        self.inq, self.outq, self.synq = inq, outq, synq
+        self.contribute_to_object(self)
+
+    def contribute_to_object(self, obj):
+        obj.inq, obj.outq, obj.synq = self.inq, self.outq, self.synq
+        obj.inqW_fd = self.inq._writer.fileno()    # inqueue write fd
+        obj.outqR_fd = self.outq._reader.fileno()  # outqueue read fd
+        if self.synq:
+            obj.synqR_fd = self.synq._reader.fileno()  # synqueue read fd
+            obj.synqW_fd = self.synq._writer.fileno()  # synqueue write fd
+            obj.send_syn_offset = _get_send_offset(self.synq._writer)
+        else:
+            obj.synqR_fd = obj.synqW_fd = obj._send_syn_offset = None
+        obj._quick_put = self.inq._writer.send
+        obj._quick_get = self.outq._reader.recv
+        obj.send_job_offset = _get_send_offset(self.inq._writer)
+        return obj
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-java">self = {Worker}  
+ initargs = {tuple: 2} (&lt;Celery tasks at 0x7f8a0a70dd30&gt;, )
+ inq = {_SimpleQueue} &lt;billiard.queues._SimpleQueue object at 0x7f8a0b66aba8&gt;
+ inqW_fd = {int} 7
+ max_memory_per_child = {NoneType} None
+ maxtasks = {NoneType} None
+ on_ready_counter = {Synchronized} &lt;Synchronized wrapper for c_int(0)&gt;
+ outq = {_SimpleQueue} &lt;billiard.queues._SimpleQueue object at 0x7f8a0b6844a8&gt;
+ outqR_fd = {int} 8
+ sigprotection = {bool} False
+ synq = {NoneType} None
+ synqR_fd = {NoneType} None
+ synqW_fd = {NoneType} None
+ wrap_exception = {bool} True
+</code></pre>
+<p>AsynPool 简略版逻辑如下：</p>
+<p>下图中需要注意：</p>
+<p><u>Worker 是子进程逻辑业务代码，_pool 是进程池，ForkProcess（也就是 WorkerProcess）是子进程抽象，每个子进程抽象都会运行 Worker，这几个逻辑概念一定要分清楚。</u></p>
+<pre><code class="language-python">+--------------------------+
+| AsynPool                 |
+|                          |
+|                          |
+|         ResultHandler  +-------&gt;  celery.concurrency.asynpool.ResultHandler
+|                          |
+|         Supervisor     +-------&gt;  billiard.pool.Supervisor
+|                          |
+|         TaskHandler    +-------&gt;  billiard.pool.TaskHandler
+|                          |
+|         TimeoutHandler +-------&gt;  billiard.pool.TimeoutHandler
+|                          |
+|         Worker         +-------&gt;  celery.concurrency.asynpool.Worker
+|                          |
+|         _pool +-----------------+---&gt;  &lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;
++--------------------------+      |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;
+                                  |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;
+                                  |
+                                  +---&gt;  &lt;ForkProcess(ForkPoolWorker-4, started daemon)&gt;
+
+</code></pre>
+<p>手机如下</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105834429-1102308471.png" alt="" loading="lazy"></p>
+<p>精细版逻辑如下：</p>
+<pre><code class="language-java">    +------------------------------+                                                                     +----------------+
+    | Pool(bootsteps.StartStopStep)|                                          +-----------------+        | Connection     |
+    +-------------+--------------+                                            |  _SimpleQueue   |        |                |
+                  |                                                           |                 |        |        _write  |
+                  |                                                           |      _reader +---------&gt; |        _read   |
+                  |                                                           |                 |        |        _send   |
+                1 | instantiate                                               |                 |        |        _recv   |
+                  |                                                           |                 |        |        _handle+---&gt; {int} 8  &lt;-+
+ 2 on_start       |                                                           |                 |        +----------------+               |
+                  |                                                           |      _poll   +---------&gt;  _ConnectionBase.poll            |
++-------------+   |                                                           |                 |                                         |
+|             |   |                                                           |                 |        +----------------+               |
+|             |   v                                                           |      _writer +---------&gt; | Connection     |               |
+|         +---+---+-----------+                                               |                 |        |                |               |
+|         |    TaskPool       |                                               +-------+---------+        |       _handle+----&gt; {int} 7    |
+|         |                   |      +------+                                         ^                  |                |               |
+|         |       app   +----------&gt; |celery|                                         |                  +----------------+      ^        |
+|         |                   |      +------+                                         |                                          |        |
+|         |                   |                                                       +                                          |        |
+|         |                   |      +--------------------------+     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+|         |      _pool  +----------&gt; | AsynPool                 |     |                                                          |        |
+|         |                   |      |                          |     |                                                          |        |
+|         +---+---------------+      |               _queues +-------&gt;-----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+|             ^                      |                          |     |                                                          |        |
+|             |                      |                          |     |                                                          |        |
+|             |                      |                          |     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
++-------------+                      |                          |     |                                                          |        |
+                                     |                          |     |                                                          |        |
+                                     +--------------------------+     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+                                                                                                                                 |        |
+                                                                     +----------------------+                                    |        |
+                                                                     |                      |                                    |        |
+                                                                     | Worker     inq       |                                    |        |
+                                                                     |                      |                                    |        |
+                                                                     |            outq      |                                    |        |
+                                                                     |                      |                                    |        |
+                                                                     |            synq      |                                    |        |
+                                                                     |                      |                                    |        |
+                                                                     |         inqW_fd +-----------------------------------------+        |
+                                                                     |                      |                                             |
+                                                                     |         outqR_fd  +------------------------------------------------+
+                                                                     |                      |
+                                                                     |         workloop     |
+                                                                     |                      |
+                                                                     |        after_fork    |
+                                                                     |                      |
+                                                                     +----------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105849483-474771199.png" alt="" loading="lazy"></p>
+<h5 id="3312-子进程抽象封装-----workerprocess">3.3.1.2 子进程抽象封装 --- WorkerProcess</h5>
+<p><u>WorkerProcess 其实是对 fork 出来的子进程的一个抽象封装</u>。用来方便快捷的管理子进程，抽象成一个进程池，这个 <em><strong>w</strong></em> 会记录 fork 出来的子进程的一些 meta 信息，比如 pid，管道的读写的 fd 等等，<u>并注册在主进程中，主进程可以利用它进行任务分发</u>；</p>
+<p>WorkerProcess 的作用为封装了 ForkProcess。ForkProcess定义如下：</p>
+<pre><code class="language-python">class ForkProcess(process.BaseProcess):
+    _start_method = 'fork'
+
+    @staticmethod
+    def _Popen(process_obj):
+        from .popen_fork import Popen
+        return Popen(process_obj)
+</code></pre>
+<h6 id="33121-workerprocess-具体执行">3.3.1.2.1 WorkerProcess 具体执行</h6>
+<p>WorkerProcess 具体执行为：</p>
+<pre><code class="language-python">def WorkerProcess(self, worker):
+    worker = super().WorkerProcess(worker)
+    worker.dead = False
+    return worker
+</code></pre>
+<p>首先执行基类中的代码，因此最终返回 ForkProcess：</p>
+<pre><code class="language-python">def Process(self, *args, **kwds):
+    return self._Process(*args, **kwds)
+
+def WorkerProcess(self, worker):
+    return worker.contribute_to_object(self.Process(target=worker))
+</code></pre>
+<p>在 self._Process(*args, **kwds) 调用中，相关变量为：</p>
+<pre><code class="language-java">self._Process = {type} &lt;class 'billiard.context.ForkProcess'&gt;
+args = {tuple: 0} ()
+kwds = {dict: 1} {'target': &lt;celery.concurrency.asynpool.Worker object at 0x7f9c306326a0&gt;}
+self = {AsynPool} &lt;celery.concurrency.asynpool.AsynPool object at 0x7f9c30604da0&gt;
+</code></pre>
+<p>于是 调用到  ForkProcess(process.BaseProcess) 基类。</p>
+<h6 id="33122-基类-baseprocess">3.3.1.2.2 基类 BaseProcess</h6>
+<p>BaseProcess 基类如下，注意这里 <strong>run 就是子进程的 loop</strong>， <strong>_target 就是 子进程的 运行代码</strong>。</p>
+<pre><code class="language-java"> _target = {Worker} &lt;celery.concurrency.asynpool.Worker object at 0x7f9ad358b240&gt;
+</code></pre>
+<p>定义如下：</p>
+<pre><code class="language-python">class BaseProcess(object):
+    '''
+    Process objects represent activity that is run in a separate process
+    The class is analagous to `threading.Thread`
+    '''
+
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, daemon=None, **_kw):
+ 
+        count = next(_process_counter)
+        self._identity = _current_process._identity + (count, )
+        self._config = _current_process._config.copy()
+        self._parent_pid = os.getpid()
+        self._popen = None
+        self._target = target
+        self._args = tuple(args)
+        self._kwargs = dict(kwargs)
+        self._name = (
+            name or type(self).__name__ + '-' +
+            ':'.join(str(i) for i in self._identity)
+        )
+        if daemon is not None:
+            self.daemon = daemon
+        if _dangling is not None:
+            _dangling.add(self)
+        
+        self._controlled_termination = False
+
+    def run(self):
+        '''
+        Method to be run in sub-process; can be overridden in sub-class
+        '''
+        if self._target:
+            self._target(*self._args, **self._kwargs)
+               
+</code></pre>
+<p>基类处理完，于是得到 ForkProcess</p>
+<pre><code class="language-java">self = {ForkProcess} &lt;ForkProcess(ForkProcess-1, initial)&gt;
+ authkey = {AuthenticationString: 32} b''
+ daemon = {bool} False
+ exitcode = {NoneType} None
+ ident = {NoneType} None
+ name = {str} 'ForkProcess-1'
+ pid = {NoneType} None
+  _args = {tuple: 0} ()
+  _authkey = {AuthenticationString: 32} 
+  _children = {set: 0} set()
+  _config = {dict: 2} {'authkey': b'', 'semprefix': '/mp'}
+  _counter = {count} count(2)
+  _daemonic = {bool} False
+  _identity = {tuple: 1} 1
+  _kwargs = {dict: 0} {}
+  _name = {str} 'ForkProcess-1'
+  _parent_pid = {int} 14747
+  _popen = {NoneType} None
+  _start_method = {str} 'fork'
+  _target = {Worker} &lt;celery.concurrency.asynpool.Worker object at 0x7f9ad358b240&gt;
+  _tempdir = {NoneType} None
+</code></pre>
+<h6 id="33123-加入进程列表">3.3.1.2.3 加入进程列表</h6>
+<p>生成子进程之后，self._pool.append(w) 的作用就是<u>把子进程 加入 父进程之中 的 子进程列表</u>。并且配置 queues。</p>
+<pre><code class="language-python">def _create_worker_process(self, i):
+    sentinel = self._ctx.Event() if self.allow_restart else None
+    inq, outq, synq = self.get_process_queues()
+    on_ready_counter = self._ctx.Value('i')
+    
+    w = self.WorkerProcess(self.Worker(
+        inq, outq, synq, self._initializer, self._initargs,
+        self._maxtasksperchild, sentinel, self._on_process_exit,
+        # Need to handle all signals if using the ipc semaphore,
+        # to make sure the semaphore is released.
+        sigprotection=self.threads,
+        wrap_exception=self._wrap_exception,
+        max_memory_per_child=self._max_memory_per_child,
+        on_ready_counter=on_ready_counter,
+    ))
+    
+    self._pool.append(w) # 运行到了这里。
+    self._process_register_queues(w, (inq, outq, synq)) #到了这里
+</code></pre>
+<p>此时变量如下：</p>
+<pre><code class="language-java">self = {AsynPool} &lt;celery.concurrency.asynpool.AsynPool object at 0x7f9ad36680f0&gt;
+ ResultHandler = {type} &lt;class 'celery.concurrency.asynpool.ResultHandler'&gt;
+ SoftTimeLimitExceeded = {type} &lt;class 'billiard.exceptions.SoftTimeLimitExceeded'&gt;
+ Supervisor = {type} &lt;class 'billiard.pool.Supervisor'&gt;
+ TaskHandler = {type} &lt;class 'billiard.pool.TaskHandler'&gt;
+ TimeoutHandler = {type} &lt;class 'billiard.pool.TimeoutHandler'&gt;
+ Worker = {type} &lt;class 'celery.concurrency.asynpool.Worker'&gt;
+ ......
+ outbound_buffer = {deque: 0} deque([])
+ readers = {dict: 0} {}
+ restart_state = {restart_state} &lt;billiard.common.restart_state object at 0x7f9ad3668e80&gt;
+ sched_strategy = {int} 4
+ timers = {dict: 1} {&lt;bound method Pool.maintain_pool of &lt;celery.concurrency.asynpool.AsynPool object at 0x7f9ad36680f0&gt;&gt;: 5.0}
+
+ write_stats = {Counter: 0} Counter()
+ _Process = {type} &lt;class 'billiard.context.ForkProcess'&gt;
+ _active_writers = {set: 0} set()
+ _active_writes = {set: 0} set()
+ _all_inqueues = {set: 0} set()
+ _busy_workers = {set: 0} set()
+ _cache = {dict: 0} {}
+ _ctx = {ForkContext} &lt;billiard.context.ForkContext object at 0x7f9ad27ad828&gt;
+ _fileno_to_inq = {dict: 0} {}
+ _fileno_to_outq = {dict: 0} {}
+ _fileno_to_synq = {dict: 0} {}
+ _initargs = {tuple: 2} (&lt;Celery myTest at 0x7f9ad270c128&gt;, 'celery@me2koreademini')
+ _inqueue = {NoneType} None
+ _max_memory_per_child = {NoneType} None
+ _maxtasksperchild = {NoneType} None
+ _on_ready_counters = {dict: 0} {}
+ _outqueue = {NoneType} None
+ _poll_result = {NoneType} None
+ _pool = {list: 1} [&lt;ForkProcess(ForkPoolWorker-1, initial daemon)&gt;]
+ _poolctrl = {dict: 0} {}
+ _proc_alive_timeout = {float} 4.0
+ _processes = {int} 4
+ _putlock = {LaxBoundedSemaphore} &lt;LaxBoundedSemaphore at 0x7f9ad354db70 value:4 waiting:0&gt;
+ _queues = {dict: 4} {(&lt;billiard.queues._SimpleQueue object at 0x7f9ad35acef0&gt;, &lt;billiard.queues._SimpleQueue object at 0x7f9ad3668160&gt;, None): &lt;ForkProcess(ForkPoolWorker-1, initial daemon)&gt;, (&lt;billiard.queues._SimpleQueue object at 0x7f9ad36684a8&gt;, &lt;billiard.queues._SimpleQu
+ _quick_get = {NoneType} None
+ _quick_put = {NoneType} None
+ _state = {int} 0
+ _taskqueue = {Queue} &lt;queue.Queue object at 0x7f9ad2a30908&gt;
+ _waiting_to_start = {set: 0} set()
+ _wrap_exception = {bool} True
+sentinel = {NoneType} None
+synq = {NoneType} None
+</code></pre>
+<h5 id="3313--fork-过程">3.3.1.3  fork 过程</h5>
+<p><em>w.start()</em> 中包含具体的 fork 过程。</p>
+<pre><code class="language-python">def _create_worker_process(self, i):
+    sentinel = self._ctx.Event() if self.allow_restart else None
+    inq, outq, synq = self.get_process_queues()
+    on_ready_counter = self._ctx.Value('i')
+    
+    w = self.WorkerProcess(self.Worker(
+        inq, outq, synq, self._initializer, self._initargs,
+        self._maxtasksperchild, sentinel, self._on_process_exit,
+        # Need to handle all signals if using the ipc semaphore,
+        # to make sure the semaphore is released.
+        sigprotection=self.threads,
+        wrap_exception=self._wrap_exception,
+        max_memory_per_child=self._max_memory_per_child,
+        on_ready_counter=on_ready_counter,
+    ))
+    self._pool.append(w)
+    self._process_register_queues(w, (inq, outq, synq))
+    w.name = w.name.replace('Process', 'PoolWorker')
+    w.daemon = True
+    w.index = i
+    w.start() # 此时到了这里，将要进行 fork。
+    self._poolctrl[w.pid] = sentinel
+    self._on_ready_counters[w.pid] = on_ready_counter
+    if self.on_process_up:
+        self.on_process_up(w)
+    return w
+</code></pre>
+<p>具体代码如下：</p>
+<pre><code class="language-python">class BaseProcess(object):
+    '''
+    Process objects represent activity that is run in a separate process
+    The class is analagous to `threading.Thread`
+    '''
+
+    def start(self):
+        '''
+        Start child process
+        '''
+        assert self._popen is None, 'cannot start a process twice'
+        assert self._parent_pid == os.getpid(), \
+            'can only start a process object created by current process'
+        _cleanup()
+        self._popen = self._Popen(self)
+        self._sentinel = self._popen.sentinel
+        _children.add(self)
+</code></pre>
+<p>其中主要是 <em>self._popen = self._Popen(self)</em> 比较重要，我们看下 <em>Popen</em> 的源码 _launch：</p>
+<pre><code class="language-python">class ForkProcess(process.BaseProcess):
+    _start_method = 'fork'
+
+    @staticmethod
+    def _Popen(process_obj):
+        from .popen_fork import Popen
+        return Popen(process_obj)
+</code></pre>
+<p>代码在：/billiard/popen_fork.py。</p>
+<p>看到这里我们应该明白了。在执行 <em>launch</em> 方法的时候，会使用 <em>os.fork()</em> 派生出一个子进程，并且使用 <em>ps.pipe()</em> 创建出一对读写的管道，之后通过比较 <em>[self.pid]</em> 是否为 0，从而在主进程和子进程中执行不同的逻辑：</p>
+<ul>
+<li>子进程关闭 读 管道，之后执行 <em>process_obj._bootstrap()</em> 方法。</li>
+<li>父进程关闭 写管道，并且记录读管道的 fd。</li>
+</ul>
+<pre><code class="language-python">class Popen(object):
+    method = 'fork'
+    sentinel = None
+
+    def __init__(self, process_obj):
+        sys.stdout.flush()
+        sys.stderr.flush()
+        self.returncode = None
+        self._launch(process_obj)
+
+    def duplicate_for_child(self, fd):
+        return fd
+
+    def poll(self, flag=os.WNOHANG):
+        if self.returncode is None:
+            while True:
+                try:
+                    pid, sts = os.waitpid(self.pid, flag)
+                except OSError as e:
+                    if e.errno == errno.EINTR:
+                        continue
+                    # Child process not yet created. See #1731717
+                    # e.errno == errno.ECHILD == 10
+                    return None
+                else:
+                    break
+            if pid == self.pid:
+                if os.WIFSIGNALED(sts):
+                    self.returncode = -os.WTERMSIG(sts)
+                else:
+                    assert os.WIFEXITED(sts)
+                    self.returncode = os.WEXITSTATUS(sts)
+        return self.returncode
+
+    def _launch(self, process_obj):
+        code = 1
+        parent_r, child_w = os.pipe()
+        self.pid = os.fork()
+        if self.pid == 0:
+            try:
+                os.close(parent_r)
+                if 'random' in sys.modules:
+                    import random
+                    random.seed()
+                code = process_obj._bootstrap()
+            finally:
+                os._exit(code)
+        else:
+            os.close(child_w)
+            self.sentinel = parent_r
+</code></pre>
+<h4 id="342-辅助管理-supervisor">3.4.2 辅助管理 Supervisor</h4>
+<p>Supervisor 类会定期对线程池进行维护，比如是否需要动态缩放。</p>
+<pre><code class="language-python">class Supervisor(PoolThread):
+
+    def __init__(self, pool):
+        self.pool = pool
+        super(Supervisor, self).__init__()
+
+    def body(self):
+ 
+        time.sleep(0.8)
+        pool = self.pool
+
+        try:
+            # do a burst at startup to verify that we can start
+            # our pool processes, and in that time we lower
+            # the max restart frequency.
+            prev_state = pool.restart_state
+            pool.restart_state = restart_state(10 * pool._processes, 1)
+            for _ in range(10):
+                if self._state == RUN and pool._state == RUN:
+                    pool._maintain_pool()
+                    time.sleep(0.1)
+
+            # Keep maintaing workers until the cache gets drained, unless
+            # the pool is termianted
+            pool.restart_state = prev_state
+            while self._state == RUN and pool._state == RUN:
+                pool._maintain_pool()
+                time.sleep(0.8)
+        except RestartFreqExceeded:
+            pool.close()
+            pool.join()
+            raise
+</code></pre>
+<h4 id="333-给子进程分配任务------taskhandler">3.3.3 给子进程分配任务 ---- TaskHandler</h4>
+<p><u><strong>这个类是负责具体业务，即在这里把任务消息从父进程传递给子进程</strong></u>。</p>
+<p>之前建立 TaskHandler 中，重要点就是</p>
+<ul>
+<li>
+<p>把 <code>self._taskqueue</code> 传递进来，这样以后就通过这个来传递任务消息，这个<code>_taskqueue</code> 就是简单的数据结构应用，用来在Celery Consumer worker 和 pool 之间做消息缓冲。</p>
+</li>
+<li>
+<p>把 <code>self._quick_put</code> 传递进来，赋值给了 put，即 put 指向了 <code>self._inqueue.put</code>；</p>
+</li>
+<li>
+<p>这样 TaskHandler  就通过 <code>put(task)</code> 这个来给 父子进程之前的 管道 <code>_inqueue</code> 发送消息。就是说，TaskHandler 内部，如果 父进程 接到消息，就 通过 <code>self._inqueue.put</code> 这个管道的函数 <u>给 自己 的 子进程发消息</u>。 <code>self._taskqueue</code>  就是一个中间变量而已。</p>
+</li>
+</ul>
+<p>此时 各种 queue 的来源是：</p>
+<pre><code class="language-python">self._taskqueue = Queue()
+
+def _setup_queues(self):
+        self._inqueue = Queue()
+        self._outqueue = Queue()
+        self._quick_put = self._inqueue.put
+        self._quick_get = self._outqueue.get
+        
+self._task_handler = self.TaskHandler(self._taskqueue,
+                                          self._quick_put,
+                                          self._outqueue,
+                                          self._pool,
+                                          self._cache)
+</code></pre>
+<p>所以初始化时候变量为：</p>
+<pre><code class="language-python">outqueue = {SimpleQueue} &lt;billiard.queues.SimpleQueue object at 0x000001B55131AE88&gt;
+
+pool = {list: 8} [&lt;SpawnProcess(SpawnPoolWorker-1, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-2, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-3, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-4, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-5, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-6, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-7, started daemon)&gt;, &lt;SpawnProcess(SpawnPoolWorker-8, started daemon)&gt;]
+
+put = {method} &lt;bound method _ConnectionBase.send of &lt;billiard.connection.PipeConnection object at 0x000001B55131AF08&gt;&gt;
+
+self = {TaskHandler} Unable to get repr for &lt;class 'billiard.pool.TaskHandler'&gt;
+taskqueue = {Queue} &lt;queue.Queue object at 0x000001B551334308&gt;
+</code></pre>
+<p>TaskHandler简略版代码如下：</p>
+<pre><code class="language-python">class TaskHandler(PoolThread):
+
+    def __init__(self, taskqueue, put, outqueue, pool, cache):
+        self.taskqueue = taskqueue
+        self.put = put
+        self.outqueue = outqueue
+        self.pool = pool
+        self.cache = cache
+        super(TaskHandler, self).__init__()
+
+    def body(self):
+        cache = self.cache
+        taskqueue = self.taskqueue
+        put = self.put
+
+        for taskseq, set_length in iter(taskqueue.get, None):
+            task = None
+            i = -1
+            try:
+                for i, task in enumerate(taskseq):
+                    if self._state:
+                        break
+                     put(task)
+                else:
+                    if set_length:
+                        set_length(i + 1)
+                    continue
+                break
+
+        self.tell_others()
+
+    def tell_others(self):
+        outqueue = self.outqueue
+        put = self.put
+        pool = self.pool
+
+        try:
+            # tell result handler to finish when cache is empty
+            outqueue.put(None)
+
+            # tell workers there is no more work
+            for p in pool:
+                put(None)
+
+    def on_stop_not_started(self):
+        self.tell_others()
+
+</code></pre>
+<p>此时逻辑为：</p>
+<p><u>注意：这里图中的 Worker scope 是 celery/apps/worker.py，属于 Celery 之中逻辑范畴，不是子进程相关概念（下面各图 同）。Celery 中有多个同名类，这点很让人纠结</u>。</p>
+<pre><code class="language-python">                           +
+    Consumer               |
+                   message |
+                           v         strategy  +------------------------------------+
+              +------------+------+            | strategies                         |
+              | on_task_received  | &lt;--------+ |                                    |
+              |                   |            |[myTest.add : task_message_handler] |
+              +------------+------+            +------------------------------------+
+                           |
+                           |
+   +------------------------------------------------------------------------------------+
+   strategy                |
+                           |
+                           |
+                           v                Request [myTest.add]
+              +------------+-------------+                       +---------------------+
+              | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+              |                          |                       |                     |
+              +------------+-------------+                       +---------------------+
+                           | _process_task_sem
+                           |
+  +------------------------------------------------------------------------------------+
+   Worker                  | req[{Request} myTest.add]
+                           v
+                  +--------+-----------+
+                  | WorkController     |
+                  |                    |
+                  |            pool +-------------------------+
+                  +--------+-----------+                      |
+                           |                                  |
+                           |               apply_async        v
+               +-----------+----------+                   +---+-------------------+
+               |{Request} myTest.add  | +---------------&gt; | TaskPool              |
+               +----------------------+                   +----+------------------+
+                                          myTest.add           |
+                                                               |
++--------------------------------------------------------------------------------------+
+                                                               |
+                                                               v
+                                                          +----+------------------+
+                                                          | billiard.pool.Pool    |
+                                                          +-------+---------------+
+                                                                  |
+                                                                  |
+ Pool              +---------------------------+                  |
+                   | TaskHandler               |                  |
+                   |                           |                  |  self._taskqueue.put
+                   |              _taskqueue   |  &lt;---------------+
+                   |                           |
+                   +---------------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105908418-1159967338.png" alt="" loading="lazy"></p>
+<h4 id="343-处理子进程返回-----resulthandler">3.4.3 处理子进程返回 --- ResultHandler</h4>
+<p>父进程 使用 ResultHandler 用来处理子进程的运行返回。</p>
+<pre><code class="language-python">def create_result_handler(self):
+    return super().create_result_handler(
+        fileno_to_outq=self._fileno_to_outq,
+        on_process_alive=self.on_process_alive,
+    )
+
+class ResultHandler(_pool.ResultHandler):
+    """Handles messages from the pool processes."""
+
+    def __init__(self, *args, **kwargs):
+        self.fileno_to_outq = kwargs.pop('fileno_to_outq')
+        self.on_process_alive = kwargs.pop('on_process_alive')
+        super().__init__(*args, **kwargs)
+        # add our custom message handler
+        self.state_handlers[WORKER_UP] = self.on_process_alive
+</code></pre>
+<p>具体变量如下：</p>
+<pre><code class="language-java">ResultHandler = {type} &lt;class 'celery.concurrency.asynpool.ResultHandler'&gt;
+ daemon = {property} &lt;property object at 0x7f847454d638&gt;
+  fdel = {NoneType} None
+ exitcode = {property} &lt;property object at 0x7f8475c9e8b8&gt;
+  fdel = {NoneType} None
+  fset = {NoneType} None
+ ident = {property} &lt;property object at 0x7f847454d4f8&gt;
+  fdel = {NoneType} None
+  fset = {NoneType} None
+ name = {property} &lt;property object at 0x7f847454d598&gt;
+  fdel = {NoneType} None
+  _initialized = {bool} False
+</code></pre>
+<p>具体代码如下 ，可以看到使用 poll 阻塞等待消息。</p>
+<pre><code class="language-python">    def _process_result(self, timeout=1.0):
+        poll = self.poll
+        on_state_change = self.on_state_change
+
+        while 1:
+            try:
+                ready, task = poll(timeout)
+
+            if ready:
+                on_state_change(task)
+                if timeout != 0:  # blocking
+                    break
+            else:
+                break
+            yield
+
+    def handle_event(self, fileno=None, events=None):
+        if self._state == RUN:
+            if self._it is None:
+                self._it = self._process_result(0)  # non-blocking
+            try:
+                next(self._it)
+            except (StopIteration, CoroStop):
+                self._it = None
+</code></pre>
+<p>具体 poll 对应于 _poll_result，就是 self._outqueue._reader.poll(timeout)。</p>
+<p>可见其阻塞在 outqueue上，就是子进程的管道外发接口。</p>
+<pre><code class="language-python">def _setup_queues(self):
+    self._inqueue = self._ctx.SimpleQueue()
+    self._outqueue = self._ctx.SimpleQueue()
+    self._quick_put = self._inqueue._writer.send
+    self._quick_get = self._outqueue._reader.recv
+
+    def _poll_result(timeout):
+        if self._outqueue._reader.poll(timeout):
+            return True, self._quick_get()
+        return False, None
+    self._poll_result = _poll_result
+</code></pre>
+<p>所以此时逻辑如下：</p>
+<pre><code class="language-python">                           +
+    Consumer               |
+                   message |
+                           v         strategy  +------------------------------------+
+              +------------+------+            | strategies                         |
+              | on_task_received  | &lt;--------+ |                                    |
+              |                   |            |[myTest.add : task_message_handler] |
+              +------------+------+            +------------------------------------+
+                           |
+                           |
+   +------------------------------------------------------------------------------------+
+   strategy                |
+                           |
+                           |
+                           v                Request [myTest.add]
+              +------------+-------------+                       +---------------------+
+              | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+              |                          |                       |                     |
+              +------------+-------------+                       +---------------------+
+                           | _process_task_sem
+                           |
+  +------------------------------------------------------------------------------------+
+   Worker                  | req[{Request} myTest.add]
+                           v
+                  +--------+-----------+
+                  | WorkController     |
+                  |                    |
+                  |            pool +-------------------------+
+                  +--------+-----------+                      |
+                           |                                  |
+                           |               apply_async        v
+               +-----------+----------+                   +---+-------------------+
+               |{Request} myTest.add  | +---------------&gt; | TaskPool              |
+               +----------------------+                   +----+------------------+
+                                          myTest.add           |
+                                                               |
++--------------------------------------------------------------------------------------+
+                                                               |
+                                                               v
+                                                          +----+------------------+
+                                                          | billiard.pool.Pool    |
+                                                          +-------+---------------+
+                                                                  |
+                                                                  |
+ Pool              +---------------------------+                  |
+                   | TaskHandler               |                  |
+                   |                           |                  |  self._taskqueue.put
+                   |              _taskqueue   |  &lt;---------------+
+                   |                           |
+                   +------------+--------------+
+                                |
+                                |  put(task)
+                                |
+                                |                       +------------------+
+                                |                       |  ResultHandler   |
+                                |                       +------------------+
+                                |
+                                |                                 ^
+                                |                                 |
+                                |                                 |
++--------------------------------------------------------------------------------------+
+                                |                                 |
+ Sub process                    |                                 |
+                                v                                 +
+                            self._inqueue                   self._outqueue
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105925235-1184972694.png" alt="" loading="lazy"></p>
+<h3 id="35-配置file-到-queue-的关系">3.5 配置file 到 queue 的关系</h3>
+<p>最后，根据建立子进程结果，配置file 到 queue 的关系。</p>
+<p>可以看出来，这里配置了outq 和 synq 的关系，即这些 queue 指向哪一个 子进程。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">class AsynPool(_pool.Pool):
+    """AsyncIO Pool (no threads)."""
+
+    def __init__(self, processes=None, synack=False,
+                 sched_strategy=None, proc_alive_timeout=None,
+                 *args, **kwargs):
+
+        ......
+        super().__init__(processes, *args, **kwargs)
+
+        for proc in self._pool:
+            # create initial mappings, these will be updated
+            # as processes are recycled, or found lost elsewhere.
+            self._fileno_to_outq[proc.outqR_fd] = proc
+            self._fileno_to_synq[proc.synqW_fd] = proc
+</code></pre>
+<p>配置完成 fd 之后，为：</p>
+<pre><code class="language-python">self._fileno_to_outq = {dict: 4} 
+ 8 = {ForkProcess} &lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;
+ 12 = {ForkProcess} &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;
+ 16 = {ForkProcess} &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;
+ 20 = {ForkProcess} &lt;ForkProcess(ForkPoolWorker-4, started daemon)&gt;
+ __len__ = {int} 4
+    
+self._fileno_to_synq = {dict: 1} {None: &lt;ForkProcess(ForkPoolWorker-4, started daemon)&gt;}
+</code></pre>
+<h3 id="36-asynpool-总体结果">3.6 AsynPool 总体结果</h3>
+<p>最终 AsynPool 的结果如下，我们可以看到内部各种变量，大家可以对应前文进行理解：</p>
+<pre><code class="language-java">self = {AsynPool} &lt;celery.concurrency.asynpool.AsynPool object at 0x7fe44f664128&gt;
+ ResultHandler = {type} &lt;class 'celery.concurrency.asynpool.ResultHandler'&gt;
+ SoftTimeLimitExceeded = {type} &lt;class 'billiard.exceptions.SoftTimeLimitExceeded'&gt;
+ Supervisor = {type} &lt;class 'billiard.pool.Supervisor'&gt;
+ TaskHandler = {type} &lt;class 'billiard.pool.TaskHandler'&gt;
+ TimeoutHandler = {type} &lt;class 'billiard.pool.TimeoutHandler'&gt;
+ Worker = {type} &lt;class 'celery.concurrency.asynpool.Worker'&gt;
+ allow_restart = {bool} False
+ enable_timeouts = {bool} True
+ lost_worker_timeout = {float} 10.0
+ max_restarts = {int} 100
+ on_process_down = {NoneType} None
+ on_process_up = {NoneType} None
+ on_timeout_cancel = {NoneType} None
+ on_timeout_set = {NoneType} None
+ outbound_buffer = {deque: 0} deque([])
+ process_sentinels = {list: 4} [25, 27, 29, 31]
+ putlocks = {bool} False
+ readers = {dict: 0} {}
+ restart_state = {restart_state} &lt;billiard.common.restart_state object at 0x7fe44f6644a8&gt;
+ sched_strategy = {int} 4
+ soft_timeout = {NoneType} None
+ synack = {bool} False
+ threads = {bool} False
+ timeout = {NoneType} None
+ timers = {dict: 1} {&lt;bound method Pool.maintain_pool of &lt;celery.concurrency.asynpool.AsynPool object at 0x7fe44f664128&gt;&gt;: 5.0}
+ write_stats = {Counter: 0} Counter()
+  _Process = {type} &lt;class 'billiard.context.ForkProcess'&gt;
+  _active_writers = {set: 0} set()
+  _active_writes = {set: 0} set()
+  _all_inqueues = {set: 0} set()
+  _busy_workers = {set: 0} set()
+  _cache = {dict: 0} {}
+  _ctx = {ForkContext} &lt;billiard.context.ForkContext object at 0x7fe44e7ac7f0&gt;
+  _fileno_to_inq = {dict: 0} {}
+  _fileno_to_outq = {dict: 4} {8: &lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;, 12: &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;, 16: &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;, 20: &lt;ForkProcess(ForkPoolWorker-4, stopped[SIGABRT] daemon)&gt;}
+  _fileno_to_synq = {dict: 1} {None: &lt;ForkProcess(ForkPoolWorker-4, stopped[SIGABRT] daemon)&gt;}
+  _initargs = {tuple: 2} (&lt;Celery myTest at 0x7fe44e61cb38&gt;, 'celery@me2koreademini')
+  _inqueue = {NoneType} None
+  _max_memory_per_child = {NoneType} None
+  _maxtasksperchild = {NoneType} None
+  _on_ready_counters = {dict: 4} {14802: &lt;Synchronized wrapper for c_int(0)&gt;, 14803: &lt;Synchronized wrapper for c_int(0)&gt;, 14804: &lt;Synchronized wrapper for c_int(0)&gt;, 14806: &lt;Synchronized wrapper for c_int(0)&gt;}
+  _outqueue = {NoneType} None
+  _poll_result = {NoneType} None
+  _pool = {list: 4} [&lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;, &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;, &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;, &lt;ForkProcess(ForkPoolWorker-4, stopped[SIGABRT] daemon)&gt;]
+  _poolctrl = {dict: 4} {14802: None, 14803: None, 14804: None, 14806: None}
+  _proc_alive_timeout = {float} 4.0
+  _processes = {int} 4
+  _putlock = {LaxBoundedSemaphore} &lt;LaxBoundedSemaphore at 0x7fe44f54bf98 value:4 waiting:0&gt;
+  _queues = {dict: 4} {(&lt;billiard.queues._SimpleQueue object at 0x7fe44f664160&gt;, &lt;billiard.queues._SimpleQueue object at 0x7fe44f664240&gt;, None): &lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;, (&lt;billiard.queues._SimpleQueue object at 0x7fe44f664550&gt;, &lt;billiard.queues._SimpleQu
+  _quick_get = {NoneType} None
+  _quick_put = {NoneType} None
+  _result_handler = {ResultHandler} &lt;ResultHandler(Thread-170, initial daemon)&gt;
+  _state = {int} 0
+  _task_handler = {TaskHandler} &lt;TaskHandler(Thread-168, initial daemon)&gt;
+  _taskqueue = {Queue} &lt;queue.Queue object at 0x7fe44f664978&gt;
+  _terminate = {Finalize} &lt;Finalize object, callback=_terminate_pool, args=(&lt;queue.Queue object at 0x7fe44f664978&gt;, None, None, [&lt;ForkProcess(ForkPoolWorker-1, started daemon)&gt;, &lt;ForkProcess(ForkPoolWorker-2, started daemon)&gt;, &lt;ForkProcess(ForkPoolWorker-3, started daemon)&gt;, &lt;ForkP
+  _timeout_handler = {TimeoutHandler} &lt;TimeoutHandler(Thread-169, initial daemon)&gt;
+  _timeout_handler_mutex = {DummyLock} &lt;kombu.asynchronous.semaphore.DummyLock object at 0x7fe44f6cb7b8&gt;
+  _timeout_handler_started = {bool} False
+  _waiting_to_start = {set: 0} set()
+  _worker_handler = {Supervisor} &lt;Supervisor(Thread-151, initial daemon)&gt;
+  _wrap_exception = {bool} True
+</code></pre>
+<p>因此，本文最终图如下，<u>其中 worker 就是子进程工作代码，ForkProcess 是子进程抽象（这里只展示出一个）</u>：</p>
+<pre><code class="language-java">    +------------------------------+                                                                     +----------------+
+    | Pool(bootsteps.StartStopStep)|                                          +-----------------+        | Connection     |
+    +-------------+--------------+                                            |  _SimpleQueue   |        |                |
+                  |                                                           |                 |        |        _write  |
+                  |                                                           |      _reader +---------&gt; |        _read   |
+                  |                                                           |                 |        |        _send   |
+                1 | instantiate                                               |                 |        |        _recv   |
+                  |                                                           |                 |        |        _handle+---&gt; {int} 8  &lt;-+
+ 2 on_start       |                                                           |                 |        +----------------+               |
+                  |                                                           |      _poll   +---------&gt;  _ConnectionBase.poll            |
++-------------+   |                                                           |                 |                                         |
+|             |   |                                                           |                 |        +----------------+               |
+|             |   v                                                           |      _writer +---------&gt; | Connection     |               |
+|         +---+---+-----------+                                               |                 |        |                |               |
+|         |    TaskPool       |                                               +-------+---------+        |       _handle+----&gt; {int} 7    |
+|         |                   |      +------+                                         ^                  |                |               |
+|         |       app   +----------&gt; |celery|                                         |                  +----------------+      ^        |
+|         |                   |      +------+                                         |                                          |        |
+|         |                   |                                                       +                                          |        |
+|         |                   |      +--------------------------+     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+|         |      _pool  +----------&gt; | AsynPool                 |     |                                                          |        |
+|         |                   |      |                          |     |                                                          |        |
+|         +---+---------------+      |               _queues +-------&gt;-----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+|             ^                      |                          |     |                                                          |        |
+|             |                      |          _fileno_to_inq  |     |                                                          |        |
+|             |                      |                          |     +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
++-------------+                      |         _fileno_to_outq +--+   |                                                          |        |
+                                     |                          | |   |                                                          |        |
+                                     |          _queues[queues] | |   +----&gt;  (&lt;_SimpleQueue&gt;, &lt;_SimpleQueue&gt;)                   |        |
+                                     |                       +  | |                                                              |        |
+                                     |               _pool   |  | |  +----------------------+                                    |        |
+                                     |                +      |  | |  |                      |                                    |        |
+                                     +--------------------------+ |  | Worker     inq       |                                    |        |
+                                                      |      |    |  |                      |                                    |        |
+                                                      |      |    |  |            outq      |                                    |        |
+                                       2.1 append(w)  |      |    |  |                      |                                    |        |
+                                                      |      |    |  |            synq      |                                    |        |
+                                                      v      |    |  |                      |                                    |        |
+                                        +-------------+--+   |    |  |         inqW_fd +-----------------------------------------+        |
+                                        |                | &lt;-+    |  |                      |                                             |
+                                        |  ForkProcess   |        |  |         outqR_fd  +------------------------------------------------+
+                                        |                | &lt;------+  |                      |
+                                        |                |           |         workloop     |
+                                        |     _target +------------&gt; |                      |
+                                        |                |           |        after_fork    |
+                                        |                |           |                      |
+                                        +----------------+           +----------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410105941013-313184371.png" alt="" loading="lazy"></p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/56416240" target="_blank">Celery 源码学习（二）多进程模型</a></p>
+<p><a href="https://blog.csdn.net/qq_33339479/article/details/80958059" target="_blank">celery源码分析-worker初始化分析（下）</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-04-15 19:04</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">219</span>)&nbsp;
+评论(<span id="post_comment_count">2</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14664004" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14664004);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14664004, cb_entryCreatedDate = '2021-04-15 19:04', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjsoom4nqP95ElAbF_V0bi29ErYpVWzlJ5csm0a2TH6gRZfgI29TJJczTHXskzuQkGxiVqCYVxI8NVdIghVWJxlthssL2R1EDZ_nnMxSp5Oc1bvkW0FxpRf87ELBdAwhCdY" />
+</body>
+</html>

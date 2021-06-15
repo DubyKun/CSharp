@@ -1,0 +1,886 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    <meta name="description" content="Spring Security 上 Security-dome 1.创建项目 创建一个Spring Boot项目，不用加入什么依赖 2.导入依赖 &amp;amp;lt;dependencies&amp;amp;gt" />
+    <meta property="og:description" content="Spring Security 上 Security-dome 1.创建项目 创建一个Spring Boot项目，不用加入什么依赖 2.导入依赖 &amp;amp;lt;dependencies&amp;amp;gt" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Spring Security  上 - MoYu-zc - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/MoYu-zc/custom.css?v=7MKwNk9BuDspFVQ5LKcRpIwcbog=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/SimpleMemory/bundle-SimpleMemory-mobile.min.css" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/MoYu-zc/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/MoYu-zc/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/MoYu-zc/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 664959;
+        var currentBlogApp = 'MoYu-zc';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'SimpleMemory';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 08:29';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        window.cnblogsConfig = {
+    blogUser: 'MoYu',
+   blogAvatar: 'https://gitee.com/MoYu-zc/picgo/raw/master/img/20210213094450.jpg',
+blogStartDate: '2020-02-09',
+webpageTitleOnblur: '(oﾟvﾟ)ノ Hi,Back',
+ webpageTitleOnblurTimeOut: 500,
+webpageTitleFocus: '(*´∇｀*) 欢迎回来！',
+ webpageTitleFocusTimeOut: 1000,
+webpageIcon: "https://gitee.com/MoYu-zc/picgo/raw/master/img/20210213094450.jpg",
+enable: true,       // 是否开启日/夜间模式切换按钮
+    auto: {             // 自动切换相关配置
+        enable: false,  // 开启自动切换
+        dayHour: 7,     // 日间模式开始时间，整数型，24小时制
+        nightHour: 20   // 夜间模式开始时间，整数型，24小时制
+    }
+switchDayNight: {
+        enable: true,
+        auto: {
+            enable: true
+        }
+    },
+progressBar: {
+          id      : 'top-progress-bar', // 请勿修改该值
+    color   : '#77b6ff',
+    height  : '2px',
+    duration: 0.2,
+    },
+loading: {
+          rebound: {
+        tension: 16,
+        friction: 5,
+    },
+    spinner: {
+        id: 'spinner',
+        radius: 90,
+        sides: 3,
+        depth: 4,
+        colors: {
+            background: '#f0f0f0',
+            stroke: '#272633',
+            base: null,
+            child: '#272633',
+        },
+        alwaysForward: true, // When false the spring will reverse normally.
+        restAt: 0.5,         // A number from 0.1 to 0.9 || null for full rotation
+        renderBase: false,
+    }
+    },
+homeTopAnimationRendered: true,
+homeTopAnimation: {
+         radius: 15,
+    density: 0.2,
+    color: 'rgba(255,255,255, .2)', // 颜色设置，“random” 为随机颜色
+    clearOffset: 0.3,
+    },
+essayTopAnimationRendered: true,
+essayTopAnimation: {
+       triW : 14,
+    triH : 20,
+    neighbours : ["side", "top", "bottom"],
+    speedTrailAppear : .1,
+    speedTrailDisappear : .1,
+    speedTriOpen : 1,
+    trailMaxLength : 30,
+    trailIntervalCreation : 100,
+    delayBeforeDisappear : 2,
+    colorsRandom: false, // v1.2.4 是否开启随机颜色
+    colors: [
+        '#96EDA6', '#5BC6A9',
+        '#38668C', '#374D84',
+        '#BED5CB', '#62ADC6',
+        '#8EE5DE', '#304E7B'
+    ]
+    },
+homeTopImg: [
+        "https://cdn.jsdelivr.net/gh/BNDong/Cnblogs-Theme-SimpleMemory@master/img/webp/home_top_bg.webp",
+        "https://cdn.jsdelivr.net/gh/BNDong/Cnblogs-Theme-SimpleMemory@master/img/webp/home_top_bg.webp"
+    ],
+homeBannerTextType: "one",
+essayTopImg: [
+        "https://cdn.jsdelivr.net/gh/BNDong/Cnblogs-Theme-SimpleMemory@master/img/webp/nothome_top_bg.webp",
+        "https://cdn.jsdelivr.net/gh/BNDong/Cnblogs-Theme-SimpleMemory@master/img/webp/nothome_top_bg.webp",
+"https://gitee.com/MoYu-zc/picgo/raw/master/img/20210208190902.jpg",
+"https://gitee.com/MoYu-zc/picgo/raw/master/img/20210208190954.jpg",
+    ],
+codeMaxHeight: true,
+codeLineNumber: true,
+essayCode: {
+        fontFamily: "'Ubuntu Mono',monospace", // 代码框字体
+    fontSize: "14px" // 代码框字体大小
+    },
+
+}
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/MoYu-zc/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/MoYu-zc/">MoYu</a>
+</h1>
+<h2>何德何能，何其荣幸</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/MoYu-zc/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/MoYu-zc">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/MoYu-zc/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/MoYu-zc/p/14736786.html">
+    <span>Spring Security  上</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="spring-security--上">Spring Security  上</h1>
+<h2 id="security-dome">Security-dome</h2>
+<h3 id="1创建项目">1.创建项目</h3>
+<p><strong>创建一个Spring Boot项目，不用加入什么依赖</strong></p>
+<h3 id="2导入依赖">2.导入依赖</h3>
+<pre><code class="language-xml">&lt;dependencies&gt;
+    &lt;!--启动器变为 web --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;!--security启动器 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+<h3 id="3创建控制层">3.创建控制层</h3>
+<pre><code class="language-java">@RestController
+public class TestController {
+    @GetMapping("/hello")
+    public String hello(){
+        return "hello Security";
+    }
+}
+</code></pre>
+<h3 id="4配置文件修改端口号">4.配置文件修改端口号</h3>
+<pre><code class="language-properties">server.port=8081
+</code></pre>
+<h3 id="5运行测试">5.运行测试</h3>
+<p>运行网址为：</p>
+<p><a href="http://localhost:8081/hello" target="_blank">http://localhost:8081/hello</a></p>
+<p>这时候会发现，网址会自动变为：</p>
+<p><a href="http://localhost:8081/login" target="_blank">http://localhost:8081/login</a></p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210412222952.png" alt="1" loading="lazy"></p>
+<h3 id="6登录">6.登录</h3>
+<p>能看到，在该页面中有<code>账号</code>和<code>密码</code></p>
+<p>默认账号：<strong>user</strong></p>
+<p>默认密码：</p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210412225302.png" alt="2" loading="lazy"></p>
+<p><strong>登录之后：</strong></p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210412225406.png" alt="3" loading="lazy"></p>
+<h2 id="security-原理">Security 原理</h2>
+<blockquote>
+<p><strong>Spring Security</strong> 本质是一个过滤器链</p>
+</blockquote>
+<p><strong>FilterSecurityInterceptor</strong>：是一个方法级的 <code>权限过滤器</code> ，基本位于过滤链的最底部</p>
+<hr>
+<p><strong>ExceptionTranslationFilter</strong>：是个<code>异常过滤器</code>，用来处理在认证授权过程中抛出的异常</p>
+<hr>
+<p><strong>UsernamePasswordAuthenticationFilter</strong>：对 <code>/login</code> 的POST请求做拦截，校验表单中用户名，密码</p>
+<hr>
+<h3 id="过滤器加载步骤">过滤器加载步骤</h3>
+<h4 id="步骤流程">步骤流程</h4>
+<p>使用Spring Security配置过滤器  :  <strong>DelegatingFilterProxy</strong></p>
+<p>源代码如下</p>
+<pre><code class="language-java">public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    Filter delegateToUse = this.delegate;
+    if (delegateToUse == null) {
+        synchronized(this.delegateMonitor) {
+            delegateToUse = this.delegate;
+            if (delegateToUse == null) {
+                WebApplicationContext wac = this.findWebApplicationContext();
+                if (wac == null) {
+                    throw new IllegalStateException("No WebApplicationContext found: no ContextLoaderListener or DispatcherServlet registered?");
+                }
+
+                delegateToUse = this.initDelegate(wac);
+
+            }
+            this.delegate = delegateToUse;
+        }
+    }
+    this.invokeDelegate(delegateToUse, request, response, filterChain);
+}
+</code></pre>
+<p>即为：</p>
+<pre><code class="language-java">public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //进行判断
+        
+        //初始化
+		delegateToUse = this.initDelegate(wac);
+		
+    	//其余部分
+}
+</code></pre>
+<p>然后我们查看 <strong>initDelegate</strong>：</p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210413153343.png" alt="4" loading="lazy"></p>
+<p>初始化为  <strong>FilterChainProxy 对象</strong></p>
+<p>进入 <strong>FilterChainProxy：</strong></p>
+<pre><code class="language-java">public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    boolean clearContext = request.getAttribute(FILTER_APPLIED) == null;
+    if (!clearContext) {
+        //满足条件  运行该方法
+        this.doFilterInternal(request, response, chain);
+        
+    } else {
+        try {
+            request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+            //不满足  最终还是需要运行该方法
+            this.doFilterInternal(request, response, chain);
+            
+        } catch (RequestRejectedException var9) {
+            this.requestRejectedHandler.handle((HttpServletRequest)request, (HttpServletResponse)response, var9);
+        } finally {
+            SecurityContextHolder.clearContext();
+            request.removeAttribute(FILTER_APPLIED);
+        }
+    }
+}
+</code></pre>
+<p><strong>可以看出，无论满不满足条件，最终都需要运行 doFilterInternal()方法</strong></p>
+<pre><code class="language-java">private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+     /*
+    *  部分代码。。。
+    */
+    List&lt;Filter&gt; filters = this.getFilters((HttpServletRequest)firewallRequest);
+    /*
+    *  部分代码。。。
+    */
+</code></pre>
+<pre><code class="language-java">    private List&lt;Filter&gt; getFilters(HttpServletRequest request) {
+        int count = 0;
+        Iterator var3 = this.filterChains.iterator();
+        SecurityFilterChain chain;
+        do {
+            if (!var3.hasNext()) {
+                return null;
+            }
+            chain = (SecurityFilterChain)var3.next();
+            if (logger.isTraceEnabled()) {
+                ++count;
+                logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", chain, count, this.filterChains.size()));
+            }
+        } while(!chain.matches(request));
+         //返回所有过滤器
+        return chain.getFilters();
+    }
+</code></pre>
+<p>所以 doFilterInternal() 方法 可以返回 <strong>所有要进行加载的过滤器</strong></p>
+<hr>
+<h4 id="总结："><strong>总结：</strong></h4>
+<ol>
+<li>配置过滤器 <strong>DelegatingFilterProxy</strong></li>
+<li>在其中进行初始化  <strong>initDelegate</strong></li>
+<li>在初始化中得到  <strong>FilterChainProxy 对象</strong></li>
+<li>在其中运行的就是 <strong>doFilterInternal()</strong> 方法，该方法返回的就是 <strong>所有要进行加载的过滤器</strong></li>
+</ol>
+<h3 id="userdetailsservice-接口">UserDetailsService 接口</h3>
+<blockquote>
+<p><strong>UserDetailsService接口 ： 查询数据库用户名和密码过程</strong></p>
+</blockquote>
+<h4 id="步骤：">步骤：</h4>
+<ol>
+<li>创建类继承<strong>UsernamePasswordAuthenticationFilter</strong>，重写三个方法： attemptAuthentication() 、successfulAuthentication()、unsuccessfulAuthentication()</li>
+<li>如果成功调用successfulAuthentication()，反之调用unsuccessfulAuthentication()</li>
+<li>创建类实现UserDetailService，编写查询数据过程，返回<strong>User</strong>对象，这个User对象是安全框架提供对象</li>
+</ol>
+<h3 id="passwordencoder接口">PasswordEncoder接口</h3>
+<blockquote>
+<p><strong>PasswordEncoder接口 : 数据加密接口，用于返回User对象里面密码加密</strong></p>
+</blockquote>
+<h4 id="加密方法：">加密方法：</h4>
+<blockquote>
+<p><strong>BCryptPasswordEncoder</strong>是Spring Security官方推荐的密码解析器，平时多使用这个解析器。<br>
+<strong>BCryptPasswordEncoder</strong>是对bcrypt强散列方法的具体实现。是基于Hash算法实现的单向加密。可以通过strength控制加密强度，默认10.</p>
+</blockquote>
+<pre><code class="language-java">BCryptPasswordEncoder b = new BCryptPasswordEncoder();
+String zc = b.encode("zc");   //加密成功
+</code></pre>
+<h2 id="web权限">Web权限</h2>
+<p>在 <code>Security-dome</code>  中可以看到，如果想要进入页面，还需要输入账号密码</p>
+<p>而对于登陆时候的账号密码可以进行<strong>自定义设置</strong>：</p>
+<ol>
+<li>通过配置文件</li>
+<li>通过配置类</li>
+<li>自定义编写实现类</li>
+</ol>
+<h3 id="1通过配置文件">1.通过配置文件</h3>
+<pre><code class="language-properties">spring.security.user.name=root
+spring.security.user.password=root
+</code></pre>
+<p>这个时候再运行，会发现控制台不会出现<code>密码</code>，可以直接通过设置的账号密码登录</p>
+<h3 id="2通过配置类">2.通过配置类</h3>
+<ol>
+<li>创建一个 SecurityConfig 配置类</li>
+<li>重写configure()方法，注意看清参数，不要选错方法</li>
+<li>很重要的一点：需要注入PasswordEncoder接口</li>
+</ol>
+<blockquote>
+<p>如果不注入该接口，可能报 <strong>Encoded password does not look like BCrypt</strong></p>
+</blockquote>
+<pre><code class="language-java">@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String password = bCryptPasswordEncoder.encode("root");
+        auth.inMemoryAuthentication()
+                .withUser("root")  		//账号
+                .password(password)     //加密的密码
+                .roles("admin");        //权限
+    }
+   
+    @Bean
+    PasswordEncoder passwordEncoder(){
+       return new BCryptPasswordEncoder();
+    }
+}
+</code></pre>
+<p>这时候，也可以直接使用你设置的账号密码登录页面</p>
+<h3 id="3自定义编写实现类">3.自定义编写实现类</h3>
+<ol>
+<li>编写userDetailsService实现类，返回User对象</li>
+<li>创建一个 SecurityConfig 配置类</li>
+</ol>
+<p><strong>编写一个UserDetailsService实现类</strong></p>
+<p>在其中需要重写  loadUserByUsername()  方法，该方法用于登录</p>
+<pre><code class="language-java">@Service("userDetailsService")
+public class MyuserDetailsService implements UserDetailsService {
+    @Override
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        List&lt;GrantedAuthority&gt; auths =
+                AuthorityUtils.commaSeparatedStringToAuthorityList("role");
+        //返回的实际上是一个User对象，参数解析可以看下面
+        return new User("root",
+                new BCryptPasswordEncoder().encode("root"),auths);
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>UserDetailsService</strong> 解析</p>
+</blockquote>
+<p>对于该实现类中重写的  loadUserByUsername()  方法，返回的是 <strong>UserDetails</strong> 接口</p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210413172403.png" alt="5" loading="lazy"></p>
+<p>在源代码中可以看出，实际上 <strong>UserDetails</strong> 接口，返回的是一个 <strong>User</strong> 对象</p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210413172511.png" alt="6" loading="lazy"></p>
+<p>而在User对象中，需要返回三个参数：</p>
+<p>String、String、Collection；</p>
+<p>账号   、 密码  、集合(权限等信息)</p>
+<hr>
+<p><strong>创建一个 SecurityConfig 配置类</strong></p>
+<pre><code class="language-java">@Configuration
+public class SecurityConfigTest extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    UserDetailsService userDetailsService;  // 这里应和 @Service("userDetailsService") 中内容相同
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //使用该方法
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+}
+</code></pre>
+<p>这时候测试，也可以直接使用设置的账号密码登录</p>
+<p>之后，如果连接数据库，一般都是用<strong>第三种方式</strong></p>
+<h3 id="4连接数据库完成用户认证">4.连接数据库完成用户认证</h3>
+<p><strong>(该方法是在第三种方法代码基础上完成)</strong></p>
+<ol>
+<li>创建数据库</li>
+<li>整合Mybatis-Plus完成数据库操作</li>
+<li>配置JDBC信息</li>
+<li>创建实体类、Mapper接口</li>
+<li>创建UserDetailsService类</li>
+</ol>
+<h4 id="创建数据库">创建数据库</h4>
+<p>创建了一个 <code>mybatis-plus</code> 数据库 ，其中创建了一个<code>users</code>表，记得创建后，加入数据</p>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210413224942.png" alt="7" loading="lazy"></p>
+<h4 id="引入依赖">引入依赖</h4>
+<pre><code class="language-xml">&lt;!-- Mybatis-plus--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;3.4.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- mysql--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;mysql&lt;/groupId&gt;
+    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;!-- Lombok--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+    &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h4 id="配置jdbc信息">配置JDBC信息</h4>
+<pre><code class="language-properties">spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/mybatis-plus?serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=root
+</code></pre>
+<h4 id="创建实体类、mapper接口">创建实体类、Mapper接口</h4>
+<pre><code class="language-java">@Data    // 引入了Lombok才可以使用
+public class Users {
+    private Integer id;
+    private String username;
+    private String password;
+}
+</code></pre>
+<pre><code class="language-java">@Repository
+@Mapper
+public interface UsersMapper extends BaseMapper&lt;Users&gt; {
+}
+</code></pre>
+<h4 id="创建userdetailsservice类">创建UserDetailsService类</h4>
+<pre><code class="language-java">@Service("userDetailsService")
+public class MyuserDetailsService implements UserDetailsService {
+    @Autowired
+    private UsersMapper usersMapper;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        //调用usersMapper方法
+        QueryWrapper&lt;Users&gt; wrapper = new QueryWrapper&lt;&gt;();
+        wrapper.eq("username",username);
+        Users users = usersMapper.selectOne(wrapper);
+        if (users == null){
+            //数据库没有用户名，认证失败
+            throw new UsernameNotFoundException("用户名不存在");
+        }
+        List&lt;GrantedAuthority&gt; auths =
+                AuthorityUtils.commaSeparatedStringToAuthorityList("role");
+        return new User(users.getUsername(),
+                new BCryptPasswordEncoder().encode(users.getPassword()),auths);
+    }
+}
+</code></pre>
+<p><strong>这时候就可以正常运行了</strong></p>
+<h3 id="5自定义登录页面">5.自定义登录页面</h3>
+<p><strong>在上面代码的基础上完成该部分代码</strong></p>
+<p><strong>1.创建前端页面</strong></p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;form method="post" action="/user/login"&gt;
+        用户名：&lt;input type="text" name="username"&gt;
+        &lt;br&gt;
+        密码：&lt;input type="text" name="password"&gt;
+        &lt;br&gt;
+         &lt;input type="submit" value="login"&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><strong>2.书写Controller层代码</strong></p>
+<pre><code class="language-java">@GetMapping("/index")
+public String index(){
+    return "index";
+}
+</code></pre>
+<p>3.在创建的配置类中重写 <strong>configure(HttpSecurity http)</strong> 方法</p>
+<pre><code class="language-java">@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.formLogin()   //自定义自己编写的登录页面
+        .loginPage("/login.html")  //设置登陆页面
+        .loginProcessingUrl("/login") //成功登录访问路径 , 该处路径和from表单中的action路径统一
+        .defaultSuccessUrl("/index").permitAll()  //登录成功之后跳转路径
+        .and().authorizeRequests()
+        .antMatchers("/","/hello","/login") //可以直接访问的路径，不需要认证
+        .permitAll()
+        .anyRequest().authenticated()
+        .and().csrf().disable(); //关闭csrf
+}
+</code></pre>
+<p>这时候可以分别测试进入以下两个路径：</p>
+<p><a href="http://localhost:8081/hello" target="_blank">http://localhost:8081/hello</a></p>
+<p><a href="http://localhost:8081/index" target="_blank">http://localhost:8081/index</a></p>
+<p>会发现，第一个 hello 路径 ，不会拦截了，可以直接进入页面</p>
+<p>第二个index，会进入自定义的登陆页面，登陆成功后，才可以进入</p>
+<h2 id="基于角色或权限的访问控制">基于角色或权限的访问控制</h2>
+<h3 id="1hasauthority方法">1.hasAuthority方法</h3>
+<blockquote>
+<p>如果当前的主体具有指定的权限，则返回<strong>true</strong>，否则返回<strong>false</strong></p>
+</blockquote>
+<ol>
+<li>修改配置类</li>
+<li>在 UserDetailsService 实现类中添加权限</li>
+</ol>
+<pre><code class="language-java">@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.formLogin() 
+        .loginPage("/login.html") 
+        .loginProcessingUrl("/user/login") 
+        .defaultSuccessUrl("/index").permitAll()  
+        .and().authorizeRequests()
+        .antMatchers("/","/hello","/user/login") 
+        .permitAll()
+        
+        //当前登录用户，只有具有admins权限才可以访问这个路径
+        .antMatchers("/index").hasAuthority("admins")
+        
+        .anyRequest().authenticated()
+        .and().csrf().disable(); 
+}
+</code></pre>
+<pre><code class="language-java">    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        QueryWrapper&lt;Users&gt; wrapper = new QueryWrapper&lt;&gt;();
+        wrapper.eq("username",username);
+        Users users = usersMapper.selectOne(wrapper);
+        if (users == null){ 
+            throw new UsernameNotFoundException("用户名不存在");
+        }
+        
+        List&lt;GrantedAuthority&gt; auths =
+                AuthorityUtils.commaSeparatedStringToAuthorityList("admins");    //这里添加权限
+        return new User(users.getUsername(),
+                new BCryptPasswordEncoder().encode(users.getPassword()),auths);
+    }
+</code></pre>
+<p>进行测试，路径为：</p>
+<p><a href="http://localhost:8081/index" target="_blank">http://localhost:8081/index</a></p>
+<ul>
+<li>如果权限不通过  ， <strong>403 无权限</strong></li>
+</ul>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210414143714.png" alt="8" loading="lazy"></p>
+<ul>
+<li>如果权限通过 ，<strong>正常运行</strong></li>
+</ul>
+<h3 id="2hasanyauthority方法">2.hasAnyAuthority方法</h3>
+<blockquote>
+<p>如果当前的主体有任何提供的角色（给定的作为一个逗号分隔的字符串列表）的话，返回 <strong>true</strong></p>
+<p>与 hasAuthority() 的区别是</p>
+<ul>
+<li>
+<p>hasAuthority() 参数唯一，只能满足这一个权限才可以</p>
+</li>
+<li>
+<p>而该方法，参数可以多个，满足其中一个权限 即为通过</p>
+</li>
+</ul>
+</blockquote>
+<pre><code class="language-java">@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.formLogin() 
+        .loginPage("/login.html") 
+        .loginProcessingUrl("/user/login") 
+        .defaultSuccessUrl("/index").permitAll()  
+        .and().authorizeRequests()
+        .antMatchers("/","/hello","/user/login") 
+        .permitAll()
+
+        //当前登录用户，具有admins或者user权限才可以访问这个路径
+        .antMatchers("/index").hasAnyAuthority("admins","user")
+
+        .anyRequest().authenticated()
+        .and().csrf().disable(); 
+}
+</code></pre>
+<h3 id="3hasrole方法">3.hasRole方法</h3>
+<blockquote>
+<p>如果用户具备给定角色就 允许访问，否则出现 403<br>
+如果当前主体具有指定的角色，则返回 true</p>
+<p>该方法与 hasAuthority 方法，使用方法基本相同，区别就是 他需要在权限前加上 <code>ROLE_</code></p>
+</blockquote>
+<pre><code class="language-java">@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.formLogin() 
+        .loginPage("/login.html") 
+        .loginProcessingUrl("/user/login") 
+        .defaultSuccessUrl("/index").permitAll()  
+        .and().authorizeRequests()
+        .antMatchers("/","/hello","/user/login") 
+        .permitAll()
+
+        //当前登录用户，只有具有 ROLE_user 权限才可以访问这个路径
+        .antMatchers("/index").hasRole("user")
+
+        .anyRequest().authenticated()
+        .and().csrf().disable(); 
+}
+</code></pre>
+<pre><code class="language-java">// UserDetailsService 实现类中添加权限
+List&lt;GrantedAuthority&gt; auths =
+                AuthorityUtils.commaSeparatedStringToAuthorityList("admins,ROLE_user");
+</code></pre>
+<p>这时候可以正常运行</p>
+<h3 id="4hasanyrole方法">4.hasAnyRole方法</h3>
+<blockquote>
+<p>表示用户具备任何一个条件都可以访问</p>
+<p><strong>该方法与 hasRole() 的区别 与1 2 两种方法相同</strong>，大家可以自行测试</p>
+</blockquote>
+<h3 id="5自定义403页面">5.自定义403页面</h3>
+<h4 id="1创建自定义403页面">1.创建自定义403页面</h4>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;h1&gt;没有权限访问！！！&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h4 id="2修改配置类">2.修改配置类</h4>
+<pre><code class="language-java">@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.exceptionHandling().accessDeniedPage("/uuauth.html");
+}
+</code></pre>
+<p><img src="https://gitee.com/MoYu-zc/picgo/raw/master/img/20210414150150.png" alt="9" loading="lazy"></p>
+<blockquote>
+<p>个人博客为：<br>
+<a href="https://www.moyuzc.cn/" target="_blank">MoYu's Github Blog</a><br>
+<a href="https://moyu-zc.gitee.io/" target="_blank">MoYu's Gitee  Blog</a></p>
+</blockquote>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 20:29</span>&nbsp;
+<a href="https://www.cnblogs.com/MoYu-zc/">MoYu-zc</a>&nbsp;
+阅读(<span id="post_view_count">0</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736786" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736786);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 664959, cb_blogApp = 'MoYu-zc', cb_blogUserGuid = 'dcd58fff-1a88-4c17-8cc3-08d8c9ac4245';
+    var cb_entryId = 14736786, cb_entryCreatedDate = '2021-05-06 20:29', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 MoYu-zc
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtMXhrQ1mvjBIuxX3R1S_zL7qgYlZM8VZPlA8wiuhtVgMZG3JCZYzgi7JpIv8Yxg1_5nAwC8RtbTF2QiOoyrWf_VZqVq1wDqXjcVTmc2XEyRYVn7gNRlKPDnebBL27WwSo" />
+</body>
+</html>

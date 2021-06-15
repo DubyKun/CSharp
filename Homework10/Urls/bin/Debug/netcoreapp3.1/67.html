@@ -1,0 +1,753 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Producer 概念。" />
+    <meta property="og:description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Producer 概念。" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码分析] 消息队列 Kombu 之 Producer - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-03-12 10:27';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14455186.html">
+    <span>[源码分析] 消息队列 Kombu 之 Producer</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Producer 概念。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码分析-消息队列-kombu-之-producer">[源码分析] 消息队列 Kombu 之 Producer</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码分析-消息队列-kombu-之-producer">[源码分析] 消息队列 Kombu 之 Producer</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-示例代码">0x01 示例代码</a></li><li><a href="#0x02-来由">0x02 来由</a></li><li><a href="#0x03-建立">0x03 建立</a><ul><li><a href="#31-定义">3.1 定义</a></li><li><a href="#32-init">3.2 init</a><ul><li><a href="#321-转换channel">3.2.1 转换channel</a></li></ul></li></ul></li><li><a href="#0x04-发送">0x04 发送</a><ul><li><a href="#41-组装消息-in-channel">4.1 组装消息 in channel</a></li><li><a href="#42-发送消息-in-channel">4.2 发送消息 in channel</a></li><li><a href="#43-deliver-in-exchange">4.3 deliver in exchange</a></li><li><a href="#44-binding-转换">4.4 binding 转换</a></li><li><a href="#45-_put-in-channel">4.5 _put in channel</a></li></ul></li><li><a href="#0x05-总结">0x05 总结</a></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Producer 概念。</p>
+<h2 id="0x01-示例代码">0x01 示例代码</h2>
+<p>下面使用如下代码来进行说明。</p>
+<p>本示例来自https://liqiang.io/post/kombu-source-code-analysis-part-5系列，特此深表感谢。</p>
+<pre><code class="language-python">def main(arguments):
+    hub = Hub()
+    exchange = Exchange('asynt_exchange')
+    queue = Queue('asynt_queue', exchange, 'asynt_routing_key')
+
+    def send_message(conn):
+        producer = Producer(conn)
+        producer.publish('hello world', exchange=exchange, routing_key='asynt_routing_key')
+        print('message sent')
+
+    def on_message(message):
+        print('received: {0!r}'.format(message.body))
+        message.ack()
+        # hub.stop()  # &lt;-- exit after one message
+
+    conn = Connection('redis://localhost:6379')
+    conn.register_with_event_loop(hub)
+
+    def p_message():
+        print(' kombu ')
+
+    with Consumer(conn, [queue], on_message=on_message):
+        send_message(conn)
+        hub.timer.call_repeatedly(3, p_message)
+        hub.run_forever()
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
+</code></pre>
+<h2 id="0x02-来由">0x02 来由</h2>
+<p>前文已经完成了构建部分，Consumer部分，下面来到了Producer部分，即如下代码：</p>
+<pre><code class="language-python">def send_message(conn):
+		producer = Producer(conn)
+    producer.publish('hello world', exchange=exchange, routing_key='asynt')
+   	print('message sent')
+</code></pre>
+<p>我们知道，<u>Transport需要把Channel与文件信息联系起来，但是此时Transport信息如下，文件信息依然没有，这是我们以后需要留意的</u>：</p>
+<pre><code class="language-python">transport = {Transport} &lt;kombu.transport.redis.Transport object at 0x7f9056a26f98&gt;
+ Channel = {type} &lt;class 'kombu.transport.redis.Channel'&gt;
+ Cycle = {type} &lt;class 'kombu.utils.scheduling.FairCycle'&gt;
+ Management = {type} &lt;class 'kombu.transport.virtual.base.Management'&gt;
+ channel_max = {int} 65535
+ channels = {list: 2} [&lt;kombu.transport.redis.Channel object at 0x7f9056a57278&gt;, &lt;kombu.transport.redis.Channel object at 0x7f9056b79cc0&gt;]
+ client = {Connection} &lt;Connection: redis://localhost:6379// at 0x7f9056a26cc0&gt;
+ cycle = {MultiChannelPoller} &lt;kombu.transport.redis.MultiChannelPoller object at 0x7f9056a436a0&gt;
+  after_read = {set: 0} set()
+  eventflags = {int} 25
+  fds = {dict: 0} {}
+  poller = {_poll} &lt;kombu.utils.eventio._poll object at 0x7f9056583048&gt;
+ default_connection_params = {dict: 2} {'port': 6379, 'hostname': 'localhost'}
+ default_port = {int} 6379
+ driver_name = {str} 'redis'
+ driver_type = {str} 'redis'
+ implements = {Implements: 3} {'asynchronous': True, 'exchange_type': frozenset({'direct', 'topic', 'fanout'}), 'heartbeats': False}
+ manager = {Management} &lt;kombu.transport.virtual.base.Management object at 0x7f9056b79be0&gt;
+ polling_interval = {NoneType} None
+ state = {BrokerState} &lt;kombu.transport.virtual.base.BrokerState object at 0x7f9056a9ec50&gt;
+</code></pre>
+<h2 id="0x03-建立">0x03 建立</h2>
+<h3 id="31-定义">3.1 定义</h3>
+<p>Producer中，主要变量是：</p>
+<ul>
+<li>_channel ：就是channel；</li>
+<li>exchange ：exchange；</li>
+</ul>
+<p><u>但是本文示例没有传入exchange，这就有些奇怪，我们需要继续看看</u>。</p>
+<pre><code class="language-python">class Producer:
+    """Message Producer.
+
+    Arguments:
+        channel (kombu.Connection, ChannelT): Connection or channel.
+        exchange (kombu.entity.Exchange, str): Optional default exchange.
+        routing_key (str): Optional default routing key.
+    """
+
+    #: Default exchange
+    exchange = None
+
+    #: Default routing key.
+    routing_key = ''
+
+    #: Default serializer to use. Default is JSON.
+    serializer = None
+
+    #: Default compression method.  Disabled by default.
+    compression = None
+
+    #: By default, if a defualt exchange is set,
+    #: that exchange will be declare when publishing a message.
+    auto_declare = True
+
+    #: Basic return callback.
+    on_return = None
+
+    #: Set if channel argument was a Connection instance (using
+    #: default_channel).
+    __connection__ = None
+</code></pre>
+<h3 id="32-init">3.2 init</h3>
+<p>init代码如下。</p>
+<pre><code class="language-python">def __init__(self, channel, exchange=None, routing_key=None,
+             serializer=None, auto_declare=None, compression=None,
+             on_return=None):
+    self._channel = channel
+    self.exchange = exchange
+    self.routing_key = routing_key or self.routing_key
+    self.serializer = serializer or self.serializer
+    self.compression = compression or self.compression
+    self.on_return = on_return or self.on_return
+    self._channel_promise = None
+    if self.exchange is None:
+        self.exchange = Exchange('')
+    if auto_declare is not None:
+        self.auto_declare = auto_declare
+
+    if self._channel:
+        self.revive(self._channel)
+</code></pre>
+<h4 id="321-转换channel">3.2.1 转换channel</h4>
+<p>这里有个重要转换。</p>
+<ul>
+<li>最开始是把输入参数 Connection 赋值到 self._channel。</li>
+<li>然后 revive 方法做了转换为 channel，即 self._channel 最终是 channel 类型。</li>
+</ul>
+<p>但是 exchange 依然没有意义，是 direct 类型。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">def revive(self, channel):
+    """Revive the producer after connection loss."""
+    if is_connection(channel):
+        connection = channel
+        self.__connection__ = connection
+        channel = ChannelPromise(lambda: connection.default_channel)
+    if isinstance(channel, ChannelPromise):
+        self._channel = channel
+        self.exchange = self.exchange(channel)
+    else:
+        # Channel already concrete
+        self._channel = channel
+        if self.on_return:
+            self._channel.events['basic_return'].add(self.on_return)
+        self.exchange = self.exchange(channel)
+</code></pre>
+<p>此时变量为：</p>
+<pre><code class="language-python">producer = {Producer} 
+ auto_declare = {bool} True
+ channel = {Channel} &lt;kombu.transport.redis.Channel object at 0x7f9056a57278&gt;
+ compression = {NoneType} None
+ connection = {Connection} &lt;Connection: redis://localhost:6379// at 0x7f9056a26cc0&gt;
+ exchange = {Exchange} Exchange ''(direct)
+ on_return = {NoneType} None
+ routing_key = {str} ''
+ serializer = {NoneType} None
+</code></pre>
+<p>逻辑如图：</p>
+<pre><code class="language-python">+----------------------+               +-------------------+
+| Producer             |               | Channel           |
+|                      |               |                   |        +-----------------------------------------------------------+
+|                      |               |    client  +-------------&gt; | Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379&gt; |
+|      channel   +------------------&gt;  |                   |        +-----------------------------------------------------------+
+|                      |               |    pool           |
+|      exchange        |   +---------&gt; |                   | &lt;------------------------------------------------------------+
+|                      |   |           |                   |                                                              |
+|      connection      |   |    +----&gt; |    connection +---------------+                                                  |
+|             +        |   |    |      |                   |           |                                                  |
++--+-------------------+   |    |      +-------------------+           |                                                  |
+   |          |            |    |                                      v                                                  |
+   |          |            |    |      +-------------------+       +---+-----------------+       +--------------------+   |
+   |          |            |    |      | Connection        |       | redis.Transport     |       | MultiChannelPoller |   |
+   |          +----------------------&gt; |                   |       |                     |       |                    |   |
+   |                       |    |      |                   |       |                     |       |     _channels +--------+
+   |                       |    |      |                   |       |        cycle +------------&gt; |     _fd_to_chan    |
+   |                       |    |      |     transport +---------&gt; |                     |       |     _chan_to_sock  |
+   |             +--------&gt;+    |      |                   |       |                     |    +------+ poller         |
+   |             |              |      +-------------------+       +---------------------+    |  |     after_read     |
+   |             |              |                                                             |  |                    |
+   |             |              |                                                             |  +--------------------+
+   |             |              |      +------------------+                   +---------------+
+   |             |              |      | Hub              |                   |
+   |             |              |      |                  |                   v
+   |             |              |      |                  |            +------+------+
+   |             |              |      |      poller +---------------&gt; | _poll       |
+   | publish     |              |      |                  |            |             |         +-------+
+   +--------------------------------+  |                  |            |    _poller+---------&gt; |  poll |
+                 |              |   |  +------------------+            |             |         +-------+
+                 |              |   |                                  +-------------+
+    +-------------------+       |   +-----&gt; +----------------+
+    | Queue      |      |       |           | Exchange       |
+    |      _channel     |       +---------+ |                |
+    |                   |                   |                |
+    |      exchange +--------------------&gt;  |     channel    |
+    |                   |                   |                |
+    |                   |                   |                |
+    +-------------------+                   +----------------+
+
+</code></pre>
+<p>手机如图：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227113321332-346324427.png" alt="" loading="lazy"></p>
+<h2 id="0x04-发送">0x04 发送</h2>
+<p>发送消息是通过producer.publish完成。</p>
+<pre><code class="language-python">def send_message(conn):
+    producer = Producer(conn)
+    producer.publish('hello world', exchange=exchange, routing_key='asynt')
+    print('message sent')
+</code></pre>
+<p><u>此时传入exchange作为参数。原来如果没有 Exchange，是可以在这里进行补救</u>。</p>
+<p>producer.publish继续调用到如下，可以看到分为两步：</p>
+<ul>
+<li>调用channel的组装消息函数<code>prepare_message</code>；</li>
+<li>调用channel的发送消息<code>basic_publish</code>；</li>
+</ul>
+<p>因此，最终发送消息还是通过channel完成。</p>
+<pre><code class="language-python">def _publish(self, body, priority, content_type, content_encoding,
+             headers, properties, routing_key, mandatory,
+             immediate, exchange, declare):
+    channel = self.channel
+    message = channel.prepare_message(
+        body, priority, content_type,
+        content_encoding, headers, properties,
+    )
+    if declare:
+        maybe_declare = self.maybe_declare
+        [maybe_declare(entity) for entity in declare]
+
+    # handle autogenerated queue names for reply_to
+    reply_to = properties.get('reply_to')
+    if isinstance(reply_to, Queue):
+        properties['reply_to'] = reply_to.name
+    return channel.basic_publish(
+        message,
+        exchange=exchange, routing_key=routing_key,
+        mandatory=mandatory, immediate=immediate,
+    )
+</code></pre>
+<h3 id="41-组装消息-in-channel">4.1 组装消息 in channel</h3>
+<p>channel 的组装消息函数<code>prepare_message</code>完成组装功能，基本上是为消息添加各种属性。</p>
+<pre><code class="language-python">def prepare_message(self, body, priority=None, content_type=None,
+                    content_encoding=None, headers=None, properties=None):
+    """Prepare message data."""
+    properties = properties or {}
+    properties.setdefault('delivery_info', {})
+    properties.setdefault('priority', priority or self.default_priority)
+
+    return {'body': body,
+            'content-encoding': content_encoding,
+            'content-type': content_type,
+            'headers': headers or {},
+            'properties': properties or {}}
+</code></pre>
+<p>消息如下：</p>
+<pre><code class="language-python">message = {dict: 5} 
+ 'body' = {str} 'aGVsbG8gd29ybGQ='
+ 'content-encoding' = {str} 'utf-8'
+ 'content-type' = {str} 'text/plain'
+ 'headers' = {dict: 0} {}
+  __len__ = {int} 0
+ 'properties' = {dict: 5} 
+  'delivery_mode' = {int} 2
+  'delivery_info' = {dict: 2} {'exchange': 'asynt_exchange', 'routing_key': 'asynt_routing_key'}
+  'priority' = {int} 0
+  'body_encoding' = {str} 'base64'
+  'delivery_tag' = {str} '1b03590e-501c-471f-a5f9-f4fdcbe3379a'
+  __len__ = {int} 5
+</code></pre>
+<h3 id="42-发送消息-in-channel">4.2 发送消息 in channel</h3>
+<p>channel的发送消息<code>basic_publish</code>完成发送功能。此时使用了传入的参数exchange。</p>
+<p>发送消息<code>basic_publish</code>方法是调用<code>_put</code>方法：</p>
+<pre><code class="language-python">def basic_publish(self, message, exchange, routing_key, **kwargs):
+    """Publish message."""
+    self._inplace_augment_message(message, exchange, routing_key)
+    if exchange:
+        return self.typeof(exchange).deliver(
+            message, exchange, routing_key, **kwargs
+        )
+    # anon exchange: routing_key is the destination queue
+    return self._put(routing_key, message, **kwargs)
+</code></pre>
+<h3 id="43-deliver-in-exchange">4.3 deliver in exchange</h3>
+<p><code>self.typeof(exchange).deliver</code>代码接着来到exchange。本文是DirectExchange。</p>
+<p>注意，这里用到了self.channel._put。就是Exchange的成员变量channel。</p>
+<pre><code class="language-python">class DirectExchange(ExchangeType):
+    """Direct exchange.
+
+    The `direct` exchange routes based on exact routing keys.
+    """
+
+    type = 'direct'
+
+    def lookup(self, table, exchange, routing_key, default):
+        return {
+            queue for rkey, _, queue in table
+            if rkey == routing_key
+        }
+
+    def deliver(self, message, exchange, routing_key, **kwargs):
+        _lookup = self.channel._lookup
+        _put = self.channel._put
+        for queue in _lookup(exchange, routing_key):
+            _put(queue, message, **kwargs)
+</code></pre>
+<h3 id="44-binding-转换">4.4 binding 转换</h3>
+<p>我们知道，Exchange的作用只是将发送的 <code>routing_key</code> 转化为 <code>queue</code> 的名字。这样发送就知道发到哪个 <code>queue</code> 。</p>
+<p>因此依据_lookup方法得到对应的<code>queue</code> 。</p>
+<pre><code class="language-python">def _lookup(self, exchange, routing_key, default=None):
+    """Find all queues matching `routing_key` for the given `exchange`.
+
+    Returns:
+        str: queue name -- must return the string `default`
+            if no queues matched.
+    """
+    if default is None:
+        default = self.deadletter_queue
+    if not exchange:  # anon exchange
+        return [routing_key or default]
+
+    try:
+        R = self.typeof(exchange).lookup(
+            self.get_table(exchange),
+            exchange, routing_key, default,
+        )
+    except KeyError:
+        R = []
+
+    if not R and default is not None:
+        warnings.warn(UndeliverableWarning(UNDELIVERABLE_FMT.format(
+            exchange=exchange, routing_key=routing_key)),
+        )
+        self._new_queue(default)
+        R = [default]
+    return R
+</code></pre>
+<p>此处具体逻辑为：</p>
+<p>第一，调用到channel的方法。这里的 exchange 名字为 asynt_exchange。</p>
+<pre><code class="language-python">def get_table(self, exchange):
+    key = self.keyprefix_queue % exchange
+    with self.conn_or_acquire() as client:
+        values = client.smembers(key)
+        if not values:
+            raise InconsistencyError(NO_ROUTE_ERROR.format(exchange, key))
+        return [tuple(bytes_to_str(val).split(self.sep)) for val in values]
+</code></pre>
+<p>我们看看Redis内容，发现集合内容如下：</p>
+<pre><code class="language-java">127.0.0.1:6379&gt; smembers _kombu.binding.asynt_exchange
+1) "asynt_routing_key\x06\x16\x06\x16asynt_queue"
+</code></pre>
+<p>第二，因此得到对应binding为：</p>
+<p><code>{b'asynt_routing_key\x06\x16\x06\x16asynt_queue'}</code></p>
+<p>即从 exchange 得到 routing_key ---&gt; queue 的规则，然后再依据  routing_key 得到  queue。就知道 Consumer 和 Producer 需要依据哪个 queue 交换消息。</p>
+<p>逻辑如下：</p>
+<pre><code class="language-java">                                  +---------------------------------+
+                                  |         exchange                |
+                                  |                                 |
+                 1 routing_key x  |                                 |
++----------+                      |                                 |      +------------+
+| Producer |  +-----------------&gt; |   routing_key x ---&gt;  queue x   |      |  Consumer  |
++--------+-+                      |                                 |      +------------+
+         |                        |   routing_key y ---&gt;  queue y   |
+         |                        |                                 |           ^
+         |                        |   routing_key z ---&gt;  queue z   |           |
+         |                        |                                 |           |
+         |                        +---------------------------------+           |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                  +-----------+                       |
+         |        2 message                 |           |        3 message      |
+         +-------------------------------&gt;  |  queue X  |  +--------------------+
+                                            |           |
+                                            +-----------+
+
+</code></pre>
+<h3 id="45-_put-in-channel">4.5 _put in channel</h3>
+<p>channel的_put 方法被用来继续处理，可以看到其最终调用到了client.lpush。</p>
+<p>client为：</p>
+<pre><code class="language-python">Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+</code></pre>
+<p>代码为：</p>
+<pre><code class="language-python">def _put(self, queue, message, **kwargs):
+    """Deliver message."""
+    pri = self._get_message_priority(message, reverse=False)
+
+    with self.conn_or_acquire() as client:
+        client.lpush(self._q_for_pri(queue, pri), dumps(message))
+</code></pre>
+<p><u>redis怎么区别不同的queue？</u></p>
+<p>实际是每个 queue 被赋予一个字符串 name，这个 name 就是 redis 对应的 list 的 key。知道应该向哪个 list 放消息，后续就是向此 list 中 lpush 消息。</p>
+<p>如下方法完成转换功能。</p>
+<pre><code class="language-python">def _q_for_pri(self, queue, pri):
+    pri = self.priority(pri)
+    if pri:
+        return f"{queue}{self.sep}{pri}"
+    return queue
+</code></pre>
+<p>现在发消息之后，redis内容如下，我们可以看出来，消息作为list 的item，放入到之中。</p>
+<pre><code class="language-python">127.0.0.1:6379&gt; lrange asynt_queue 0 -1
+1) "{\"body\": \"aGVsbG8gd29ybGQ=\", \"content-encoding\": \"utf-8\", \"content-type\": \"text/plain\", \"headers\": {}, \"properties\": {\"delivery_mode\": 2, \"delivery_info\": {\"exchange\": \"asynt_exchange\", \"routing_key\": \"asynt_routing_key\"}, \"priority\": 0, \"body_encoding\": \"base64\", \"delivery_tag\": \"df7af424-e1ab-4c08-84b5-1cd5c97ed25d\"}}"
+127.0.0.1:6379&gt; 
+</code></pre>
+<h2 id="0x05-总结">0x05 总结</h2>
+<p>现在我们总结如下：</p>
+<ul>
+<li>Producers: 发送消息的抽象类；</li>
+<li>Consumers：接受消息的抽象类，consumer需要声明一个queue，并将queue与指定的exchange绑定，然后从queue里面接收消息；</li>
+<li>Exchange：MQ 路由，消息发送者将消息发至Exchange，Exchange负责将消息分发至队列；</li>
+<li>Queue：对应的 queue 抽象，存储着即将被应用消费掉的消息，Exchange负责将消息分发Queue，消费者从Queue接收消息；</li>
+<li>Channel：与AMQP中概念类似，可以理解成共享一个Connection的多个轻量化连，就是真实redis连接；</li>
+</ul>
+<p>于是逻辑链已经形成，大约是这样的：</p>
+<ul>
+<li>Producer的publish方法接受参数Exchange，于是就发送消息到此Exchange；</li>
+<li>Producer调用channel的组装消息函数<code>prepare_message</code>为消息添加各种属性；</li>
+<li>Producer调用channel的发送消息basic_publish发送消息，此时使用了传入的参数exchange。</li>
+<li>basic_publish方法调用exchange.deliver(exchange, routing_key)来发送消息；</li>
+<li>Exchange中有成员变量Channel，也有成员变量Queues，每个queue对应一个routing_key；</li>
+<li>deliver使用_lookup方法依据key得到对应的queue；</li>
+<li>deliver使用Exchange成员变量Channel的_put方法来向queue中投放消息；</li>
+<li>Channel拿到自己的redis连接池，即client为<code>Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;</code>；于是可以基于此进行redis操作；</li>
+<li>redis怎么区别不同的queue，实际是每个queue被赋予一个字符串name，这就是redis对应的list的key;</li>
+<li>既然得到了名字为queue的list，则向此list中lpush消息。</li>
+<li>Consumer去Queue取消息；</li>
+</ul>
+<p>动态逻辑如下：</p>
+<pre><code class="language-python">       +------------+                        +------------+               +------------+      +-----------------------+
+       |  producer  |                        |  channel   |               |  exchange  |      | Redis&lt;ConnectionPool&gt; |
+       +---+--------+                        +----+-------+               +-------+----+      +----------+------------+
+           |                                      |                               |                      |
+           |                                      |                               |                      |
+publish('', exchange, routing_key)                |                               |                      |
+           |                                      |                               |                      |
+           |   prepare_message                    |                               |                      |
+           |                                      |                               |                      |
+           | +----------------------------------&gt; |                               |                      |
+           |                                      |                               |                      |
+           | basic_publish (exchange, routing_key)|                               |                      |
+           |                                      |                               |                      |
+           | +----------------------------------&gt; |                               |                      |
+           |                                      |                               |                      |
+           |                                      | deliver(exchange, routing_key)|                      |
+           |                                      |                               |                      |
+           |                                      +-----------------------------&gt; |                      |
+           |                                      |                               |                      |
+           |                                      |                               |                      |
+           |                                      |                _lookup(exchange, routing_key)        |
+           |                                      |                               |                      |
+           |                                      |                               |                      |
+           |                                      |    _put(queue, message)       |                      |
+           |                                      v                               |                      |
+           |                                      | &lt;---------------------------+ |                      |
+           |                                      |                               |                      |
+           |                                _q_for_pri(queue, pri)                |                      |
+           |                                      +                               |                      |
+           v                                      |                               |                      |
+           |                                      |     client.lpush              |                      |
+           |                                      | +--------------------------------------------------&gt; |
+           |                                      |                               |                      |
+           v                                      v                               v                      v
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227113354948-1436654532.png" alt="" loading="lazy"></p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://www.jianshu.com/p/5569173e2cb5" target="_blank">celery 7 优秀开源项目kombu源码分析之registry和entrypoint</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/42859874" target="_blank">放弃pika,选择kombu</a></p>
+<p><a href="https://blog.csdn.net/weixin_37947156/article/details/76374347" target="_blank">kombu消息框架&lt;二&gt;</a></p>
+<p><a href="https://blog.csdn.net/yujs20081002227/article/details/55667443" target="_blank">AMQP中的概念</a></p>
+<p><a href="https://blog.csdn.net/chengqiuming/article/details/80542025" target="_blank">AMQP的基本概念</a></p>
+<p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank">深入理解AMQP协议</a></p>
+<p><a href="https://gtcsq.readthedocs.io/en/latest/openstack/kombu.html" target="_blank">kombu和消息队列总结</a></p>
+<p><a href="https://blog.csdn.net/wangbowj123/article/details/77885294" target="_blank">关于epoll版服务器的理解（Python实现）</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-03-12 22:27</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">123</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14455186" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14455186);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14455186, cb_entryCreatedDate = '2021-03-12 22:27', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjvLG2cacRjXUdvNjJ_aAvwwaA66qdGWWlOhuGQvC-nN2DdPu5BRc9LS4LMgxqIw8cbp_m447-8FJasuoBDTIOv9aeoVoK6TxneF3ZmqVzK88f3YZl4sko9P90WgCsqVRKI" />
+</body>
+</html>

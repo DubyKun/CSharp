@@ -1,0 +1,790 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。Celery 是调用其Worker 组件来完成具体任务处理。本文我们讲解worker的" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。Celery 是调用其Worker 组件来完成具体任务处理。本文我们讲解worker的" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码解析] 并行分布式框架 Celery 之 worker 启动 (1) - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-03-29 09:27';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14563763.html">
+    <span>[源码解析] 并行分布式框架 Celery 之 worker 启动 (1)</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。Celery 是调用其Worker 组件来完成具体任务处理。本文我们讲解worker的启动过程。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码解析-并行分布式框架-celery-之-worker-启动-1">[源码解析] 并行分布式框架 Celery 之 worker 启动 (1)</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码解析-并行分布式框架-celery-之-worker-启动-1">[源码解析] 并行分布式框架 Celery 之 worker 启动 (1)</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-celery的架构">0x01 Celery的架构</a></li><li><a href="#0x02-示例代码">0x02 示例代码</a></li><li><a href="#0x03-逻辑概述">0x03 逻辑概述</a></li><li><a href="#0x04-celery应用">0x04 Celery应用</a><ul><li><a href="#41-添加子command">4.1 添加子command</a></li><li><a href="#42-入口点">4.2 入口点</a></li><li><a href="#43-缓存属性cached_property">4.3 缓存属性cached_property</a></li></ul></li><li><a href="#0x05-celery-命令">0x05 Celery 命令</a></li><li><a href="#0x06-worker-子命令">0x06 worker 子命令</a></li><li><a href="#0x07-worker-application">0x07 Worker application</a></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。Celery 是调用其Worker 组件来完成具体任务处理。</p>
+<pre><code class="language-shell">$ celery --app=proj worker -l INFO
+$ celery -A proj worker -l INFO -Q hipri,lopri
+$ celery -A proj worker --concurrency=4
+$ celery -A proj worker --concurrency=1000 -P eventlet
+$ celery worker --autoscale=10,0
+</code></pre>
+<p>所以我们本文就来讲解 worker 的启动过程。</p>
+<h2 id="0x01-celery的架构">0x01 Celery的架构</h2>
+<p>前面我们用几篇文章分析了 Kombu，为 Celery 的分析打下了基础。</p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455431.html" target="_blank">源码分析] 消息队列 Kombu 之 mailbox</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455294.html" target="_blank">源码分析] 消息队列 Kombu 之 Hub</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455093.html" target="_blank">源码分析] 消息队列 Kombu 之 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455186.html" target="_blank">源码分析] 消息队列 Kombu 之 Producer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454934.html" target="_blank">源码分析] 消息队列 Kombu 之 启动过程</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454761.html" target="_blank">源码解析] 消息队列 Kombu 之 基本架构</a></p>
+<p>以及</p>
+<p><a href="https://www.cnblogs.com/rossiXYZ/p/14562308.html" target="_blank">源码解析 并行分布式框架 Celery 之架构 (2)</a></p>
+<p><a href="https://www.cnblogs.com/rossiXYZ/p/14562310.html" target="_blank">[源码解析] 并行分布式框架 Celery 之架构 (2)</a></p>
+<p>下面我们再回顾下 Celery 的结构。Celery的架构图如下所示：</p>
+<pre><code class="language-python"> +-----------+            +--------------+
+ | Producer  |            |  Celery Beat |
+ +-------+---+            +----+---------+
+         |                     |
+         |                     |
+         v                     v
+
+       +-------------------------+
+       |          Broker         |
+       +------------+------------+
+                    |
+                    |
+                    |
+     +-------------------------------+
+     |              |                |
+     v              v                v
++----+-----+   +----+------+   +-----+----+
+| Exchange |   |  Exchange |   | Exchange |
++----+-----+   +----+------+   +----+-----+
+     |              |               |
+     v              v               v
+
+  +-----+       +-------+       +-------+
+  |queue|       | queue |       | queue |
+  +--+--+       +---+---+       +---+---+
+     |              |               |
+     |              |               |
+     v              v               v
+
++---------+     +--------+     +----------+
+| worker  |     | Worker |     |  Worker  |
++-----+---+     +---+----+     +----+-----+
+      |             |               |
+      |             |               |
+      +-----------------------------+
+                    |
+                    |
+                    v
+                +---+-----+
+                | backend |
+                +---------+
+
+</code></pre>
+<h2 id="0x02-示例代码">0x02 示例代码</h2>
+<p>其实网上难以找到调试Celery worker的办法。我们可以去其源码看看，发现如下：</p>
+<pre><code class="language-python"># def test_worker_main(self):
+#     from celery.bin import worker as worker_bin
+#
+#     class worker(worker_bin.worker):
+#
+#         def execute_from_commandline(self, argv):
+#             return argv
+#
+#     prev, worker_bin.worker = worker_bin.worker, worker
+#     try:
+#         ret = self.app.worker_main(argv=['--version'])
+#         assert ret == ['--version']
+#     finally:
+#         worker_bin.worker = prev
+</code></pre>
+<p>所以我们可以模仿来进行，使用如下启动worker，进行调试。</p>
+<pre><code class="language-python">from celery import Celery
+
+app = Celery('tasks', broker='redis://localhost:6379')
+
+@app.task()
+def add(x, y):
+    return x + y
+
+if __name__ == '__main__':
+    app.worker_main(argv=['worker'])
+</code></pre>
+<h2 id="0x03-逻辑概述">0x03 逻辑概述</h2>
+<p>当启动一个worker的时候，这个worker会与broker建立链接（tcp长链接），然后如果有数据传输，则会创建相应的channel, 这个连接可以有多个channel。然后，worker就会去borker的队列里面取相应的task来进行消费了，这也是典型的消费者生产者模式。</p>
+<p>这个worker主要是有四部分组成的，task_pool, consumer, scheduler, mediator。其中，task_pool主要是用来存放的是一些worker，当启动了一个worker,并且提供并发参数的时候，会将一些worker放在这里面。</p>
+<p>celery默认的并发方式是prefork，也就是多进程的方式，这里只是celery对multiprocessing pool进行了轻量的改造，然后给了一个新的名字叫做prefork，这个pool与多进程的进程池的区别就是这个task_pool只是存放一些运行的worker。</p>
+<p>consumer也就是消费者，主要是从broker那里接受一些message，然后将message转化为<code>celery.worker.request.Request</code> 的一个实例。</p>
+<p>Celery 在适当的时候，会把这个请求包装进Task中，Task就是用装饰器app_celery.task()装饰的函数所生成的类，所以可以在自定义的任务函数中使用这个请求参数，获取一些关键的信息。此时，已经了解了task_pool和consumer。</p>
+<p>接下来，这个worker具有两套数据结构，这两套数据结构是并行运行的，他们分别是 'ET时刻表' 、就绪队列。</p>
+<p>就绪队列：那些 立刻就需要运行的task, 这些task到达worker的时候会被放到这个就绪队列中等待consumer执行。</p>
+<p><u>我们下面看看如何启动Celery</u>。</p>
+<h2 id="0x04-celery应用">0x04 Celery应用</h2>
+<p>程序首先会来到Celery类，这是Celery的应用。</p>
+<p>可以看到主要就是：各种类名称，TLS， 初始化之后的各种signal。</p>
+<p>位置在：celery/app/base.py，其定义如下：</p>
+<pre><code class="language-python">class Celery:
+    """Celery application."""
+
+    amqp_cls = 'celery.app.amqp:AMQP'
+    backend_cls = None
+    events_cls = 'celery.app.events:Events'
+    loader_cls = None
+    log_cls = 'celery.app.log:Logging'
+    control_cls = 'celery.app.control:Control'
+    task_cls = 'celery.app.task:Task'
+    registry_cls = 'celery.app.registry:TaskRegistry'
+
+    #: Thread local storage.
+    _local = None
+    _fixups = None
+    _pool = None
+    _conf = None
+    _after_fork_registered = False
+
+    #: Signal sent when app is loading configuration.
+    on_configure = None
+
+    #: Signal sent after app has prepared the configuration.
+    on_after_configure = None
+
+    #: Signal sent after app has been finalized.
+    on_after_finalize = None
+
+    #: Signal sent by every new process after fork.
+    on_after_fork = None
+</code></pre>
+<p>对于我们的示例代码，入口是：</p>
+<pre><code class="language-python">def worker_main(self, argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    if 'worker' not in argv:
+        raise ValueError(
+            "The worker sub-command must be specified in argv.\n"
+            "Use app.start() to programmatically start other commands."
+        )
+
+    self.start(argv=argv)
+</code></pre>
+<h3 id="41-添加子command">4.1 添加子command</h3>
+<p>celery/bin/celery.py 会进行添加 子command，我们可以看出来。</p>
+<p><u>这些 Commnd 是可以在命令行作为子命令直接使用的</u>。</p>
+<pre><code class="language-python">celery.add_command(purge)
+celery.add_command(call)
+celery.add_command(beat)
+celery.add_command(list_)
+celery.add_command(result)
+celery.add_command(migrate)
+celery.add_command(status)
+celery.add_command(worker)
+celery.add_command(events)
+celery.add_command(inspect)
+celery.add_command(control)
+celery.add_command(graph)
+celery.add_command(upgrade)
+celery.add_command(logtool)
+celery.add_command(amqp)
+celery.add_command(shell)
+celery.add_command(multi)
+</code></pre>
+<p>每一个都是command。我们以worker为例，具体如下：</p>
+<pre><code class="language-python">worker = {CeleryDaemonCommand} &lt;CeleryDaemonCommand worker&gt;
+ add_help_option = {bool} True
+ allow_extra_args = {bool} False
+ allow_interspersed_args = {bool} True
+ context_settings = {dict: 1} {'allow_extra_args': True}
+ epilog = {NoneType} None
+ name = {str} 'worker'
+ options_metavar = {str} '[OPTIONS]'
+ params = {list: 32} [&lt;CeleryOption hostname&gt;, ...... , &lt;CeleryOption executable&gt;]
+</code></pre>
+<h3 id="42-入口点">4.2 入口点</h3>
+<p>然后会引入Celery 命令入口点 Celery。</p>
+<pre><code class="language-python">def start(self, argv=None):
+    from celery.bin.celery import celery
+
+    celery.params[0].default = self
+
+    try:
+        celery.main(args=argv, standalone_mode=False)
+    except Exit as e:
+        return e.exit_code
+    finally:
+        celery.params[0].default = None
+</code></pre>
+<h3 id="43-缓存属性cached_property">4.3 缓存属性cached_property</h3>
+<p><u>Celery 中，大量的成员变量是被cached_property修饰的</u>。</p>
+<p>使用 cached_property修饰过的函数，就变成是对象的属性，该对象第一次引用该属性时，会调用函数，对象第二次引用该属性时就直接从词典中取了，即 Caches the return value of the get method on first call。</p>
+<p>很多知名Python项目都自己实现过 cached_property，比如Werkzeug，Django。</p>
+<p>因为太有用，所以 Python 3.8 给 functools 模块添加了 cached_property 类，这样就有了官方的实现。</p>
+<p>Celery 的代码举例如下：</p>
+<pre><code class="language-python">    @cached_property
+    def Worker(self):
+        """Worker application.
+        """
+        return self.subclass_with_self('celery.apps.worker:Worker')
+
+    @cached_property
+    def Task(self):
+        """Base task class for this app."""
+        return self.create_task_cls()
+
+    @property
+    def pool(self):
+        """Broker connection pool: :class:`~@pool`.
+        """
+        if self._pool is None:
+            self._ensure_after_fork()
+            limit = self.conf.broker_pool_limit
+            pools.set_limit(limit)
+            self._pool = pools.connections[self.connection_for_write()]
+        return self._pool
+</code></pre>
+<p>所以，最终，Celery的内容应该是这样的：</p>
+<pre><code class="language-python">app = {Celery} &lt;Celery tasks at 0x7fb8e1538400&gt;
+ AsyncResult = {type} &lt;class 'celery.result.AsyncResult'&gt;
+ Beat = {type} &lt;class 'celery.apps.beat.Beat'&gt;
+ GroupResult = {type} &lt;class 'celery.result.GroupResult'&gt;
+ Pickler = {type} &lt;class 'celery.app.utils.AppPickler'&gt;
+ ResultSet = {type} &lt;class 'celery.result.ResultSet'&gt;
+ Task = {type} &lt;class 'celery.app.task.Task'&gt;
+ WorkController = {type} &lt;class 'celery.worker.worker.WorkController'&gt;
+ Worker = {type} &lt;class 'celery.apps.worker.Worker'&gt;
+ amqp = {AMQP} &lt;celery.app.amqp.AMQP object at 0x7fb8e2444860&gt;
+ annotations = {tuple: 0} ()
+ autofinalize = {bool} True
+ backend = {DisabledBackend} &lt;celery.backends.base.DisabledBackend object at 0x7fb8e25fd668&gt;
+ builtin_fixups = {set: 1} {'celery.fixups.django:fixup'}
+ clock = {LamportClock} 1
+ conf = {Settings: 163} Settings({'broker_url': 'redis://localhost:6379', 'deprecated_settings': set(), 'cache_...
+ configured = {bool} True
+ control = {Control} &lt;celery.app.control.Control object at 0x7fb8e2585f98&gt;
+ current_task = {NoneType} None
+ current_worker_task = {NoneType} None
+ events = {Events} &lt;celery.app.events.Events object at 0x7fb8e25ecb70&gt;
+ loader = {AppLoader} &lt;celery.loaders.app.AppLoader object at 0x7fb8e237a4a8&gt;
+ main = {str} 'tasks'
+ on_after_configure = {Signal} &lt;Signal: app.on_after_configure providing_args={'source'}&gt;
+ on_after_finalize = {Signal} &lt;Signal: app.on_after_finalize providing_args=set()&gt;
+ on_after_fork = {Signal} &lt;Signal: app.on_after_fork providing_args=set()&gt;
+ on_configure = {Signal} &lt;Signal: app.on_configure providing_args=set()&gt;
+ pool = {ConnectionPool} &lt;kombu.connection.ConnectionPool object at 0x7fb8e26e9e80&gt;
+ producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x7fb8e26f02b0&gt;
+ registry_cls = {type} &lt;class 'celery.app.registry.TaskRegistry'&gt;
+ set_as_current = {bool} True
+ steps = {defaultdict: 2} defaultdict(&lt;class 'set'&gt;, {'worker': set(), 'consumer': set()})
+ tasks = {TaskRegistry: 10} {'celery.chain': &lt;@task: celery.chain of tasks at 0x7fb8e1538400&gt;, 'celery.starmap': &lt;@task: celery.starmap of tasks at 0x7fb8e1538400&gt;, 'celery.chord': &lt;@task: celery.chord of tasks at 0x7fb8e1538400&gt;, 'celery.backend_cleanup': &lt;@task: celery.backend_clea
+ user_options = {defaultdict: 0} defaultdict(&lt;class 'set'&gt;, {})
+</code></pre>
+<p>具体部分成员变量举例如下图：</p>
+<pre><code class="language-python">+---------------------------------------+
+|  Celery                               |
+|                                       |
+|                              Beat+-----------&gt; celery.apps.beat.Beat
+|                                       |
+|                              Task+-----------&gt; celery.app.task.Task
+|                                       |
+|                     WorkController+----------&gt; celery.worker.worker.WorkController
+|                                       |
+|                            Worker+-----------&gt; celery.apps.worker.Worker
+|                                       |
+|                              amqp +----------&gt; celery.app.amqp.AMQP
+|                                       |
+|                           control +----------&gt; celery.app.control.Control
+|                                       |
+|                            events  +---------&gt; celery.app.events.Events
+|                                       |
+|                            loader +----------&gt; celery.loaders.app.AppLoader
+|                                       |
+|                              pool +----------&gt; kombu.connection.ConnectionPool
+|                                       |
+|                     producer_pool +----------&gt; kombu.pools.ProducerPool
+|                                       |
+|                             tasks +----------&gt; TaskRegistry
+|                                       |
+|                                       |
++---------------------------------------+
+</code></pre>
+<h2 id="0x05-celery-命令">0x05 Celery 命令</h2>
+<p>Celery的命令<u>总入口为celery方法</u>，具体在：celery/bin/celery.py。</p>
+<p>代码缩减版如下：</p>
+<pre><code class="language-python">@click.pass_context
+def celery(ctx, app, broker, result_backend, loader, config, workdir,
+           no_color, quiet, version):
+    """Celery command entrypoint."""
+
+    if loader:
+        # Default app takes loader from this env (Issue #1066).
+        os.environ['CELERY_LOADER'] = loader
+    if broker:
+        os.environ['CELERY_BROKER_URL'] = broker
+    if result_backend:
+        os.environ['CELERY_RESULT_BACKEND'] = result_backend
+    if config:
+        os.environ['CELERY_CONFIG_MODULE'] = config
+    ctx.obj = CLIContext(app=app, no_color=no_color, workdir=workdir,
+                         quiet=quiet)
+
+    # User options
+    worker.params.extend(ctx.obj.app.user_options.get('worker', []))
+    beat.params.extend(ctx.obj.app.user_options.get('beat', []))
+    events.params.extend(ctx.obj.app.user_options.get('events', []))
+
+    for command in celery.commands.values():
+        command.params.extend(ctx.obj.app.user_options.get('preload', []))
+</code></pre>
+<p>在方法中，会遍历celery.commands，拓展param，具体如下。这些 commands 就是之前刚刚提到的子Command：</p>
+<pre><code class="language-python">celery.commands = 
+ 'report' = {CeleryCommand} &lt;CeleryCommand report&gt;
+ 'purge' = {CeleryCommand} &lt;CeleryCommand purge&gt;
+ 'call' = {CeleryCommand} &lt;CeleryCommand call&gt;
+ 'beat' = {CeleryDaemonCommand} &lt;CeleryDaemonCommand beat&gt;
+ 'list' = {Group} &lt;Group list&gt;
+ 'result' = {CeleryCommand} &lt;CeleryCommand result&gt;
+ 'migrate' = {CeleryCommand} &lt;CeleryCommand migrate&gt;
+ 'status' = {CeleryCommand} &lt;CeleryCommand status&gt;
+ 'worker' = {CeleryDaemonCommand} &lt;CeleryDaemonCommand worker&gt;
+ 'events' = {CeleryDaemonCommand} &lt;CeleryDaemonCommand events&gt;
+ 'inspect' = {CeleryCommand} &lt;CeleryCommand inspect&gt;
+ 'control' = {CeleryCommand} &lt;CeleryCommand control&gt;
+ 'graph' = {Group} &lt;Group graph&gt;
+ 'upgrade' = {Group} &lt;Group upgrade&gt;
+ 'logtool' = {Group} &lt;Group logtool&gt;
+ 'amqp' = {Group} &lt;Group amqp&gt;
+ 'shell' = {CeleryCommand} &lt;CeleryCommand shell&gt;
+ 'multi' = {CeleryCommand} &lt;CeleryCommand multi&gt;
+</code></pre>
+<h2 id="0x06-worker-子命令">0x06 worker 子命令</h2>
+<p>Work子命令是 Command 总命令的一员，也是我们直接在命令行加入 worker 参数时候，调用到的子命令。</p>
+<pre><code class="language-python">$ celery -A proj worker -l INFO -Q hipri,lopri
+</code></pre>
+<p>worker 子命令继承了click.BaseCommand，为<celerydaemoncommand worker="">。</celerydaemoncommand></p>
+<p>定义在celery/bin/worker.py。</p>
+<p>因此如下代码<u>间接调用到</u> worker 命令：</p>
+<pre><code class="language-python">celery.main(args=argv, standalone_mode=False)
+</code></pre>
+<p>定义如下：</p>
+<pre><code class="language-python">def worker(ctx, hostname=None, pool_cls=None, app=None, uid=None, gid=None,
+           loglevel=None, logfile=None, pidfile=None, statedb=None,
+           **kwargs):
+    """Start worker instance.
+
+    Examples
+    --------
+    $ celery --app=proj worker -l INFO
+    $ celery -A proj worker -l INFO -Q hipri,lopri
+    $ celery -A proj worker --concurrency=4
+    $ celery -A proj worker --concurrency=1000 -P eventlet
+    $ celery worker --autoscale=10,0
+
+    """
+    app = ctx.obj.app
+    maybe_drop_privileges(uid=uid, gid=gid)
+    worker = app.Worker(
+        hostname=hostname, pool_cls=pool_cls, loglevel=loglevel,
+        logfile=logfile,  # node format handled by celery.app.log.setup
+        pidfile=node_format(pidfile, hostname),
+        statedb=node_format(statedb, hostname),
+        no_color=ctx.obj.no_color,
+        **kwargs)
+    worker.start()
+    return worker.exitcode
+</code></pre>
+<p>此时流程如下图，可以看到，从 Celery 应用就进入到了具体的 worker 命令：</p>
+<pre><code class="language-python">      +----------+
+      |   User   |
+      +----+-----+
+           |
+           |  worker_main
+           |
+           v
+ +---------+------------+
+ |        Celery        |
+ |                      |
+ |  Celery application  |
+ |  celery/app/base.py  |
+ |                      |
+ +---------+------------+
+           |
+           |  celery.main
+           |
+           v
+ +---------+------------+
+ |  @click.pass_context |
+ |       celery         |
+ |                      |
+ |                      |
+ |    CeleryCommand     |
+ | celery/bin/celery.py |
+ |                      |
+ +---------+------------+
+           |
+           |
+           |
+           v
++----------+------------+
+|   @click.pass_context |
+|        worker         |
+|                       |
+|                       |
+|     WorkerCommand     |
+| celery/bin/worker.py  |
++-----------------------+
+</code></pre>
+<h2 id="0x07-worker-application">0x07 Worker application</h2>
+<p>此时在该函数中会实例化app的Worker，<u>Worker application 就是 worker 的实例</u>。<u>此时的app就是前面定义的Celery类的实例app</u>。</p>
+<p>定义在：celery/app/base.py。</p>
+<pre><code class="language-python">@cached_property
+def Worker(self):
+    """Worker application.
+
+    See Also:
+        :class:`~@Worker`.
+    """
+    return self.subclass_with_self('celery.apps.worker:Worker')
+</code></pre>
+<p>此时subclass_with_self利用了Python的type动态生成类实例的属性。</p>
+<pre><code class="language-python">def subclass_with_self(self, Class, name=None, attribute='app',
+                       reverse=None, keep_reduce=False, **kw):
+    """Subclass an app-compatible class.
+    """
+    Class = symbol_by_name(Class)                               # 导入该类
+    reverse = reverse if reverse else Class.__name__            # 判断是否传入值，如没有则使用类的名称
+
+    def __reduce__(self):                                       # 定义的方法 该方法在pickle过程中会被调用
+        return _unpickle_appattr, (reverse, self.__reduce_args__()) 
+
+    attrs = dict(
+        {attribute: self},                                      # 默认设置app的值为self
+        __module__=Class.__module__,    
+        __doc__=Class.__doc__,
+        **kw)                                                   # 填充属性
+    if not keep_reduce:                                         
+        attrs['__reduce__'] = __reduce__                        # 如果默认则生成的类设置__reduce__方法
+
+    return type(bytes_if_py2(name or Class.__name__), (Class,), attrs) # 利用type实诚类实例
+
+</code></pre>
+<p><u>此时就已经从 worker 命令 得到了一个celery.apps.worker:Worker的实例，然后调用该实例的start方法</u>，此时首先分析一下Worker类的实例化的过程。</p>
+<p>我们先回顾下：</p>
+<p>我们的执行从 worker_main 这个程序入口，来到了 Celery 应用。然后进入了 Celery Command，然后又进入到了 Worker 子Command，具体如下图。</p>
+<pre><code class="language-python">                                     +----------------------+
+      +----------+                   |  @cached_property    |
+      |   User   |                   |      Worker          |
+      +----+-----+            +---&gt;  |                      |
+           |                  |      |                      |
+           |  worker_main     |      |  Worker application  |
+           |                  |      |  celery/app/base.py  |
+           v                  |      +----------------------+
+ +---------+------------+     |
+ |        Celery        |     |
+ |                      |     |
+ |  Celery application  |     |
+ |  celery/app/base.py  |     |
+ |                      |     |
+ +---------+------------+     |
+           |                  |
+           |  celery.main     |
+           |                  |
+           v                  |
+ +---------+------------+     |
+ |  @click.pass_context |     |
+ |       celery         |     |
+ |                      |     |
+ |                      |     |
+ |    CeleryCommand     |     |
+ | celery/bin/celery.py |     |
+ |                      |     |
+ +---------+------------+     |
+           |                  |
+           |                  |
+           |                  |
+           v                  |
++----------+------------+     |
+|   @click.pass_context |     |
+|        worker         |     |
+|                       |     |
+|                       |     |
+|     WorkerCommand     |     |
+| celery/bin/worker.py  |     |
++-----------+-----------+     |
+            |                 |
+            +-----------------+
+
+</code></pre>
+<p>下面就会正式进入 worker，Celery 把 worker 的正式逻辑成为  work as a program。</p>
+<p>我们在下文将接下来继续看后续 work as a program 的启动过程。</p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/56416240" target="_blank">Celery 源码学习（二）多进程模型</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/80236325" target="_blank">celery原理初探</a></p>
+<p><a href="https://blog.csdn.net/qq_33339479/article/details/80952932" target="_blank">celery源码分析-wroker初始化分析(上)</a></p>
+<p><a href="https://blog.csdn.net/qq_33339479/article/details/80958059" target="_blank">celery源码分析-worker初始化分析（下）</a></p>
+<p><a href="https://blog.csdn.net/Victor_Monkey/article/details/105808218" target="_blank">celery worker初始化--DAG实现</a></p>
+<p><a href="https://www.cnblogs.com/yangjian319/p/9097171.html" target="_blank">python celery多worker、多队列、定时任务</a></p>
+<p><a href="https://blog.csdn.net/hpulfc/article/details/79481245" target="_blank">celery 详细教程-- Worker篇</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/22304455" target="_blank">使用Celery</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow" target="_blank">Celery 源码解析一：Worker 启动流程概述</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-execute-engine" target="_blank">Celery 源码解析二：Worker 的执行引擎</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement" target="_blank">Celery 源码解析三：Task 对象的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-scheduler-task-implements" target="_blank">Celery 源码解析四：定时任务的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control" target="_blank">Celery 源码解析五：远程控制管理</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-event-implemention" target="_blank">Celery 源码解析六：Events 的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-interact-between-workers" target="_blank">Celery 源码解析七：Worker 之间的交互</a></p>
+<p><a href="https://liqiang.io/post/state-and-result-implement-in-celery" target="_blank">Celery 源码解析八：State 和 Result</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-03-29 21:27</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">232</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14563763" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14563763);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14563763, cb_entryCreatedDate = '2021-03-29 21:27', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjsrZQdANTNl1HbvbfbFsy6Lr_jehGqrGJi946xJ77khNAT_C0XpSCJzDNH8wTTqTeiDcPwcfMraT8xyOwpoDwKO7kA0P9iAYZrawkyqV2LWWZhtiqD1s54z-EgI9RypEp0" />
+</body>
+</html>

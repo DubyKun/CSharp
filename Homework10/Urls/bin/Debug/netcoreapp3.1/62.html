@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="大家好，我是白泽。通过上篇的学习，我们实现了一个简单的基于角色验证的小demo，但是不足之处在于用户和角色的信息我们写死在了内存中，而实际项目中必然是写在数据库里的，但是在将数据存入数据库之前，为了让" />
+    <meta property="og:description" content="大家好，我是白泽。通过上篇的学习，我们实现了一个简单的基于角色验证的小demo，但是不足之处在于用户和角色的信息我们写死在了内存中，而实际项目中必然是写在数据库里的，但是在将数据存入数据库之前，为了让" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Spring Security极简入门三部曲（中篇） - 白泽来了 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/sea/bundle-sea.min.css?v=oF2SvRIFQNTLcLgn66nPy-bOeZ-5NDS8tPrc0Kt42ys" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/YLTFY1998/custom.css?v=b/indDXbz9z26FICFYNAZ&#x2B;&#x2B;b6p4=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/sea/bundle-sea-mobile.min.css?v=t5pWHm7Zavhfg65859uF8OmEaotpCjyYSbKN5RbMv6E" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/YLTFY1998/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/YLTFY1998/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/YLTFY1998/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 530342;
+        var currentBlogApp = 'YLTFY1998';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'sea';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 03:51';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="header">
+	
+<!--done-->
+<div class="header">
+	<div class="headerText">
+		<a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/YLTFY1998/">白泽来了</a>
+<br>
+		学生党，尚在追求技术的道路上努力
+	</div>
+</div>
+
+
+</div>
+
+<div id="mytopmenu">
+	
+		<div id="mylinks">
+<a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+ &nbsp;
+
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/YLTFY1998/">
+首页</a>
+ &nbsp;
+
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+ &nbsp;
+
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%99%BD%E6%B3%BD%E6%9D%A5%E4%BA%86">
+联系</a> &nbsp;
+
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/YLTFY1998/rss/">
+订阅</a>
+<a id="blog_nav_rss_image" href="https://www.cnblogs.com/YLTFY1998/rss/">
+    <img src="/skins/sea/images/xml.gif" alt="订阅" />
+</a>&nbsp;
+
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+
+
+</div>
+		<DIV id="mystats"><div id="blog_stats_place_holder"><script>loadBlogStats();</script></div></DIV>
+	
+</div>
+<div id="centercontent">
+	<div id="post_detail">
+<div class="post">
+	<h1 class = "postTitle">
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14735497.html">
+    <span>Spring Security极简入门三部曲（中篇）</span>
+    
+
+
+
+</a>
+</h1>
+	    <div id="cnblogs_post_description" style="display: none">
+        大家好，我是白泽。通过上篇的学习，我们实现了一个简单的基于角色验证的小demo，但是不足之处在于用户和角色的信息我们写死在了内存中，而实际项目中必然是写在数据库里的，但是在将数据存入数据库之前，为了让你更深入理解Spring Security授权的验证流程，我需要为你介绍一些关键的接口和类（很遗憾这一部分无法完全避免），**如果你只想继续学习Spring Security的使用，直接跳到demo时刻部分吧！**
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#spring-security极简入门三部曲（中篇）">Spring Security极简入门三部曲（中篇）</a><ul><li><a href="#验证流程">验证流程</a></li><li><a href="#authentication接口">Authentication接口</a></li><li><a href="#过滤器链">过滤器链</a></li><li><a href="#authenticationprovider接口：">AuthenticationProvider接口：</a></li><li><a href="#demo时刻">demo时刻</a></li><li><a href="#代码讲解">代码讲解</a></li><li><a href="#小结">小结</a></li></ul></li></ul></div><p></p>
+<h2 id="spring-security极简入门三部曲（中篇）">Spring Security极简入门三部曲（中篇）</h2>
+<p>大家好，我是白泽。通过上篇的学习，我们实现了一个简单的基于角色验证的小demo，但是不足之处在于用户和角色的信息我们写死在了内存中，而实际项目中必然是写在数据库里的，但是在将数据存入数据库之前，为了让你更深入理解Spring Security授权的验证流程，我需要为你介绍一些关键的接口和类（很遗憾这一部分无法完全避免），<strong>如果你只想继续学习Spring Security的使用，直接跳到demo时刻部分吧！</strong></p>
+<h4 id="验证流程">验证流程</h4>
+<p><img src="https://img2020.cnblogs.com/blog/1754362/202105/1754362-20210506154940405-548586220.png" alt="" loading="lazy"></p>
+<h4 id="authentication接口">Authentication接口</h4>
+<p>用户<strong>在前端输入的登陆信息</strong>传入后台后将封装入一个Authentication接口的实现类，它作为认证和授权的对象穿过整个<strong>过滤器链</strong>，反过来我们也能从Authentication实现类中取出用户账户的相关信息（用户名、密码、获取的权限等） Authentication实现类的获取方法：SecurityContextHolder.getContext().getAuthentication()</p>
+<pre><code class="language-java">public interface Authentication extends Principal, Serializable {
+    Collection&lt;? extends GrantedAuthority&gt; getAuthorities();//返回一组已经分发的权限（角色）
+
+    Object getCredentials();	//返回凭证，即密码
+
+    Object getDetails();		
+
+    Object getPrincipal();		//返回身份信息，即用户名
+
+    boolean isAuthenticated();
+
+    void setAuthenticated(boolean var1) throws IllegalArgumentException;
+}
+</code></pre>
+<h4 id="过滤器链">过滤器链</h4>
+<p>Spring Security框架核心有一个ProviderManager类，点开它的源码，它有一个List<authenticationprovider> providers属性，这个List集合中就是存放着一个个AuthenticationProvider的实现类（定义了一个个权限验证的规则），这个List集合就组成了过滤器链</authenticationprovider></p>
+<p><img src="https://img2020.cnblogs.com/blog/1754362/202105/1754362-20210506154950233-1908021863.png" alt="" loading="lazy"></p>
+<p><img src="https://img2020.cnblogs.com/blog/1754362/202105/1754362-20210506154958822-1794625432.png" alt="" loading="lazy"></p>
+<h4 id="authenticationprovider接口：">AuthenticationProvider接口：</h4>
+<pre><code class="language-java">public interface AuthenticationProvider {
+    Authentication authenticate(Authentication var1) throws AuthenticationException;
+
+    boolean supports(Class&lt;?&gt; var1);
+}
+</code></pre>
+<p>上面提到，ProviderManager实例的providers属性存放了AuthenticationProvider接口的实现类集合，而AuthenticationProvider实现类就是实现权限验证流程的关键，<strong>它主要需要实现AuthenticationProvider接口的authenticate()方法，这个方法接收一个Authentication实例，返回一个Authentication实例</strong></p>
+<p>结合上面那张ProviderManager的图，你是不是就理解过滤器链是如何工作的了？（一开始就提到了用户登陆之后，将数据封装为一个Authentication实例，并由这个实例通过整个过滤器链进行验证，<strong>而此时AuthenticationProvider接口的实现类的authenticate()方法不就实现了接收一个Authentication实例，返回一个Authentication实例吗？一个个AuthenticationProvider实现类组合在一起就得到了链式的验证流程</strong>）</p>
+<h4 id="demo时刻">demo时刻</h4>
+<p>需要实现的功能：</p>
+<ol>
+<li>
+<p>demo2保留demo1的所有功能，<a href="https://github.com/BaiZe1998/spring-security-demo" target="_blank">github项目地址</a></p>
+</li>
+<li>
+<p>自定义一个验证器加入过滤器链（实现：当用户使用baize账户登陆时，无论密码是什么，都将获取USER和ADMIN权限）</p>
+</li>
+</ol>
+<h4 id="代码讲解">代码讲解</h4>
+<p>事实上我们只新建了AuthenticationProvider接口的实现类BaiZeAuthenticationProvider，去重写它的两个方法，自定义了一个验证器。并在SecurityConfiguration类中完成注入（相当于自定义过滤器加入过滤器链）</p>
+<pre><code class="language-java">@Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        //从authentication实例中获取用户名和密码（这个authentication实例贯穿流程始终）
+        String username = authentication.getName();
+        String password = authentication.getCredentials().toString();
+        if (username.equals("baize")) {
+            Collection&lt;GrantedAuthority&gt; authorities = new ArrayList&lt;&gt;();
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));  //ROLE_ADMIN写法是固定的
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));   //ROLE_USER写法是固定的
+            return new UsernamePasswordAuthenticationToken(username, password, authorities);
+        } else {
+            return null;
+        }
+    }
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/1754362/202105/1754362-20210506155014062-741906642.png" alt="" loading="lazy"></p>
+<h4 id="小结">小结</h4>
+<ol>
+<li>很抱歉我依旧没有为你讲解如何将用户、角色等数据存入数据库中，本节更多是介绍了Spring Security的验证流程，但相信你如果真的结合demo2学了下来，你的收获一定不小</li>
+<li>我们自定义了一个验证器并将其加入过滤器链使黑客baize账户获取两个权限并完成登陆</li>
+<li>白泽将在下一篇真正开始将数据存入数据库并构成第三个demo，敬请期待吧~</li>
+<li>欢迎评论区留言</li>
+</ol>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+	<div class="postDesc">posted on 
+<span id="post-date">2021-05-06 15:51</span>&nbsp;
+<a href="https://www.cnblogs.com/YLTFY1998/">白泽来了</a>&nbsp;
+阅读(<span id="post_view_count">75</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735497" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735497);return false;">收藏</a></div>
+</div>
+
+
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 530342, cb_blogApp = 'YLTFY1998', cb_blogUserGuid = '15fa3861-d887-4a89-7851-08d70e5da434';
+    var cb_entryId = 14735497, cb_entryCreatedDate = '2021-05-06 15:51', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+</div>
+
+
+</div>
+<div id="leftcontent">
+	
+		<DIV id="leftcontentcontainer">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                    <script>loadBlogDefaultCalendar();</script><br>
+			<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script></DIV>
+	
+</div>
+<!--done-->
+<div class="footer">
+	Powered by: <a href="http://www.cnblogs.com">博客园</a>
+	Copyright &copy; 2021 白泽来了
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+</div>
+
+
+
+
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAju52ZkGBsQ-RDa-MEDIPi2NbmQaF6TAwJcD3p3FSfywMfHVNbaY2rsOfLokUZCQ9zj1XdkP-kqOwQdXB3RJA0sZ-rpgaNSHbxQ7yySzJc8DuL2xut1D-PWiLTXET_BlAdY" />
+</body>
+</html>

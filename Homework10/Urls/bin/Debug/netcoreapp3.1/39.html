@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="引言 经过上一篇文章，我们已经可以在桌面上展示出一个小组件出来了，你肯定想小试牛刀，动手改一改，那我们就从改小组件的布局做起吧。本文不会讲解Swift语法，如果是熟悉Flutter，Kotlin这种语" />
+    <meta property="og:description" content="引言 经过上一篇文章，我们已经可以在桌面上展示出一个小组件出来了，你肯定想小试牛刀，动手改一改，那我们就从改小组件的布局做起吧。本文不会讲解Swift语法，如果是熟悉Flutter，Kotlin这种语" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>IOS Widget（3）：SwiftUI开发小组件布局入门 - popfisher - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/popfisher/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/popfisher/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/popfisher/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 249347;
+        var currentBlogApp = 'popfisher';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 07:22';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/popfisher/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/popfisher/">popfisher</a>
+</h1>
+<h2>hello world！技术重在点滴积累！</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/popfisher/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/popfisher">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/popfisher/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/popfisher/p/14736526.html">
+    <span>IOS Widget（3）：SwiftUI开发小组件布局入门</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h2 id="引言">引言</h2>
+<p>  经过上一篇文章，我们已经可以在桌面上展示出一个小组件出来了，你肯定想小试牛刀，动手改一改，那我们就从改小组件的布局做起吧。本文不会讲解Swift语法，如果是熟悉Flutter，Kotlin这种语言的，问题也不大。本文只讲解小组件中常用的SwiftUI组件。</p>
+<h2 id="本文大纲">本文大纲</h2>
+<ul>
+<li>小组件布局怎么区分组件型号：大中小</li>
+<li>常用基础组件 Text Image</li>
+<li>常用容器组件 ZStack VStack HStack</li>
+<li>常用属性：充满父布局 文字内部居中 等分剩余空间(Spacer)</li>
+</ul>
+<h2 id="小组件布局怎么区分组件型号：大中小">小组件布局怎么区分组件型号：大中小</h2>
+<pre><code>struct Widget1EntryView : View {
+&nbsp; &nbsp; // 这句代码能从上下文环境中取到小组件的型号
+&nbsp; &nbsp; @Environment(\.widgetFamily) var family
+&nbsp;&nbsp; &nbsp;
+&nbsp; &nbsp; // 组件数据
+&nbsp; &nbsp; var entry: Provider.Entry
+
+&nbsp; &nbsp; // 这个 body 中就是自己需要实现的组件布局
+&nbsp; &nbsp; var body: some View {
+&nbsp; &nbsp; &nbsp; &nbsp; switch family {
+&nbsp; &nbsp; &nbsp; &nbsp; case .systemSmall:&nbsp; // 小号
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Text(entry.date, style: .time)
+&nbsp; &nbsp; &nbsp; &nbsp; case .systemMedium: // 中号
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Text(entry.date, style: .time)
+&nbsp; &nbsp; &nbsp; &nbsp; case .systemLarge:&nbsp; // 大号
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Text(entry.date, style: .time)
+&nbsp; &nbsp; &nbsp; &nbsp; @unknown default:
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Text(entry.date, style: .time)
+&nbsp; &nbsp; &nbsp; &nbsp; }
+&nbsp; &nbsp; }
+}
+</code></pre>
+<h2 id="常用基础组件text使用">常用基础组件Text使用</h2>
+<pre><code>Text("普通文本")
+&nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+// Text以日期作为参数时可以有以下多种使用方式，参考官网定义
+// 重要：其中的.timer比较有用，可以用来做时钟的刷新
+/// A predefined style used to display a `Date`.
+public struct DateStyle {
+
+&nbsp; &nbsp; /// A style displaying only the time component for a date.
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// &nbsp; &nbsp; Text(event.startDate, style: .time)
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// Example output:
+&nbsp; &nbsp; /// &nbsp; &nbsp; 11:23PM
+&nbsp; &nbsp; public static let time: Text.DateStyle
+
+&nbsp; &nbsp; /// A style displaying a date.
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// &nbsp; &nbsp; Text(event.startDate, style: .date)
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// Example output:
+&nbsp; &nbsp; /// &nbsp; &nbsp; June 3, 2019
+&nbsp; &nbsp; public static let date: Text.DateStyle
+
+&nbsp; &nbsp; /// A style displaying a date as relative to now.
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// &nbsp; &nbsp; Text(event.startDate, style: .relative)
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// Example output:
+&nbsp; &nbsp; /// &nbsp; &nbsp; 2 hours, 23 minutes
+&nbsp; &nbsp; /// &nbsp; &nbsp; 1 year, 1 month
+&nbsp; &nbsp; public static let relative: Text.DateStyle
+
+&nbsp; &nbsp; /// A style displaying a date as offset from now.
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// &nbsp; &nbsp; Text(event.startDate, style: .offset)
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// Example output:
+&nbsp; &nbsp; /// &nbsp; &nbsp; +2 hours
+&nbsp; &nbsp; /// &nbsp; &nbsp; -3 months
+&nbsp; &nbsp; public static let offset: Text.DateStyle
+
+&nbsp; &nbsp; /// A style displaying a date as timer counting from now.
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// &nbsp; &nbsp; Text(event.startDate, style: .timer)
+&nbsp; &nbsp; ///
+&nbsp; &nbsp; /// Example output:
+&nbsp; &nbsp; ///&nbsp; &nbsp; 2:32
+&nbsp; &nbsp; ///&nbsp; &nbsp; 36:59:01
+&nbsp; &nbsp; public static let timer: Text.DateStyle
+}
+</code></pre>
+<p>IOS中的颜色RGB不是安卓的0-255，而是0-1，这里写了一个拓展函数支持十六进制颜色字符串</p>
+<pre><code>#if (arch(arm64) || arch(x86_64))
+
+import Foundation
+import SwiftUI
+
+@available(iOS 13.0, *)
+extension Color {
+&nbsp;&nbsp; &nbsp;
+&nbsp; &nbsp; //#ARGB
+&nbsp; &nbsp; init?(hexString: String) {
+&nbsp; &nbsp; &nbsp; &nbsp; var hex = hexString;
+&nbsp; &nbsp; &nbsp; &nbsp; guard hexString.starts(with: "#") else {
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return nil
+&nbsp; &nbsp; &nbsp; &nbsp; }
+&nbsp; &nbsp; &nbsp; &nbsp; hex.remove(at: hexString.startIndex)
+&nbsp; &nbsp; &nbsp; &nbsp; var value: UInt64 = 0
+&nbsp; &nbsp; &nbsp; &nbsp; Scanner(string: hex).scanHexInt64(&amp;value)
+
+&nbsp; &nbsp; &nbsp; &nbsp; var a = 0xFF / 255.0
+&nbsp; &nbsp; &nbsp; &nbsp; if hex.count &gt; 7 {
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; a = Double(value &gt;&gt; 24) / 255.0
+&nbsp; &nbsp; &nbsp; &nbsp; }
+&nbsp; &nbsp; &nbsp; &nbsp; let r = Double((value &amp; 0xFF0000) &gt;&gt; 16) / 255.0;
+&nbsp; &nbsp; &nbsp; &nbsp; let g = Double((value &amp; 0xFF00) &gt;&gt; 8) / 255.0;
+&nbsp; &nbsp; &nbsp; &nbsp; let b = Double(value &amp; 0xFF) / 255.0
+&nbsp; &nbsp; &nbsp; &nbsp; self.init(red: Double(r), green: Double(g), blue: Double(b))
+&nbsp; &nbsp; &nbsp; &nbsp; _ = self.opacity(Double(a))
+&nbsp; &nbsp; }
+}
+</code></pre>
+<h2 id="常用基础组件image使用">常用基础组件Image使用</h2>
+<pre><code>// 访问bundle中的资源
+Image("imageName")
+// 通过UIImage加载文件夹中的图片资源
+Image(uiImage: UIImage(contentsOfFile: "picPath") ?? UIImage())
+&nbsp; &nbsp; .resizable()
+&nbsp; &nbsp; .scaledToFill()
+&nbsp; &nbsp; .clipped()
+&nbsp; &nbsp; .colorMultiply(Color(hexString: config.textColor) ?? Color.white) // 重要：这个类似安卓中的colorFilter可以修改图片颜色
+&nbsp; &nbsp; .frame(width: 36, height: 36, alignment: .center)
+</code></pre>
+<h2 id="常用容器组件zstack使用，类似安卓里面的framelayout，可以重叠布局">常用容器组件ZStack使用，类似安卓里面的FrameLayout，可以重叠布局</h2>
+<pre><code>ZStack {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .time)
+}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506191755120-905696836.png" alt="" loading="lazy"></p>
+<h2 id="常用容器组件hstack使用，水平方向布局">常用容器组件HStack使用，水平方向布局</h2>
+<pre><code>HStack {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .time)
+}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506191812503-878772436.png" alt="" loading="lazy"></p>
+<h2 id="常用容器组件vstack使用，垂直方向布局">常用容器组件VStack使用，垂直方向布局</h2>
+<pre><code>VStack {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .time)
+}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506191822969-416967184.png" alt="" loading="lazy"></p>
+<h2 id="充满父布局怎么实现">充满父布局怎么实现</h2>
+<pre><code>.frame(maxWidth: .infinity, maxHeight: .infinity)
+VStack {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .time)
+}
+.frame(maxWidth: .infinity, maxHeight: .infinity)	// 充满父布局
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506192014663-1908205615.png" alt="" loading="lazy"> <img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506192025638-1522461423.png" alt="" loading="lazy"></p>
+<h2 id="文字内部居中multilinetextalignment">文字内部居中(multilineTextAlignment)</h2>
+<pre><code>.multilineTextAlignment(.center)
+VStack {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .timer)
+&nbsp; &nbsp; &nbsp; &nbsp; .multilineTextAlignment(.center)		// 让文字在Text内部居中
+&nbsp; &nbsp; &nbsp; &nbsp; .background(Color(hexString: "#FFFF00"))
+}
+.frame(maxWidth: .infinity, maxHeight: .infinity)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506192106141-1420085939.png" alt="" loading="lazy"></p>
+<h2 id="等分剩余空间（spacer）">等分剩余空间（Spacer）</h2>
+<pre><code>VStack {
+&nbsp; &nbsp; Spacer()
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Spacer()
+&nbsp; &nbsp; Text(entry.date, style: .timer)
+&nbsp; &nbsp; &nbsp; &nbsp; .multilineTextAlignment(.center)
+&nbsp; &nbsp; &nbsp; &nbsp; .background(Color(hexString: "#FFFF00"))
+&nbsp; &nbsp; Spacer()
+}
+.frame(maxWidth: .infinity, maxHeight: .infinity)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<p><img src="https://img2020.cnblogs.com/blog/823551/202105/823551-20210506192120180-1413267438.png" alt="" loading="lazy"></p>
+<h2 id="控制间距spacing">控制间距(spacing)</h2>
+<pre><code>VStack(spacing: 10) {
+&nbsp; &nbsp; Text("普通文本")
+&nbsp; &nbsp; &nbsp; &nbsp; .font(.system(size: 15))&nbsp; &nbsp; // 字体
+&nbsp; &nbsp; &nbsp; &nbsp; .foregroundColor(Color(hexString: "#FF0000"))
+&nbsp; &nbsp; Text(entry.date, style: .timer)
+&nbsp; &nbsp; &nbsp; &nbsp; .multilineTextAlignment(.center)
+&nbsp; &nbsp; &nbsp; &nbsp; .background(Color(hexString: "#FFFF00"))
+}
+.frame(maxWidth: .infinity, maxHeight: .infinity)
+.background(Color(hexString: "#00FFFF"))
+</code></pre>
+<h2 id="结语">结语</h2>
+<p>  关于小组件SwiftUI布局就讲这么多，入个门差不多了，另外，小组件并不能使用全部的SwiftUI控件，只能使用一些基本的控件，更多详情可以查看官网 <a href="https://developer.apple.com/documentation/widgetkit/swiftui-views" target="_blank">https://developer.apple.com/documentation/widgetkit/swiftui-views</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 19:22</span>&nbsp;
+<a href="https://www.cnblogs.com/popfisher/">popfisher</a>&nbsp;
+阅读(<span id="post_view_count">26</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736526" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736526);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 249347, cb_blogApp = 'popfisher', cb_blogUserGuid = '739d96b0-c573-e511-9fc1-ac853d9f53cc';
+    var cb_entryId = 14736526, cb_entryCreatedDate = '2021-05-06 19:22', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 popfisher
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjuSX0p5Th72IFAUYEeFidkCETxIs5pb92qLy6S4smS1XW_r3S3_P1Ro2mpQHqukD61qPShj2Q-G5f_uo9p_jBcC8opRJgw8ROzDFeSJA6EcYeuTS_pRI7xkByCXgW3L2ZY" />
+</body>
+</html>

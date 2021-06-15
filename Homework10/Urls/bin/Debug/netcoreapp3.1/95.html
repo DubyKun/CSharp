@@ -1,0 +1,901 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="大家好，我是小羽。 对于编程来说的话，只有掌握了算法才是了解了编程的灵魂，算法对于新手来说的话，属实有点难度，但是以后想有更好的发展，得到更好的进阶的话，对算法进行系统的学习是重中之重的。 对于 Ja" />
+    <meta property="og:description" content="大家好，我是小羽。 对于编程来说的话，只有掌握了算法才是了解了编程的灵魂，算法对于新手来说的话，属实有点难度，但是以后想有更好的发展，得到更好的进阶的话，对算法进行系统的学习是重中之重的。 对于 Ja" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>算法很美，听我讲完这些Java经典算法包你爱上她 - 浅羽技术 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/qianyueric/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/qianyueric/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/qianyueric/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 655084;
+        var currentBlogApp = 'qianyueric';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-04-16 10:41';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/qianyueric/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/qianyueric/">浅羽技术</a>
+</h1>
+<h2>微信搜索并关注「 浅羽的IT小屋 」微信公众号，我会在这里分享一些计算机信息知识、理论技术、工具资源、软件介绍、后端开发、面试、工作感想以及生活随想等一系列文章。</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/qianyueric/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%B5%85%E7%BE%BD%E6%8A%80%E6%9C%AF">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/qianyueric/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/qianyueric/p/14665910.html">
+    <span>算法很美，听我讲完这些Java经典算法包你爱上她</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        <img src="https://images.cnblogs.com/cnblogs_com/qianyueric/1958381/o_210416022202WechatIMG408.png" class="desc_img">对于编程来说，只有掌握了算法才是了解了编程的灵魂，算法对于新手来说的话，属实有点难度，以后想有更好的发展，得到更好的进阶，对算法进行系统的学习是重中之重的。小羽今天为大家介绍的是关于 Java 需要了解的一些经典算法，希望对大家能有所帮助
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<p><strong>大家好，我是小羽。</strong></p>
+<p>对于编程来说的话，只有掌握了算法才是了解了<strong>编程的灵魂</strong>，算法对于新手来说的话，属实有点难度，但是以后想有更好的发展，得到更好的进阶的话，对算法进行系统的学习是重中之重的。</p>
+<p>对于 Java 程序员来说，这一门后端语言只是我们的外功，我们更多的是学习它的语法，框架以及一些工具的使用。而算法才是我们真正的内功，它更多的是关注如何设计系统，如何编写高性能的代码，不断<strong>培养我们的思维能力</strong>，从而提升我们的工作效率。</p>
+<p>小羽今天为大家介绍的是关于 Java 中我们需要了解的一些经典算法，希望大家能从这些经典算法中，品尝到算法的美妙与奇特，对她产生兴趣，更好的为我们的职业发展助力前行。好了，开始进入我们的正文：</p>
+<h3 id="二分查找">二分查找</h3>
+<h4 id="简介">简介</h4>
+<p><em>基本思想</em>：又叫折半查找，要求待查找的序列<strong>有序</strong>，是一种快速查找算法，时间复杂度为 O(logn)，要求数据集为一个有序数据集。</p>
+<h4 id="使用">使用</h4>
+<p><em>应用场景</em>：一般用于<strong>查找数组</strong>元素，并且数组在查找之前必须已经排好序（一般是升序）。</p>
+<p><em>步骤</em>：</p>
+<p>1、取<strong>中间位置</strong>的值与待查关键字比较，如果中间位置的值比待查关键字大，则在前半部分循环这个查找的过程，</p>
+<p>2、如果中间位置的值比待查关键字小，则在后半部分循环这个查找的过程。</p>
+<p>3、直到<strong>查找到了</strong>为止，否则序列中没有待查的关键字。</p>
+<p><em>代码示例：</em></p>
+<pre><code class="language-java">public static int biSearch(int []array,int a){
+	int lo=0;
+	int hi=array.length-1;
+	int mid;
+	while(lo&lt;=hi){
+		mid=(lo+hi)/2;//中间位置
+		if(array[mid]==a){
+			return mid;
+		}else if(array[mid]&lt;a){ //向右查找
+			lo=mid+1;
+		}else{ //向左查找
+			hi=mid-1;
+		} 
+  }
+	return -1;
+}
+</code></pre>
+<h3 id="冒泡排序算法">冒泡排序算法</h3>
+<h4 id="简介-1">简介</h4>
+<p><em>基本思想</em>：比较<strong>前后相邻</strong>的两个数据，如果前面数据大于后面的数据，就将这二个数据交换。这样对数组的第 0 个数据到 N-1 个数据进行一次遍历后，最大的一个数据就“沉”到数组第 N-1 个位置。N=N-1，如果 N 不为 0 就重复前面二步，否则排序完成。</p>
+<h4 id="使用-1">使用</h4>
+<p><em>应用场景</em>：数据量不大，对稳定性有要求，且数据基本<strong>有序</strong>的情况。</p>
+<p><em>步骤</em>：</p>
+<p>1、将序列中所有元素两两比较，将最大的放在最后面。</p>
+<p>2、将剩余序列中所有元素两两比较，将最大的放在最后面。</p>
+<p>3、重复第二步，直到只剩下<strong>一个数</strong>。</p>
+<p><em>代码示例：</em></p>
+<pre><code class="language-java">public static void bubbleSort1(int [] a, int n){
+	int i, j;
+	for(i=0; i&lt;n; i++){//表示 n 次排序过程。
+		for(j=1; j&lt;n-i; j++){
+			if(a[j-1] &gt; a[j]){//前面的数字大于后面的数字就交换
+				//交换 a[j-1]和 a[j]
+				int temp;
+				temp = a[j-1];
+				a[j-1] = a[j];
+				a[j]=temp;
+			} 
+    }
+  }
+}
+</code></pre>
+<h3 id="插入排序算法">插入排序算法</h3>
+<h4 id="简介-2">简介</h4>
+<p><em>基本思想</em>：通过构建有序序列，对于未排序数据，在已排序序列中<strong>从后向前</strong>扫描，找到相应的位置并插入。</p>
+<h4 id="使用-2">使用</h4>
+<p><em>应用场景</em>：数据量不大，对算法的稳定性有要求，且数据<strong>局部或者整体</strong>有序的情况。</p>
+<p><em>步骤</em>：</p>
+<p>1、将第一待排序序列第一个元素看做一个有序序列，把第二个元素到最后一个元素当成是未排序序列。</p>
+<p>2、<strong>从头到尾</strong>依次扫描未排序序列，将扫描到的每个元素插入有序序列的适当位置。（如果待插入的元素与有序序列中的某个元素相等，则将待插入元素插入到相等元素的后面。）</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">public class InsertSort implements IArraySort {
+
+    @Override
+    public int[] sort(int[] sourceArray) throws Exception {
+        // 对 arr 进行拷贝，不改变参数内容
+        int[] arr = Arrays.copyOf(sourceArray, sourceArray.length);
+
+        // 从下标为1的元素开始选择合适的位置插入，因为下标为0的只有一个元素，默认是有序的
+        for (int i = 1; i &lt; arr.length; i++) {
+
+            // 记录要插入的数据
+            int tmp = arr[i];
+
+            // 从已经排序的序列最右边的开始比较，找到比其小的数
+            int j = i;
+            while (j &gt; 0 &amp;&amp; tmp &lt; arr[j - 1]) {
+                arr[j] = arr[j - 1];
+                j--;
+            }
+
+            // 存在比其小的数，插入
+            if (j != i) {
+                arr[j] = tmp;
+            }
+
+        }
+        return arr;
+    }
+}
+</code></pre>
+<h3 id="快速排序算法">快速排序算法</h3>
+<h4 id="简介-3">简介</h4>
+<p><em>基本思想</em>：选择一个关键值作为<strong>基准值</strong>。比基准值小的都在左边序列（一般是无序的），比基准值大的都在右边（一般是无序的）。一般选择序列的第一个元素。</p>
+<h4 id="使用-3">使用</h4>
+<p><em>应用场景</em>：<strong>数值</strong>范围较大，相同值的概率较小，数据量大且不考虑稳定性的情况，数值远大于数据量时威力更大。</p>
+<p><em>步骤</em>：</p>
+<p>1、一次循环，<strong>从后往前</strong>比较，用基准值和最后一个值比较，如果比基准值小的交换位置，如果没有继续比较下一个，直到找到第一个比基准值小的值才交换。</p>
+<p>2、找到这个值之后，又<strong>从前往后</strong>开始比较，如果有比基准值大的，交换位置，如果没有继续比较下一个，直到找到第一个比基准值大的值才交换。</p>
+<p>3、直到从前往后的比较索引 <code>&gt;</code> 从后往前比较的索引，结束第一次循环，此时，对于<strong>基准值</strong>来说，左右两边就是有序的了。</p>
+<p><em>代码示例：</em></p>
+<pre><code class="language-java">public void sort(int[] a,int low,int high){
+	int start = low;
+	int end = high;
+	int key = a[low]; 
+		while(end&gt;start){
+			//从后往前比较
+			while(end&gt;start&amp;&amp;a[end]&gt;=key) 
+				//如果没有比关键值小的，比较下一个，直到有比关键值小的交换位置，然后又从前往后比较
+				end--;
+			if(a[end]&lt;=key){
+				int temp = a[end];
+				a[end] = a[start];
+				a[start] = temp;
+			}
+			//从前往后比较
+			while(end&gt;start&amp;&amp;a[start]&lt;=key)
+				//如果没有比关键值大的，比较下一个，直到有比关键值大的交换位置
+				start++;
+			if(a[start]&gt;=key){
+				int temp = a[start];
+				a[start] = a[end];
+				a[end] = temp;
+			}
+		//此时第一次循环比较结束，关键值的位置已经确定了。左边的值都比关键值小，右边的值都比关键值大，但是两边的顺序还有可能是不一样的，进行下面的递归调用
+		}
+		//递归
+		if(start&gt;low) sort(a,low,start-1);//左边序列。第一个索引位置到关键值索引-1
+		if(end&lt;high) sort(a,end+1,high);//右边序列。从关键值索引+1 到最后一个
+	}
+}
+</code></pre>
+<h3 id="希尔排序算法">希尔排序算法</h3>
+<h4 id="简介-4">简介</h4>
+<p><em>基本思想</em>：先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，待整个序列中的记录“<strong>基本有序</strong>”时，再对全体记录进行依次直接插入排序。</p>
+<h4 id="使用-4">使用</h4>
+<p><em>应用场景</em>：数据量较大，不要求<strong>稳定性</strong>的情况。</p>
+<p><em>步骤</em>：</p>
+<p>1、选择一个增量序列 t1，t2，…，tk，其中 ti&gt;tj，tk=1；</p>
+<p>2、按增量序列个数 k，对序列进行 k 趟排序；</p>
+<p>3、每趟排序，根据对应的增量 ti，将待排序列分割成若干长度为 m 的子序列，分别对各子表进行<strong>直接</strong>插入排序。仅增量因子为1 时，整个序列作为一个表来处理，表长度即为整个序列的长度。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">private void shellSort(int[] a) {
+	int dk = a.length/2; 
+	while( dk &gt;= 1 ){ 
+		ShellInsertSort(a, dk); 
+		dk = dk/2;
+	}
+}
+
+private void ShellInsertSort(int[] a, int dk) {
+	//类似插入排序，只是插入排序增量是 1，这里增量是 dk,把 1 换成 dk 就可以了
+	for(int i=dk;i&lt;a.length;i++){
+		if(a[i]&lt;a[i-dk]){
+			int j;
+			int x=a[i];//x 为待插入元素
+			a[i]=a[i-dk];
+			for(j=i-dk; j&gt;=0 &amp;&amp; x&lt;a[j];j=j-dk){
+				//通过循环，逐个后移一位找到要插入的位置。
+				a[j+dk]=a[j];
+			}
+			a[j+dk]=x;//插入
+		}
+  }
+}
+</code></pre>
+<h3 id="归并排序算法">归并排序算法</h3>
+<h4 id="简介-5">简介</h4>
+<p><em>基本思想</em>：归并（Merge）排序法是将两个（或两个以上）有序表合并成一个新的有序表，即把待排序序列分为若干个子序列，每个子序列是有序的。然后再把有序子序列<strong>合并</strong>为整体有序序列。</p>
+<h4 id="场景使用">场景使用</h4>
+<p><em>应用场景</em>：内存少的时候使用，可以进行<strong>并行计算</strong>的时候使用。</p>
+<p><em>步骤</em>：</p>
+<p>1、选择<strong>相邻</strong>两个数组成一个有序序列。</p>
+<p>2、选择相邻的两个有序序列组成一个有序序列。</p>
+<p>3、重复第二步，直到全部组成一个<strong>有序</strong>序列。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">public class MergeSortTest { 
+	public static void main(String[] args) { 
+		int[] data = new int[] { 5, 3, 6, 2, 1, 9, 4, 8, 7 }; 
+		print(data); 
+		mergeSort(data); 
+		System.out.println("排序后的数组："); 
+		print(data); 
+	} 
+
+  public static void mergeSort(int[] data) { 
+		sort(data, 0, data.length - 1); 
+	} 
+
+  public static void sort(int[] data, int left, int right) { 
+		if (left &gt;= right) 
+			return; 
+		// 找出中间索引
+		int center = (left + right) / 2; 
+		// 对左边数组进行递归
+		sort(data, left, center); 
+		// 对右边数组进行递归
+		sort(data, center + 1, right); 
+		// 合并
+		merge(data, left, center, right); 
+		print(data); 
+	} 
+  
+	/** 
+	* 将两个数组进行归并，归并前面 2 个数组已有序，归并后依然有序
+	* @param data 
+	* 数组对象
+	* @param left 
+	* 左数组的第一个元素的索引
+	* @param center 
+	* 左数组的最后一个元素的索引，center+1 是右数组第一个元素的索引
+	* @param right 
+	* 右数组最后一个元素的索引
+	*/ 
+	public static void merge(int[] data, int left, int center, int right) { 
+		// 临时数组
+		int[] tmpArr = new int[data.length]; 
+		// 右数组第一个元素索引
+		int mid = center + 1; 
+		// third 记录临时数组的索引
+		int third = left; 
+		// 缓存左数组第一个元素的索引
+		int tmp = left; 
+		while (left &lt;= center &amp;&amp; mid &lt;= right) { 
+			// 从两个数组中取出最小的放入临时数组
+			if (data[left] &lt;= data[mid]) { 
+				tmpArr[third++] = data[left++]; 
+			} else { 
+				tmpArr[third++] = data[mid++]; 
+			} 
+		} 
+		// 剩余部分依次放入临时数组（实际上两个 while 只会执行其中一个）
+		while (mid &lt;= right) { 
+			tmpArr[third++] = data[mid++]; 
+		} 
+		while (left &lt;= center) { 
+			tmpArr[third++] = data[left++]; 
+		} 
+		// 将临时数组中的内容拷贝回原数组中
+		// （原 left-right 范围的内容被复制回原数组）
+		while (tmp &lt;= right) { 
+			data[tmp] = tmpArr[tmp++]; 
+		} 
+	} 
+  
+	public static void print(int[] data) { 
+		for (int i = 0; i &lt; data.length; i++) { 
+			System.out.print(data[i] + "\t"); 
+		} 
+		System.out.println(); 
+	} 
+}
+</code></pre>
+<h3 id="桶排序算法">桶排序算法</h3>
+<h4 id="简介-6">简介</h4>
+<p><em>基本思想</em>： 把数组 arr 划分为 n 个<strong>大小相同</strong>子区间（桶），每个子区间各自排序，最后合并 。计数排序是桶排序的一种特殊情况，可以把计数排序当成每个桶里只有一个元素的情况。</p>
+<h4 id="使用-5">使用</h4>
+<p><em>应用场景</em>：在数据量非常大，而<strong>空间相对充裕</strong>的时候是很实用的，可以大大降低算法的运算数量级。</p>
+<p><em>步骤</em>：</p>
+<p>1、找出待排序数组中的最大值 max、最小值 min</p>
+<p>2、我们使用<strong>动态数组</strong> ArrayList 作为桶，桶里放的元素也用 ArrayList 存储。桶的数量为(maxmin)/arr.length+1</p>
+<p>3、遍历数组 arr，计算每个元素 arr[i] 放的桶</p>
+<p>4、每个桶各自排序</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">public static void bucketSort(int[] arr){
+	int max = Integer.MIN_VALUE;
+	int min = Integer.MAX_VALUE;
+	for(int i = 0; i &lt; arr.length; i++){
+		max = Math.max(max, arr[i]);
+		min = Math.min(min, arr[i]);
+	}
+	//创建桶
+	int bucketNum = (max - min) / arr.length + 1;
+	ArrayList&lt;ArrayList&lt;Integer&gt;&gt; bucketArr = new ArrayList&lt;&gt;(bucketNum);
+	for(int i = 0; i &lt; bucketNum; i++){
+		bucketArr.add(new ArrayList&lt;Integer&gt;());
+	}
+	//将每个元素放入桶
+	for(int i = 0; i &lt; arr.length; i++){
+		int num = (arr[i] - min) / (arr.length);
+		bucketArr.get(num).add(arr[i]);
+	}
+	//对每个桶进行排序
+	for(int i = 0; i &lt; bucketArr.size(); i++){
+		Collections.sort(bucketArr.get(i));
+	}
+}
+</code></pre>
+<h3 id="基数排序算法">基数排序算法</h3>
+<h4 id="简介-7">简介</h4>
+<p><em>基本思想</em>：将所有待比较数值（正整数）统一为同样的数位长度，数位较短的数前面补零。然后，从<strong>最低位</strong>开始，依次进行一次排序。这样从最低位排序一直到最高位排序完成以后,数列就变成一个有序序列。</p>
+<h4 id="使用-6">使用</h4>
+<p><em>应用场景</em>：用于大量数，<strong>很长的数</strong>进行排序时的情况。</p>
+<p><em>步骤</em>：</p>
+<p>1、将所有的数的<strong>个位数</strong>取出，按照个位数进行排序，构成一个序列。</p>
+<p>2、将新构成的所有的数的<strong>十位数</strong>取出，按照十位数进行排序，构成一个序列。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">public class radixSort {
+	inta[]={49,38,65,97,76,13,27,49,78,34,12,64,5,4,62,99,98,54,101,56,17,18,23,34,15,35,25,53,51};
+	
+  public radixSort(){
+		sort(a);
+		for(inti=0;i&lt;a.length;i++){
+			System.out.println(a[i]);
+		}
+  }
+  
+	public void sort(int[] array){
+		//首先确定排序的趟数;
+		int max=array[0];
+		for(inti=1;i&lt;array.length;i++){
+			if(array[i]&gt;max){
+				max=array[i];
+			}
+    }
+		int time=0;
+		//判断位数;
+		while(max&gt;0){
+			max/=10;
+			time++;
+		}
+		//建立 10 个队列;
+		List&lt;ArrayList&gt; queue=newArrayList&lt;ArrayList&gt;();
+		for(int i=0;i&lt;10;i++){
+			ArrayList&lt;Integer&gt;queue1=new ArrayList&lt;Integer&gt;();
+			queue.add(queue1);
+		}
+		//进行 time 次分配和收集;
+		for(int i=0;i&lt;time;i++){
+			//分配数组元素;
+   	 	for(intj=0;j&lt;array.length;j++){
+				//得到数字的第 time+1 位数;
+				int x=array[j]%(int)Math.pow(10,i+1)/(int)Math.pow(10, i);
+				ArrayList&lt;Integer&gt;queue2=queue.get(x);
+				queue2.add(array[j]);
+				queue.set(x, queue2);
+			}
+			int count=0;//元素计数器;
+			//收集队列元素;
+			for(int k=0;k&lt;10;k++){
+				while(queue.get(k).size()&gt;0){
+					ArrayList&lt;Integer&gt;queue3=queue.get(k);
+					array[count]=queue3.get(0);
+					queue3.remove(0);
+					count++;
+				}
+      }
+    }
+  }
+}
+</code></pre>
+<h3 id="剪枝算法">剪枝算法</h3>
+<h4 id="简介-8">简介</h4>
+<p><em>基本思想</em>：在搜索算法中优化中，剪枝，就是通过某种判断，避免一些不必要的遍历过程，形象的说，就是剪去了搜索树中的某些“枝条”，故称剪枝。应用剪枝优化的核心问题是<strong>设计剪枝判断方法</strong>，即确定哪些枝条应当舍弃，哪些枝条应当保留的方法。</p>
+<h4 id="使用-7">使用</h4>
+<p><em>应用场景</em>：通常应用在 <code>DFS</code> 和 <code>BFS</code> 搜索算法中，寻找<strong>过滤条件</strong>，提前减少不必要的搜索路径。</p>
+<p><em>步骤</em>：</p>
+<p>1、基于训练数据集生成<strong>决策树</strong>，生成的决策树要尽量大；</p>
+<p>2、用验证数据集最已生成的树进行剪枝并选择<strong>最优子树</strong>，这时用损失函数最小作为剪枝的标准</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">class Solution {
+    public List&lt;List&lt;Integer&gt;&gt; combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+        combinationSum(candidates, 0, target, track);
+        return result;
+    }
+
+    private List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();
+
+    private void combinationSum(int[] candidates, int start, int target, LinkedList&lt;Integer&gt; track) {
+        if (target &lt; 0) {
+            return;
+        } else if (target == 0) {
+            result.add(new LinkedList&lt;&gt;(track));
+            return;
+        }
+        for (int i = start; i &lt; candidates.length; i++) {
+            if (target &lt; candidates[i]) {
+                break;
+            }
+            track.add(candidates[i]);
+            combinationSum(candidates, i, target - candidates[i], track);
+            track.removeLast();
+        }
+
+    }
+}
+</code></pre>
+<h3 id="回溯算法">回溯算法</h3>
+<h4 id="简介-9">简介</h4>
+<p><em>基本思想</em>：回溯算法实际上一个类似枚举的搜索尝试过程，主要是在<strong>搜索尝试过程中</strong>寻找问题的解，当发现已不满足求解条件时，就“回溯”返回，尝试别的路径。</p>
+<h4 id="使用-8">使用</h4>
+<p><em>应用场景</em>：设置一个递归函数，函数的参数会携带一些当前的可能解的信息，根据这些参数得出可能解或者不可能而回溯，平时经常见的有 <strong>N 皇后、数独、集合</strong>等情况。</p>
+<p><em>步骤</em>：</p>
+<p>1、定义一个<strong>解空间</strong>，它包含问题的解；</p>
+<p>2、利用适于搜索的方法组织解空间；</p>
+<p>3、利用深度优先法搜索解空间；</p>
+<p>4、利用限界函数避免移动到不可能产生解的子空间。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">function backtrack(n, used) {
+    // 判断输入或者状态是否非法
+    if (input/state is invalid) {
+        return;
+  	}
+    // 判读递归是否应当结束，满足结束条件就返回结果
+    if (match condition) {
+        return some value;
+  	}
+    // 遍历当前所有可能出现的情况，并尝试每一种情况
+    for (all possible cases) {
+        // 如果上一步尝试会影响下一步尝试，需要写入状态
+        used.push(case)
+        // 递归进行下一步尝试，搜索该子树
+        result = backtrack(n + 1, used)
+        // 在这种情况下已经尝试完毕，重置状态，以便于下面的回溯尝试
+        used.pop(case)
+    } 
+}
+</code></pre>
+<h3 id="最短路径算法">最短路径算法</h3>
+<h4 id="简介-10">简介</h4>
+<p><em>基本思想</em>：从某顶点出发，沿图的边到达另一顶点所经过的路径中，<strong>各边上权值之和最小</strong>的一条路径叫做最短路径。解决最短路的问题有以下算法，Dijkstra 算法，Bellman-Ford 算法，Floyd 算法和 SPFA 算法等。</p>
+<h4 id="使用-9">使用</h4>
+<p><em>应用场景</em>：应用有计算机网络路由算法，机器人探路，<strong>交通路线导航</strong>，人工智能，游戏设计等。</p>
+<p><em>步骤</em>：（Dijkstra 算法示例）</p>
+<p>1、 访问路网中里<strong>起始点最近且没有被检查过</strong>的点，把这个点放入 OPEN 组中等待检查。</p>
+<p>2、 从OPEN表中找出距起始点最近的点，找出这个点的所有子节点，把这个点放到 CLOSE 表中。</p>
+<p>3、 遍历考察这个点的子节点。求出这些子节点距起始点的距离值，放子节点到 OPEN 表中。</p>
+<p>4、重复2，3，步。直到 OPEN 表为空，或找到目标点。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">//Dijkstra 算法
+static int[] pathSrc = new int[9];
+static int[] shortPath = new int[9];
+static void shortestPath_DijkStra(MGraph m, int v0) {    
+    // finalPath[w] = 1 表示已经获取到顶点V0到Vw的最短路径    
+    int[] finalPath = new int[9];    
+    for (int i = 0; i &lt; m.numVertexes; i++) {        
+        finalPath[i] = 0;        
+        shortPath[i] = m.arc[v0][i];        
+        pathSrc[i] = 0;    
+    }    
+    // v0到v0的路径为0    
+    shortPath[v0] = 0;    
+    // vo到v0不需要求路径    
+    finalPath[v0] = 1;    
+    for (int i = 1; i &lt; m.numVertexes; i++) {        
+        // 当前所知的离V0最近的距离        
+        int min = INFINITY;        
+        int k = 0;        
+        for (int w = 0; w &lt; m.numVertexes; w++) {            
+            if(shortPath[w] &lt; min &amp;&amp; finalPath[w] == 0) {                
+                min = shortPath [w];                
+                k = w;            
+            }        
+        }  
+        finalPath[k] = 1; // 修改finalPath的值，标记为已经找到最短路径
+        for (int w = 0; w &lt; m.numVertexes; w++) {            
+            // 如果经过V顶点的路径比原来的路径（不经过V）短的话            
+            if(finalPath[w] == 0 &amp;&amp; (min + m.arc[k][w]) &lt; shortPath[w]) {       
+                // 说明找到了更短的路径，修改                
+                shortPath[w] = min + m.arc[k][w]; // 修改路径的长度
+                pathSrc[w] = k; // 修改顶点下标W的前驱顶点
+            }        
+        }    
+    }
+}
+
+</code></pre>
+<h3 id="最大子数组算法">最大子数组算法</h3>
+<h4 id="简介-11">简介</h4>
+<p><em>基本思想</em>：给定一个整数数组 nums ，找到一个具有<strong>最大和</strong>的连续子数组（子数组最少包含一个元素），返回其最大和。</p>
+<h4 id="使用-10">使用</h4>
+<p><em>应用场景</em>：生活中可以用来查看股票一周之内的<strong>增长状态</strong>，需要得到最合适的买入和卖出时间。</p>
+<p><em>步骤</em>：</p>
+<p>1、将子串和为负数的子串丢掉，只留<strong>和为正</strong>的子串。</p>
+<p>2、如果 nums 中有正数，从左到右遍历 nums，用变量 cur 记录每一步的累加和，遍历到正数 cur 增加，遍历到负数 cur 减少。</p>
+<p>3、当 cur&gt;=0 时，每一次累加都可能是最大的累加和，所以，用另外一个变量 max 全程跟踪记录 cur 出现的<strong>最大值</strong>即可。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">class Solution {
+public:
+    /*
+     * @param nums: A list of integers
+     * @return: A integer indicate the sum of max subarray
+     */
+    int maxSubArray(vector&lt;int&gt; nums) {
+        if(nums.size()&lt;=0){
+            return 0;
+        } 
+        int max=INT_MIN,cur=0;//c++最小值
+        for(int i=0; i&lt;nums.size(); i++)  
+        {  
+            if(cur &lt; 0)
+                cur = nums[i];//如果前面加起来的和小于0，抛弃前面的
+            else
+                cur+=nums[i];
+ 
+            if(cur &gt; max)
+                max = cur;
+        }  
+        return max;  
+        
+    }
+};
+</code></pre>
+<h3 id="最长公共子序算法">最长公共子序算法</h3>
+<h4 id="简介-12">简介</h4>
+<p><em>基本思想</em>：最长公共子序列是一个在一个序列集合中用来查找所有序列中<strong>最长子序列</strong>的问题。这与查找最长公共子串的问题不同的地方是：子序列不需要在原序列中占用连续的位置。</p>
+<h4 id="使用-11">使用</h4>
+<p><em>应用场景</em>：最长公共子序列问题是一个经典的计算机科学问题，也是<strong>数据比较程序</strong>，比如 <code>Diff</code> 工具，和生物信息学应用的基础。它也被广泛地应用在<strong>版本控制</strong>，比如 Git 用来调和文件之间的改变。</p>
+<p><em>步骤</em>：</p>
+<p>1、可以使用<strong>递归</strong>去解决，需要遍历出所有的可能，很慢；</p>
+<p>2、对于一般的 LCS 问题，都属于 NP 问题；</p>
+<p>3、当数列的量为一定的时，都可以采用<strong>动态规划</strong>去解决。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int length1 = text1.length();
+        int length2 = text2.length();
+        int[][] a = new int[length1 + 1][length2 + 1];//0行0列保留
+        for(int i = 1; i &lt;= length1; i++){
+            for(int j = 1; j &lt;= length2; j++){
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    a[i][j] = a[i - 1][j - 1] + 1;
+                } else {
+                    if (a[i][j - 1] &gt; a[i-1][j]) {
+                        a[i][j] = a[i][j - 1];
+                    } else {
+                        a[i][j] = a[i - 1][j];
+                    }
+                }
+            }
+        }
+        return a[length1][length2];
+    }
+}
+</code></pre>
+<h3 id="最小生成树算法">最小生成树算法</h3>
+<h4 id="简介-13">简介</h4>
+<p><em>基本思想</em>：在含有n个顶点的<strong>带权无向连通图</strong>中选择n-1条边，构成一棵极小连通子图，并使该连通子图中n-1条边上权值之和达到最小，则称其为连通网的最小生成树（不一定唯一）。</p>
+<p>一般情况，要解决最小生成树问题，通常采用两种算法：<strong>Prim算法</strong>和<strong>Kruskal算法</strong>。</p>
+<h4 id="使用-12">使用</h4>
+<p><em>应用场景</em>：一般用来计算<strong>成本最小化</strong>的情况。</p>
+<p><em>步骤</em>：（Prim 算法示例）</p>
+<p>1、以某一个点开始，寻找当前该点可以访问的<strong>所有的边</strong>；</p>
+<p>2、在已经寻找的边中发现<strong>最小边</strong>，这个边必须有一个点还没有访问过，将还没有访问的点加入我们的集合，记录添加的边；</p>
+<p>3、寻找当前集合可以访问的所有边，重复 2 的过程，直到没有新的点可以加入；</p>
+<p>4、此时由所有边构成的<strong>树</strong>即为最小生成树。</p>
+<p><em>代码示例</em>：</p>
+<pre><code class="language-java">/** prim算法
+	* @param first  构成最小生成树的起点的标识
+	* @return  返回最小生成树构成的边
+	*/
+public List&lt;Edge&gt; generateMinTreePrim(T first){
+	//存储最小生成树构成的边
+	List&lt;Edge&gt; result=new LinkedList&lt;&gt;();
+	//首先建立map，key为vertex，value为edge
+	HashMap&lt;Vertex&lt;T&gt;, Edge&gt; map=new HashMap&lt;&gt;();
+	Iterator&lt;Vertex&lt;T&gt;&gt; vertexIterator=getVertexIterator();
+	Vertex&lt;T&gt; vertex;
+	Edge edge;
+	while(vertexIterator.hasNext()){
+		//一开始，value为edge的两端的都为自己，weight=maxDouble
+		vertex=vertexIterator.next();
+		edge=new Edge(vertex, vertex, Double.MAX_VALUE);
+		map.put(vertex, edge);
+	}
+	//first是构成最小生成树的起点的标识
+	vertex=vertexMap.get(first);
+	if(vertex==null){
+		System.out.println("没有节点："+first);
+		return result;
+	}
+	//所有不在生成树中的节点，都是map的key,如果map为空，代表所有节点都在树中
+	while(!map.isEmpty()){
+		//这次循环要加入生成树的节点为vertex，边为vertex对应的edge（也就是最小的边）
+		edge=map.get(vertex);
+		//每将一个结点j加入了树A，首先从map中去除这个节点
+		map.remove(vertex);
+		result.add(edge);
+		System.out.println("生成树加入边，顶点："+vertex.getLabel()+
+				" ，边的终点是："+edge.getEndVertex().getLabel()+" ，边的权值为： "+edge.getWeight());;
+		//如果是第一个节点，对应的边是到自己的，删除
+		if(vertex.getLabel().equals(first)){
+			result.remove(edge);
+		}
+		//然后看map中剩余的节点到节点j的距离，如果这个边的距离小于之前边的距离，就将边替换成这个到节点j的边
+		//在遍历替换中，同时发现距离最短的边minEdge
+		Edge minEdge=new Edge(vertex, vertex, Double.MAX_VALUE);
+		for(Vertex&lt;T&gt; now:map.keySet()){
+			edge=map.get(now);
+			//newEdge为now到节点j的边
+			Edge newEdge=now.hasNeighbourVertex(vertex);
+			if(newEdge!=null&amp;&amp;newEdge.getWeight()&lt;edge.getWeight()){
+				//如果这个边的距离小于之前边的距离，就将边替换成这个到节点j的边
+				edge=newEdge;
+				map.put(now, edge);
+			}
+			if(edge.getWeight()&lt;minEdge.getWeight()){
+				//更新minEdge
+				minEdge=edge;
+			}
+		}
+		//这里设定边的方向是不在树上的v（为起始点）到树上的u
+		//这条边的起始点是不在树上的，是下一个加入生成树的节点
+		vertex=minEdge.getBeginVertex();			
+	}		
+	return result;
+}
+</code></pre>
+<h3 id="最后">最后</h3>
+<p>算法无论是对于学习还是工作，都是必不可少的。如果说我们掌握了这些算法背后的<strong>逻辑思想</strong>，那么是会对我们的学习和工作有很好的促进作用的。</p>
+<p>其次算法对于面试，尤其是进入<strong>一些大厂 BAT 等公司</strong>都是一块敲门砖，大公司都会通过算法来评估你的整体技术水平，如果你有很好的算法功底，相信对你未来的职场道路也会有很大帮助。</p>
+<p>在职业发展后期，拥有良好的算法技能，可以帮助我们更快、更高效的完成编码，往<strong>架构师</strong>的方向发展，同样的岗位，你有相应的算法知识的话，能拿到的薪资也会比别人更好一点。</p>
+<p>当然，算法远不止这些罗列的，还有很多复杂的算法需要去不断学习，一起加油吧～</p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-04-16 10:41</span>&nbsp;
+<a href="https://www.cnblogs.com/qianyueric/">浅羽技术</a>&nbsp;
+阅读(<span id="post_view_count">564</span>)&nbsp;
+评论(<span id="post_comment_count">2</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14665910" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14665910);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 655084, cb_blogApp = 'qianyueric', cb_blogUserGuid = 'f78bbd12-2966-4cf7-99e5-08d69bd2885c';
+    var cb_entryId = 14665910, cb_entryCreatedDate = '2021-04-16 10:41', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 浅羽技术
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtE2t1XzBPNd3c6cnMqGVWiPDkCaKORYSOCEa7S0PDLHU6OYbT0_XgIJUdtYspLSh5xPTFQKcbCV-BFiOJUza7NHQHruHN8H15N8IaUmsyzLOTTEghVGvjrN6R3cZCPdDU" />
+</body>
+</html>

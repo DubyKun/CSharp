@@ -1,0 +1,442 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="1.1 什么是热修复 对于广大的移动开发者而言，发版更新是最为寻常不过的事了。然而，如果你 发现刚发出去的包有紧急的BUG需要修复，那你就必须需要经过下面这样的流程： 这就是传统的更新流程，步骤十分繁" />
+    <meta property="og:description" content="1.1 什么是热修复 对于广大的移动开发者而言，发版更新是最为寻常不过的事了。然而，如果你 发现刚发出去的包有紧急的BUG需要修复，那你就必须需要经过下面这样的流程： 这就是传统的更新流程，步骤十分繁" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>深入探索Android热修复技术原理读书笔记 —— 热修复技术介绍 - huansky - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/huansky/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/huansky/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/huansky/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 274049;
+        var currentBlogApp = 'huansky';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 04:05';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/huansky/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/huansky/">huansky</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/huansky/">
+首页</a>
+</li>
+<li>
+
+
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/huansky">
+联系</a></li>
+<li>
+
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/huansky/p/14699738.html">
+    <span>深入探索Android热修复技术原理读书笔记 —— 热修复技术介绍</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<h2 style="background-color: rgba(51, 204, 255, 1)">1.1 什么是热修复</h2>
+<div class="Section0">
+<p class="16" align="justify"><span style="font-family: 宋体">对于广大的移动开发者而言，发版更新是最为寻常不过的事了。然而，如果你</span> <span style="font-family: 宋体">发现刚发出去的包有紧急的</span>BUG需要修复，那你就必须需要经过下面这样的流程：</p>
+<p align="center"><img src="https://img2020.cnblogs.com/blog/916005/202105/916005-20210506152337130-923672746.png" alt="" loading="lazy">&nbsp;</p>
+<p class="16" align="justify"><span style="font-family: 宋体">这就是传统的更新流程，步骤十分繁琐。总的来说，</span>传统流程存在这几大弊端：</p>
+<ul>
+<li class="16">
+<p><span style="color: rgba(153, 51, 0, 1)">重新发布版本代价太大</span></p>
+</li>
+<li class="16">
+<p><span style="color: rgba(153, 51, 0, 1)">用户下载安装成本太高</span></p>
+</li>
+<li class="16">
+<p><span style="color: rgba(153, 51, 0, 1)">BUG 修复不及时，用户体验太差</span></p>
+</li>
+</ul>
+<p class="16" align="justify"><span style="font-family: 宋体">相应的，许多开发者找到了比较合适的解决办法。</span></p>
+<ol>
+<li class="16">
+<p><span style="color: rgba(153, 51, 0, 1)">Hybrid 方案。也就是把需要经常变更的业务逻辑以 H5&nbsp;<span style="font-family: 宋体">的方式独立出来。而这种方案</span>, 需要传统的 java&nbsp;<span style="font-family: 宋体">开发者学习前端语言，不仅增加了学习成本，而且还要对原先的逻辑</span> <span style="font-family: 宋体">进行合适的抽象和转换。并且，对于无法转为&nbsp;</span>H5 形式的代码仍旧是无法修复的。</span></p>
+</li>
+<li class="16">
+<p><span style="color: rgba(153, 51, 0, 1)">使用插件化方案来解决问题，像 Atlas 或者 DroidPlugin&nbsp;<span style="font-family: 宋体">方案。</span> <span style="font-family: 宋体">而这类方式，移植成本非常高，还要学习整套插件化工具，对原先老代码的改</span><span style="font-family: 宋体">造。</span></span></p>
+</li>
+</ol></div>
+<p class="16">于是，热修复技术应运而生了。</p>
+<h2 style="background-color: rgba(51, 204, 255, 1)">1.2 技术沉淀</h2>
+<p>阿里系：</p>
+<ul>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">Dexposed：基于Xposed改进，针对Android Dalvik虚拟机运行的Java Method Hook技术，但无法兼容Android5.0以后的虚拟机</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">Andfix：也是一种底层替换的方案，做到了 Dalvik 和 ART 的兼容</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">Hotfix：结合实际工程中的使用Andfix的经验，推出阿里百川Hotfix，但只提供了代码层面的修复，对于资源和so的修复还未实现</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">Sophix：2017年6月推出Sophix，打破了各家纷争的局面，在代码修复，资源修复，so修复方面，都做到了业界领先</span></p>
+</li>
+</ul>
+<p>其他著名的热修复，但是各自有各自的局限性，补丁过大，效率低下，不够稳定，用起来繁琐：</p>
+<ul>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">腾讯 QQ 空间的超级补丁</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">微信的 Tinker</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">饿了么的 Amigo</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">美团的 Robust</span></p>
+</li>
+</ul>
+<h2 style="background-color: rgba(51, 204, 255, 1)">1.3 详细比较</h2>
+<p>Sophix和Tinker与Amigo的比较：</p>
+<p><img src="https://img2020.cnblogs.com/blog/916005/202104/916005-20210425140104041-1921364727.png" alt="" width="493" height="388" loading="lazy"></p>
+<p>各项指标都占优，唯一不支持的就是四大组件的修复</p>
+<h2 style="background-color: rgba(51, 204, 255, 1)"><strong>1.4 技术概览</strong></h2>
+<h3 style="background-color: rgba(51, 255, 255, 1)">1.4.1 设计理念</h3>
+<p>Sophix 的设计理念，就是非侵入性</p>
+<ul>
+<li>
+<p>最终的实现只有两个生成的新旧 apk，唯一要做的就是初始化和请求补丁两行代码</p>
+</li>
+<li>
+<p>不会侵入 apk 的 build 流程中</p>
+</li>
+<li>
+<p>不改变任何打包组件</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>不插入任何 AOP 代码</p>
+</li>
+</ul>
+<h3 style="background-color: rgba(51, 255, 255, 1)">1.4.2 代码修复</h3>
+<p>代码修复有两大主要方案，一种是阿里系的底层替换方案，另一种是腾讯系的类加载方案。</p>
+<p>两种方案各有优劣：</p>
+<ul>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">底层替换方案限制颇多，但时效性最好，加载轻快，立即见效。</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">类加载方案时效性差，需要重新冷启动才能见效，但修复范围广，限制少。</span></p>
+</li>
+</ul>
+<div class="Section0">
+<h4 class="18" align="justify">底层替换方案</h4>
+<p class="17" align="justify"><span style="font-family: 宋体">底层替换方案是在已经加载了的类中直接替换掉原有方法，是在原来类的基础上</span><span style="font-family: 宋体">进行修改的。因而无法实现对与原有类进行方法和字段的增减，因为这样将破坏原有</span><span style="font-family: 宋体">类的结构。</span></p>
+<p class="17" align="justify">一旦补丁类中出现了方法的增加和减少，就会导致这个类以及整个 Dex&nbsp;<span style="font-family: 宋体">的方法</span><span style="font-family: 宋体">数的变化。方法数的变化伴随着方法索引的变化，这样在访问方法时就无法正常地索</span><span style="font-family: 宋体">引到正确的方法了。如果字段发生了增加和减少，和方法变化的情况一样，所有字段</span> <span style="font-family: 宋体">的索引都会发生变化。并且更严重的问题是，如果在程序运行中间某个类突然增加了</span> —个字段，那么对于原先已经产生的这个类的实例，它们还是原来的结构，这是无法改变的。而新方法使用到这些老的实例对象时，访问新增字段就会产生不可预期 的结果。</p>
+</div>
+<div class="Section1">
+<p class="17" align="justify"><span style="font-family: 宋体">这是这类方案的固有限制，而底层替换方案最为人诟病的地方，在于底层替换的</span><span style="font-family: 宋体">不稳定性。</span></p>
+<p class="17" align="justify"><span style="font-family: 宋体">通过对代码的底层替换原理重新进行了深入思考，从克服其限制和兼容性入</span> <span style="font-family: 宋体">手，以一种更加优雅的替换思路，实现了即时生效的代码热修复。</span></p>
+<p class="17" align="justify"><span style="font-family: 宋体">采用一种无视底层具体结构的替换方式，这种方式不仅解决了兼容性</span><span style="font-family: 宋体">问题，并且由于忽略了底层</span>ArtMethod结构的差异，对于所有的Android<span style="font-family: 宋体">版本都不</span> <span style="font-family: 宋体">再需要区分，代码量大大减少。即使以后的</span>Android版本不断修改ArtMethod<span style="font-family: 宋体">的</span> <span style="font-family: 宋体">成员，只要保证</span>ArtMethod<span style="font-family: 宋体">数组仍是以线性结构排列，就能直接适用于将来的</span> Android 8.0、9.0<span style="font-family: 宋体">等新版本，无需再针对新的系统版本进行适配了。</span></p>
+<h4 class="18">类加载方案</h4>
+<p class="17" align="justify">类加载方案的原理是在 app 重新启动后让 Classloader&nbsp;<span style="font-family: 宋体">去加载新的类。因为在</span> app运行到一半的时候，所有需要发生变更的类已经被加载过了，在 Android 上<span style="font-family: 宋体">是</span><span style="font-family: 宋体">无法对一个类进行卸载的。如果不重启，原来的类还在虚拟机中，就无法加载新类。</span> <span style="font-family: 宋体">因此，只有在下次重启的时候，在还没走到业务逻辑之前抢先加载补丁中的新类，这</span><span style="font-family: 宋体">样后续访问这个类时，就会</span>Resolve为新类。从而达到热修复的目的。</p>
+<p class="17" align="justify">再来看看腾讯系三大类加载方案的实现原理。</p>
+<ol>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">QQ&nbsp;<span style="font-family: 宋体">空间方案会侵入打包流程，并</span> <span style="font-family: 宋体">且为了</span> hack 添加一些无用的信息，实现起来很不优雅。</span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">QFix&nbsp;<span style="font-family: 宋体">的方案，需要获取</span> <span style="font-family: 宋体">底层虚拟机的函数，不够稳定可靠，并且有个比较大的问题是无法新增</span>public函数。</span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">微信的 Tinker 方案是完整的全量 dex&nbsp;<span style="font-family: 宋体">加载，并且可谓是将补丁合成做到了极</span><span style="font-family: 宋体">致。</span>Tinker 的合成方案，是从 dex <span style="font-family: 宋体">的方法和指令维度进行全量合成，整个过程都是自己研发的。虽然可以很大地节省空</span><span style="font-family: 宋体">间，但由于对</span>dex<span style="font-family: 宋体">内容的比较粒度过细，实现较为复杂，性能消耗比较严重。实际</span> <span style="font-family: 宋体">上，</span>dex 的大小占整个apk的比例是比较低的，一个 app 里面的dex<span style="font-family: 宋体">文件大小并不</span> <span style="font-family: 宋体">是主要部分，而占空间大的主要还是资源文件。因此，</span>Tinker&nbsp;<span style="font-family: 宋体">方案的时空代价转换的</span><span style="font-family: 宋体">性价比不高。</span></span></p>
+</li>
+</ol>
+<p class="17" align="justify">dex&nbsp;<span style="font-family: 宋体">比较的最佳粒度，应该是在类的维度。它既不像方法和指令维度那样</span><span style="font-family: 宋体">的细微，也不像&nbsp;</span>bsbiff&nbsp;<span style="font-family: 宋体">比较那般的粗糙。在类的维度，可以达到时间和空间平衡的最</span> <span style="font-family: 宋体">佳效果。基于这个准则，另辟蹊径，实现了一种完全不同的全量</span>dex替换方案。</p>
+<ul>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)"><span style="font-family: 宋体">直接利用&nbsp;</span>Android 原先的类查找和合成机制，快速合成新的全量 dex。<span style="font-family: 宋体">这</span><span style="font-family: 宋体">么一来，既不需要处理合成时方法数超过的情况，对于&nbsp;</span>dex&nbsp;<span style="font-family: 宋体">的结构也不用进行破</span><span style="font-family: 宋体">坏性重构。</span></span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">重新编排了包中dex<span style="font-family: 宋体">的顺序。虚拟机查找类的时候，会优先找到</span> classes.dex <span style="font-family: 宋体">中的类，然后才是</span> classes2.dex、classes3.dex，<span style="font-family: 宋体">也可以看做是</span> dex 文件级别的类插桩方案。这个方式对旧包与补丁包中 classes.dex&nbsp;<span style="font-family: 宋体">的顺</span> <span style="font-family: 宋体">序进行了打破与重组，最终使得系统可以自然地识别到这个顺序，以实现类覆盖的目</span> <span style="font-family: 宋体">的。大大减少合成补丁的开销。</span></span></p>
+</li>
+</ul>
+<h4 class="18" align="justify">双剑合璧</h4>
+<p class="17" align="justify"><span style="font-family: 宋体">既然底层替换方案和类加载方案各有其优点，把他们联合起来不是最好的选择</span><span style="font-family: 宋体">吗？</span></p>
+<p class="17" align="justify">Sophix<span style="font-family: 宋体">的代码修复体系正是同时涵盖了这两种方案。两种方案的结合，可以实</span><span style="font-family: 宋体">现优势互补，完全兼顾的作用，可以灵活地根据实际情况自动切换。</span></p>
+<p class="17" align="justify"><span style="font-family: 宋体">在补丁生成阶段，补丁工具会根据实际代</span><span style="font-family: 宋体">码变动情况进行自动选择，</span></p>
+<ul>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)"><span style="font-family: 宋体">针对小修改，在底层替换方案限制范围内的，就直接采</span><span style="font-family: 宋体">用底层替换修复吗，这样可以做到代码修复即时生效。</span></span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)"><span style="font-family: 宋体">对于代码修改超出底层替</span><span style="font-family: 宋体">换限制的，会使用类加载替换，这样虽然及时性没那么好，但总归可以达到热修复</span><span style="font-family: 宋体">的目的。</span></span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">运行时阶段，Sophix&nbsp;<span style="font-family: 宋体">还会再判断所运行的机型是否支持热修复，这样即</span><span style="font-family: 宋体">使补丁支持热修复，但由于机型底层虚拟机构造不支持，还是会走类加载修复，从而</span><span style="font-family: 宋体">达到最好的兼容性。</span></span></p>
+</li>
+</ul>
+<h3 style="background-color: rgba(51, 255, 255, 1)">1.4.3 资源修复</h3>
+<p class="17" align="justify"><span style="font-family: 宋体">目前市面上的很多资源热修复方案基本上都是参考了</span> Instant Run&nbsp;<span style="font-family: 宋体">的实现。实际</span> <span style="font-family: 宋体">上，</span>Instant Run&nbsp;<span style="font-family: 宋体">的推出正是推动这次热修复浪潮的主因，各家热修复方案，在代码、</span> <span style="font-family: 宋体">资源等方面的实现，很大程度上地参考了</span> Instant Run<span style="font-family: 宋体">的代码，而资源修复方案正是</span> <span style="font-family: 宋体">被拿来用到最多的地方。</span></p>
+<p class="17">简要说来，Instant Run&nbsp;<span style="font-family: 宋体">中的资源热修复分为两步</span>:</p>
+<ol>
+<li class="18">
+<p><span style="color: rgba(153, 51, 0, 1)">构造一个新的AssetManager,并通过反射调用 addAssetPath，<span style="font-family: 宋体">把这个完</span> <span style="font-family: 宋体">整的新资源包加入到&nbsp;</span>AssetManager&nbsp;<span style="font-family: 宋体">中。这样就得到了一个含有所有新资源</span> <span style="font-family: 宋体">的</span> AssetManager。</span></p>
+</li>
+<li class="17">
+<p><span style="color: rgba(153, 51, 0, 1)">找到所有之前引用到原有AssetManager<span style="font-family: 宋体">的地方，通过反射，把引用处替换</span><span style="font-family: 宋体">为</span> AssetManager 。</span></p>
+</li>
+</ol>
+<p class="17" align="justify"><span style="font-family: 宋体">新的实现方式：构造了一个</span> package id 为 0x66&nbsp;<span style="font-family: 宋体">的资源包，这个包里只包含改变了的资源项，然后直接在原</span><span style="font-family: 宋体">有&nbsp;</span>AssetManager 中 addAssetPath 这个包就可以了。由于补丁包的 package id 为 0x66，不与目前已经加载的 0x7f 冲突，因此直接加入到已有的 AssetManager <span style="font-family: 宋体">中就可以直接使用了。</span></p>
+<p class="17" align="justify"><span style="font-family: 宋体">补丁包里面的资源，只包含原有包里面没有而新的包里面有</span><span style="font-family: 宋体">的新增资源，以及原有内容发生了改变的资源。并且，我们采用了更加优雅的替</span><span style="font-family: 宋体">换方式，直接在原有的&nbsp;</span>AssetManager&nbsp;<span style="font-family: 宋体">对象上进行析构和重构，这样所有原先对</span> AssetManager对象的引用是没有发生改变的，所以就不需要像Instant Run&nbsp;<span style="font-family: 宋体">那样</span> <span style="font-family: 宋体">进行繁琐的修改了。</span></p>
+<p class="17" align="justify"><span style="font-family: 宋体">可以说，我们的资源修复方案，优越性超过了</span> Google官方的Instant Run<span style="font-family: 宋体">方</span> <span style="font-family: 宋体">案。整个资源替换的方案优势在于：</span></p>
+<ul>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">不修改 AssetManager 的引用处，替换更快更完全。（对比 Instanat Run&nbsp;<span style="font-family: 宋体">以</span> <span style="font-family: 宋体">及所有&nbsp;</span>copycat 的实现）</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">不必下发完整包，补丁包中只包含有变动的资源。（对比 Instanat Run<sub>s </sub>Amigo 等方式的实现）</span></p>
+</li>
+<li>
+<p><span style="color: rgba(153, 51, 0, 1)">不需要在运行时合成完整包。不占用运行时计算和内存资源。（对比 Tinker&nbsp;<span style="font-family: 宋体">的</span><span style="font-family: 宋体">实现）</span></span></p>
+</li>
+</ul>
+</div>
+<div class="Section2">
+<h3 style="background-color: rgba(51, 255, 255, 1)">1.4.4 SO库修复</h3>
+<p class="17">SO 库的修复本质上是对 native 方法的修复和替换。</p>
+<p class="17" align="justify"><span style="font-family: 宋体">我们采用的是类似类修复反射注入方式。把补丁</span> so 库的路径插入到 nativeLi- braryDirectories 数组的最前面，就能够达到加载 so&nbsp;<span style="font-family: 宋体">库的时候是补丁</span> so&nbsp;<span style="font-family: 宋体">库，而不</span><span style="font-family: 宋体">是原来&nbsp;</span>so 库的目录，从而达到修复的目的。</p>
+<p class="17" align="justify">采用这种方案，完全由 Sophix 在启动期间反射注入 patch 中的 so&nbsp;<span style="font-family: 宋体">库。对开发</span><span style="font-family: 宋体">者依然是透明的。不用像某些其他方案需要手动替换系统的&nbsp;</span>System.load&nbsp;<span style="font-family: 宋体">来实现替</span> <span style="font-family: 宋体">换目的。</span></p>
+</div>
+<h2 style="background-color: rgba(51, 204, 255, 1)">1.5 本章小结</h2>
+<p class="17"><span style="font-family: 宋体">本章介绍了热修复技术的主要使用场景和为业界带来的变化。详细说明了阿里巴</span><span style="font-family: 宋体">巴推出的热修复解决方案&nbsp;</span>Sophix&nbsp;<span style="font-family: 宋体">的由来，同时与其他各大主流方案进行了比较。另</span><span style="font-family: 宋体">外，粗略介绍了热修复所涉及的各个方面，并引导概述后续各个章节。</span></p>
+<p>&nbsp;&nbsp;</p>
+<h3 style="background-color: rgba(51, 255, 255, 1)">参考文章</h3>
+<p id="articleContentId" class="title-article"><a href="https://blog.csdn.net/pengbo6665631/article/details/84562387" target="_blank">深入探索Android热修复技术原理读书笔记——第一章：热修复技术介绍</a></p>
+<p id="articleContentId" class="title-article">深入探索Android热修复技术原理[book]</p>
+<p>&nbsp;</p>
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 16:05</span>&nbsp;
+<a href="https://www.cnblogs.com/huansky/">huansky</a>&nbsp;
+阅读(<span id="post_view_count">45</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14699738" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14699738);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 274049, cb_blogApp = 'huansky', cb_blogUserGuid = 'd3324e07-1bec-e511-9fc1-ac853d9f53cc';
+    var cb_entryId = 14699738, cb_entryCreatedDate = '2021-05-06 16:05', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 huansky
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjthEbXmu4Av1Gq0EfkHFIKibN-sLhsIAYkehE03-U4rmPDH5J1nYAeBCsPGTkVHH0Qv4FT6apH-Mmx3HqnLa79_RG65EuVoCe7pBVJzOm7XCeLaqUq_uUgE9U5Y-VqNn9k" />
+</body>
+</html>

@@ -1,0 +1,662 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>白泽来了 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/sea/bundle-sea.min.css?v=oF2SvRIFQNTLcLgn66nPy-bOeZ-5NDS8tPrc0Kt42ys" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/YLTFY1998/custom.css?v=b/indDXbz9z26FICFYNAZ&#x2B;&#x2B;b6p4=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/sea/bundle-sea-mobile.min.css?v=t5pWHm7Zavhfg65859uF8OmEaotpCjyYSbKN5RbMv6E" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/YLTFY1998/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/YLTFY1998/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/YLTFY1998/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 530342;
+        var currentBlogApp = 'YLTFY1998';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'sea';
+        var visitorUserId = '';
+    </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="header">
+	
+<!--done-->
+<div class="header">
+	<div class="headerText">
+		<a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/YLTFY1998/">白泽来了</a>
+<br>
+		学生党，尚在追求技术的道路上努力
+	</div>
+</div>
+
+
+</div>
+
+<div id="mytopmenu">
+	
+		<div id="mylinks">
+<a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+ &nbsp;
+
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/YLTFY1998/">
+首页</a>
+ &nbsp;
+
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+ &nbsp;
+
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%99%BD%E6%B3%BD%E6%9D%A5%E4%BA%86">
+联系</a> &nbsp;
+
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/YLTFY1998/rss/">
+订阅</a>
+<a id="blog_nav_rss_image" href="https://www.cnblogs.com/YLTFY1998/rss/">
+    <img src="/skins/sea/images/xml.gif" alt="订阅" />
+</a>&nbsp;
+
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+
+
+</div>
+		<DIV id="mystats"><div id="blog_stats_place_holder"><script>loadBlogStats();</script></div></DIV>
+	
+</div>
+<div id="centercontent">
+	
+
+
+
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/05/06.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年5月6日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14735497.html">
+    <span>
+        Spring Security极简入门三部曲（中篇）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：大家好，我是白泽。通过上篇的学习，我们实现了一个简单的基于角色验证的小demo，但是不足之处在于用户和角色的信息我们写死在了内存中，而实际项目中必然是写在数据库里的，但是在将数据存入数据库之前，为了让你更深入理解Spring Security授权的验证流程，我需要为你介绍一些关键的接口和类（很遗憾这一部分无法完全避免），**如果你只想继续学习Spring Security的使用，直接跳到demo时刻部分吧！**        <a href="https://www.cnblogs.com/YLTFY1998/p/14735497.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-05-06 15:51
+白泽来了
+<span data-post-id="14735497" class="post-view-count">阅读(115)</span> 
+<span data-post-id="14735497" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14735497" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735497" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/05/05.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年5月5日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14731735.html">
+    <span>
+        Spring Security极简入门三部曲（上篇）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：大家好，这里是白泽。最近学校里一个Spring Boot项目要用到Spring Security做安全相关的工作，好，没用过，那我先学一下吧。查阅了不少文章，上来就是一堆接口，实现类，过滤器链，超级高水平，我看不懂。摸索了两天终于有点感觉了，就写一篇两天前的我希望看到的博客吧        <a href="https://www.cnblogs.com/YLTFY1998/p/14731735.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-05-05 14:46
+白泽来了
+<span data-post-id="14731735" class="post-view-count">阅读(147)</span> 
+<span data-post-id="14731735" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14731735" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14731735" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/04/30.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年4月30日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14721422.html">
+    <span>
+        使用IDEA模拟git命令使用的常见场景
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：大家好，最近白泽第一次开始参与小组合作开发，以前都是自己用git保存自己的代码，自己维护，用git的场景也比较单一，没有遇到过拉取代码合并出现冲突的问题。但是小组开发拉取远程仓库的代码时，遇到他人所提交代码与自己的本地代码出现冲突在所难免，所以白泽特意去学习了一下git的冲突处理，接下来用一个小demo复现一下我学习的过程        <a href="https://www.cnblogs.com/YLTFY1998/p/14721422.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-04-30 11:37
+白泽来了
+<span data-post-id="14721422" class="post-view-count">阅读(271)</span> 
+<span data-post-id="14721422" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14721422" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14721422" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/26.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月26日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14331825.html">
+    <span>
+        Java单例模式的几种常见实现方式
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：Java单例模式的几种常见实现方式 懒汉or饿汉？ 懒汉：单例模式延迟加载方式，一开始不给你new对象，你要new再给你new 饿汉：上来就给你new好一个对象，你可以直接用(吃)，你也没法new 饿汉：不加锁，线程安全，用起来方便，容易产生垃圾对象 public class SingletonTe        <a href="https://www.cnblogs.com/YLTFY1998/p/14331825.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-26 18:14
+白泽来了
+<span data-post-id="14331825" class="post-view-count">阅读(70)</span> 
+<span data-post-id="14331825" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14331825" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14331825" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/24.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月24日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14321884.html">
+    <span>
+        Java优先队列PriorityQueue的各种打开方式以及一些你不知道的细节
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：Java优先队列PriorityQueue的各种打开方式以及一些你不知道的细节 未经作者允许，不可转载，如有错误，欢迎指正o(￣▽￣)o 首先我们知道用PriorityQueue这个类创建的对象是一个集合，然后调用api可以将一个个对象添加入集合，然后再通过api遍历时，插入的元素就从小到大排序输出        <a href="https://www.cnblogs.com/YLTFY1998/p/14321884.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-24 18:59
+白泽来了
+<span data-post-id="14321884" class="post-view-count">阅读(243)</span> 
+<span data-post-id="14321884" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14321884" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14321884" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/23.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月23日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14318339.html">
+    <span>
+        一些JavaSE学习过程中的思路整理(四)（主观性强，持续更新中...）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：一些JavaSE学习过程中的思路整理(四)（主观性强，持续更新中...） 未经作者允许，不可转载，如有错误，欢迎指正o(￣▽￣)o 多线程编程：资源类&amp;amp;任务&amp;amp;运行机制的解耦合 一下是《Java核心技术卷一》中的一个样例，用多线程并发模拟银行账户的转账过程，该样例还未使用上锁机制，是一个有问题的样例，        <a href="https://www.cnblogs.com/YLTFY1998/p/14318339.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-23 17:36
+白泽来了
+<span data-post-id="14318339" class="post-view-count">阅读(58)</span> 
+<span data-post-id="14318339" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14318339" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14318339" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/21.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月21日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14307577.html">
+    <span>
+        一些JavaSE学习过程中的思路整理(三)（主观性强，持续更新中...）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：一些JavaSE学习过程中的思路整理(三)（主观性强，持续更新中...） 未经作者允许，不可转载，如有错误，欢迎指正o(￣▽￣)o，安利一位b站的up：楠哥教你学Java，干货比较多 Java线程同步的几种常见情况分析 同步问题针对的是多个线程所共享的资源，下面分几步假设了一个思考的过程： 1.多个        <a href="https://www.cnblogs.com/YLTFY1998/p/14307577.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-21 13:51
+白泽来了
+<span data-post-id="14307577" class="post-view-count">阅读(60)</span> 
+<span data-post-id="14307577" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14307577" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14307577" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/19.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月19日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14300019.html">
+    <span>
+        一些JavaSE学习过程中的思路整理(二)（主观性强，持续更新中...）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：一些JavaSE学习过程中的思路整理(二)（主观性强，持续更新中...） 未经作者允许，不可转载，如有错误，欢迎指正o(￣▽￣)o 将一个子类的引用对象赋值给超类的对象(多态) 赋予了子类对象的超类对象只能调用超类中定义的public成员变量和方法 如果子类重写了超类中的方法，就会调用子类中的方法（        <a href="https://www.cnblogs.com/YLTFY1998/p/14300019.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-19 21:00
+白泽来了
+<span data-post-id="14300019" class="post-view-count">阅读(61)</span> 
+<span data-post-id="14300019" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14300019" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14300019" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/17.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月17日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14288918.html">
+    <span>
+        LeetCode 947. 移除最多的同行或同列石头 并查集
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：传送门 思路 干货太干就不太好理解了，以下会有点话痨(￣▽￣)&amp;quot; 首先题目给了一个二维stones数组，存储每个石子的坐标，因为在同行或者同列的石子最终可以被取到只剩下一个，那么我们将同行同列的石子归属于一个集合，开始套用并查集的思想求一下有几个集合似乎就搞定了？想到这是我看到题目的想法，但是为了实        <a href="https://www.cnblogs.com/YLTFY1998/p/14288918.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-17 14:38
+白泽来了
+<span data-post-id="14288918" class="post-view-count">阅读(67)</span> 
+<span data-post-id="14288918" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14288918" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14288918" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+		
+
+
+<div class="day">
+	<div class="dayTitle">
+        <a href="https://www.cnblogs.com/YLTFY1998/archive/2021/01/15.html">
+            <img src="/skins/sea/images/title_post.gif" border="0" align="absmiddle" />
+        </a>
+		&nbsp;
+		2021年1月15日		  
+	</div>
+
+	
+			<div class="postTitle">
+				
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/YLTFY1998/p/14282750.html">
+    <span>
+        一些JavaSE学习过程中的思路整理(一)（主观性强，持续更新中...）
+    </span>
+    
+
+
+
+</a>
+
+			</div>
+			
+
+    <div class="c_b_p_desc">
+摘要：一些JavaSE学习过程中的思路整理(一)（主观性强，持续更新中...） 未经作者允许，不可转载，如有错误，欢迎指正o(￣▽￣)o Java书写规范 类名大驼峰，标识符小驼峰，关键字、右括号、右花括号后加空格。方法与方法之间加一个空行。 IDEA的一些常用快捷键 ctrl + shift + f10        <a href="https://www.cnblogs.com/YLTFY1998/p/14282750.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+
+			<div class="postDesc">posted @ 2021-01-15 16:26
+白泽来了
+<span data-post-id="14282750" class="post-view-count">阅读(106)</span> 
+<span data-post-id="14282750" class="post-comment-count">评论(2)</span> 
+<span data-post-id="14282750" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14282750" rel="nofollow">
+    编辑
+</a>
+</div>
+
+</div>
+
+
+
+<div class="topicListFooter">
+    <div id="nav_next_page">
+        
+    <a href="https://www.cnblogs.com/YLTFY1998/default.html?page=2">
+        下一页
+    </a>
+
+    </div>    
+</div>
+
+
+
+
+
+
+<script>
+    updatePostStats(
+        $(".post-view-count").map(function () { return this.dataset.postId }).get(),
+        function(id, count) { $(".post-view-count[data-post-id=" + id + "]").text("阅读(" + count + ")") },
+        function(id, count) { $(".post-comment-count[data-post-id=" + id + "]").text("评论(" + count + ")") },
+        function(id, count) { $(".post-digg-count[data-post-id=" + id + "]").text("推荐(" + count + ")") });
+</script>
+</div>
+<div id="leftcontent">
+	
+		<DIV id="leftcontentcontainer">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                    <script>loadBlogDefaultCalendar();</script><br>
+			<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script></DIV>
+	
+</div>
+<!--done-->
+<div class="footer">
+	Powered by: <a href="http://www.cnblogs.com">博客园</a>
+	Copyright &copy; 2021 白泽来了
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+</div>
+
+
+
+
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtWpU3xqxCjit_AtdqkSHfbpwnqN6XTPyMrygMTOyuz-FvS8tOV-urlQ9kDXeP4htTDa_uMe1_XLG36jqQPVpWTJNSO5k_jUAaZVA1CqsAVbu2DL8CTLdhW4ldCYs2uyJ0" />
+</body>
+</html>

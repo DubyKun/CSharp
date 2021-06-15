@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="copyright" content="&copy;2016 暴雪娱乐有限公司版权所有 上海网之易网络科技发展有限公司" />
+    <meta content="width=1280,maximum-scale=1.0" name="viewport" />
+    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
+    <meta name="keywords" content="星际争霸II,星际II,星际争霸2,星际2,SC2,对战,战役,电子竞技,游戏大厅,自定义地图,自由之翼,虫群之心,虚空之遗,合作模式,执政官模式" />
+    <meta name="description" content="《星际争霸II》三部曲最终章《虚空之遗》11月10日正式上市！精彩的对战、史诗级的战役、前所未有的合作模式、乐趣横生的自定义地图，尽在《星际争霸II：虚空之遗》。" />
+    <link rel="icon" href="https://sc2.nosdn.127.net/1/style/images/sc2.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="https://sc2.nosdn.127.net/1/style/images/sc2.ico" type="image/x-icon" />
+    <title>《星际争霸II》官方网站</title>
+</head>
+
+<body id="sc2">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-50249600-124"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-50249600-124');
+    </script>
+
+    <script type="text/javascript" src="https://fs-web.bnet.163.com/static/jv/jaina-hubble/latest/package/dist/index.min.js?t=1615458082369"></script>
+    <script type="text/javascript">
+    /**
+     * start tracker
+     * @appkey {String} - MA-9930-1187783EFDD9
+     * 关于本地存储cookie跨子域配置使用场景说明：假如产品二级域是 163.com 的，由于公司很多产品都是这个域名，此时应该关闭跨子域
+     */
+    DATracker.init('MA-9930-1187783EFDD9', { heatmap: { isTrackLink: true }, truncateLength: 255, persistence: "localStorage", cross_subdomain_cookie: true });
+    </script>
+
+    <!-- START NetEase Devilfish 2006 -->
+    <script src="https://analytics.163.com/ntes.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    _ntes_nacc = "sc2";
+    neteaseTracker();
+    neteaseClickStat();
+    </script>
+    <!-- END NetEase Devilfish 2006 -->
+    
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-32496948-1']);
+    _gaq.push(['_trackPageview']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_trackPageLoadTime']);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+    <script type="text/javascript" src="https://fs-web.bnet.163.com/static/??vendor/jquery/1.8.3/jquery.min.js,vendor/jquery-cookie/1.4.1/jquery.cookie.min.js,jv/jaina-checksite/latest/package/dist/index.min.js?t=1615458082369"></script>
+</body>
+
+</html>

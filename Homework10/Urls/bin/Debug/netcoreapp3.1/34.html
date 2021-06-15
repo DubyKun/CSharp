@@ -1,0 +1,631 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    <meta name="description" content="大家好，我是小羽。 好久不见，给大家带来个好消息，小羽的全新专题「编程羽录」系列正式上新，主要是介绍一些关于面试题和经验总结的文章。 会为大家提供一些技术栈之外，程序员还需要的其他方面硬核知识，做到全" />
+    <meta property="og:description" content="大家好，我是小羽。 好久不见，给大家带来个好消息，小羽的全新专题「编程羽录」系列正式上新，主要是介绍一些关于面试题和经验总结的文章。 会为大家提供一些技术栈之外，程序员还需要的其他方面硬核知识，做到全" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>「编程羽录」上线，程序员必备的这些技能你能get到嘛？ - 浅羽技术 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/qianyueric/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/qianyueric/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/qianyueric/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 655084;
+        var currentBlogApp = 'qianyueric';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 08:11';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/qianyueric/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/qianyueric/">浅羽技术</a>
+</h1>
+<h2>微信搜索并关注「 浅羽的IT小屋 」微信公众号，我会在这里分享一些计算机信息知识、理论技术、工具资源、软件介绍、后端开发、面试、工作感想以及生活随想等一系列文章。</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/qianyueric/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%B5%85%E7%BE%BD%E6%8A%80%E6%9C%AF">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/qianyueric/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/qianyueric/p/14736739.html">
+    <span>「编程羽录」上线，程序员必备的这些技能你能get到嘛？</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        <img src="https://images.cnblogs.com/cnblogs_com/qianyueric/1958381/o_210506121012WechatIMG478.png" class="desc_img">小羽的全新专题「编程羽录」系列正式上新，主要是介绍一些关于面试题和经验总结的文章。为大家提供一些技术栈之外，程序员还需要的其他方面硬核知识。本期为大家介绍的是关于一些程序员必备技能介绍，掌握这些编码内外的技能，会朝优秀软件开发人员更近一步。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<p><strong><strong>大家好，我是小羽。</strong></strong></p>
+<p>好久不见，给大家带来个好消息，小羽的全新专题「<strong>编程羽录</strong>」系列正式上新，主要是介绍一些关于面试题和经验总结的文章。</p>
+<p>会为大家提供一些技术栈之外，程序员还需要的<strong>其他方面硬核知识</strong>，做到全面发展，才能在这个日趋激烈的社会，在未来有更好的发展空间。</p>
+<p>话不多说，本期为大家介绍的是关于一些程序员<strong>必备技能</strong>介绍，相信掌握这些编码内外的技能，我们会朝优秀软件开发人员更近一步。</p>
+<p>下面就来看看我总结的这些技能，准备好进收藏夹（吃灰）了嘛？</p>
+<h2 id="编码之内">编码之内</h2>
+<h3 id="代码规范">代码规范</h3>
+<blockquote>
+<p>代码规范化带给我们的第一个好处就是看着很整齐、很舒服。</p>
+</blockquote>
+<p>虽然说我们现在可以用不规范的方式写代码，现在能看得懂，但等过了几个月后，你再回头看时估计就两眼懵圈了。更不要说万一项目迭代开发，交接给其他人了，所以代码一定要<strong>写规范</strong>。</p>
+<p>下面的是我总结的一些<strong>代码规范</strong>注意事项：</p>
+<p>编码方式：统一用&nbsp;<code>UTF-8</code>，一般情况下不要去改动它。</p>
+<p>缩进：统一为 4 个空格，将 Tab size 设置为 4 则可以保证 tab 键按 4 个空格<strong>缩进</strong>。</p>
+<p>括号：花括号不要单独一行，和它前面的代码<strong>同一行</strong>。而且，花括号与前面的代码之间用一个空格隔开。</p>
+<p>空格：if、else、for、switch、while 等逻辑关键字与后面的语句留一个<strong>空格隔开</strong>；运算符两边各用一个空格隔开；方法的每个参数之间用一个空格隔开。</p>
+<p>空行：将逻辑相关的代码段用空行隔开，以<strong>提高可读性</strong>。空行也只空一行，不要空多行。</p>
+<p>变量：一行声明一个变量，不要一行声明多个变量，这样<strong>有利于写注释</strong>。</p>
+<p>推荐书籍：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f856219d39c243efa1cb8817fb6f90bd~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>代码整洁之道</p>
+<h3 id="命名规范">命名规范</h3>
+<blockquote>
+<p>想必程序员一想到命名都很头疼，当遇到混乱或错误的命名不仅让我们对代码难以理解，更会误导我们的思维。</p>
+</blockquote>
+<p>良好的命名，则可以大大提高我们的代码<strong>易读性</strong>，也能大大增强代码的<strong>可维护性</strong>。</p>
+<p>下面的是关于<strong>命名规范</strong>的一些基础：</p>
+<p>包命名：域名反写 + 项目名称 + 模块名称，全部单词用<strong>小写字母</strong>。</p>
+<p>类和接口命名：使用<strong>大驼峰规则</strong>，用名词或名词词组命名，每个单词的首字母大写。</p>
+<p>方法命名：使用<strong>小驼峰规则</strong>，用动词或者动名词命名，第一个单词的首字母小写，其他单词的首字母大写。</p>
+<p>常量命名：全部为<strong>大写单词</strong>，单词之间用下划线分开。</p>
+<p>变量命名：范围描述 + 意义描述 + 类型描述的组合，用驼峰式，<strong>首字母小写</strong>。</p>
+<h3 id="注释规范">注释规范</h3>
+<blockquote>
+<p>我们也一定要养成写注释的好习惯，当我们在写某个程序的时候，可能当下记得很清楚，这一段是<strong>什么机制、如何实现</strong>，但是当你写的程序越来越多，你会忘记当初为什么这样写，改动和交接也十分麻烦，对代码进行注释就可以有效避免这种情况。</p>
+</blockquote>
+<p>注释不仅可以让人读懂代码，甚至能让读代码的人获取更多信息。</p>
+<p>下面是关于<strong>注释规范</strong>的一些建议：</p>
+<p>文件头注释：文件顶部统一添加<strong>版权声明</strong>。</p>
+<p>类和接口注释：类和接口统一添加&nbsp;<code>javadoc</code>&nbsp;注释。</p>
+<p>方法注释：方法的<strong>用途和参数说明</strong>，以及返回值的说明。</p>
+<p>变量和常量注释：优先采用右侧&nbsp;<code>//</code>&nbsp;来注释，若注释说明太长则在<strong>上方</strong>添加注释。</p>
+<h3 id="框架">框架</h3>
+<blockquote>
+<p>Java 是目前最热门的编程语言之一，随着 Java 面向对象语言的流行以及多层架构应用的出现，使得应用程序的<strong>可复用性</strong>得到了大大的提高，框架这个东西也在应用程序中开始出现，并得到了广泛的使用。</p>
+</blockquote>
+<p>在面试中，面试官一般来说会问你一下你们项目中使用的框架，然后给你<strong>一些场景</strong>问你用框架怎么做。</p>
+<p>整理的目前较受欢迎的 Java 框架：</p>
+<p>SpringMVC：使用了 MVC 架构模式的思想，将 web 层进行<strong>职责解耦</strong>，基于请求-响应模型。</p>
+<p>Struts2：用于构建当代 JavaEEWeb 应用程序，可以帮你<strong>快速搭建</strong>出一个MVC模型出来。</p>
+<p>Hibernate：是一个开放源代码的<strong>对象关系映射</strong>框架，是一个全自动的 orm 框架，可参考：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510714&amp;idx=1&amp;sn=30a7bf92eeef63da316e9ee73f0240ac&amp;chksm=cf472180f830a8969c8be7e9c7cb4a6dbb2fdc4fc78bfce7f38fda6ed934d2fc3619f19aa57d&amp;scene=21#wechat_redirect" target="_blank">「连Hibernate技术都不清楚，你敢说你自己会ORM框架？」</a></p>
+<p>Spring：是一个开源开发框架，是一个轻量级控制反转（IOC）和面向切面（AOP）的<strong>容器</strong>框架，可参考：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510742&amp;idx=1&amp;sn=06de735f6289a3fc74128ce233ccef17&amp;chksm=cf4721ecf830a8fad00a478b10ec48cb3e61c07b6a3d6643d291638d38c898f87e4ddc9f8b70&amp;scene=21#wechat_redirect" target="_blank">「一文带你了解Spring框架的基本使用」</a></p>
+<p>SSH：是 JAVA EE 中<strong>三种框架</strong>所集成，分别是 Struts，Spring，Hibernate 框架所组成，是当前比较流行的 java web 开源框架。</p>
+<p>SSM：是<strong>三层结合</strong>所成的框架，分别是 Spring、SpringMVC、MyBatis 所组成。</p>
+<p>Mybatis：是一个简化和实现了 java <strong>数据持久层</strong>的开源框架，它抽象了大量的JDBC冗余代码，并提供了一个简单易用的API和数据库交互。</p>
+<p>Springboot：是一个全新的框架，简化 Spring 的初始搭建和开发过程，使用了<strong>特定的方式</strong>来进行配置，让开发人员不再需要定义样板化的配置。</p>
+<p>Dubbo：是一个分布式服务框架，致力于提供高性能和透明化的 RPC <strong>远程服务调用</strong>方案，以及SOA服务治理方案，可参考：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247514609&amp;idx=1&amp;sn=255825971509ade4d7c452c58b729b46&amp;chksm=cf4732cbf830bbddd95c685906aca5eeead07f472d2895ba1a22cdc114e2f41cde01bc9c484c&amp;scene=21#wechat_redirect" target="_blank">「微服务面试必问的Dubbo，这么详细还怕自己找不到工作？」</a></p>
+<p>Apache Shiro：是 Java 的一个安全框架，旨在简化<strong>身份验证和授权</strong>。</p>
+<p>SpringCloud：是<strong>微服务</strong>的一种解决方案，依赖 SpringBoot 实现。包含注册中心(eureka)、客户端负载均衡(Ribbon)、网关(zull)、分布式锁、分布式会话等，可参考：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510707&amp;idx=1&amp;sn=f1a0e753c538c657e6723704611b431e&amp;chksm=cf472189f830a89ff32fd9da421777840474f75de29e783112a93166e0b31bb0d387adbeb176&amp;scene=21#wechat_redirect" target="_blank">「图文详解：如何给女朋友解释什么是微服务？」</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247514156&amp;idx=1&amp;sn=e2d5d9a4d7de5c79bd7119c176d0a0f4&amp;chksm=cf473316f830ba0088c4f221aab3a6f148178713356aeb0f684f8d48587c4561d6c227c0dd2e&amp;scene=21#wechat_redirect" target="_blank">「再深一点：如何给女朋友解释什么是微服务？」</a></p>
+<h3 id="数据库">数据库</h3>
+<blockquote>
+<p>数据库是很重要的一部分，无论对于面试还是工作中，都是一个老生常谈的话题。</p>
+</blockquote>
+<p>比较重要的是<strong>数据库优化</strong>部分，小羽之前总结过一篇关于 MySQL 优化的文章，想要了解的可以到下面文章查看：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510747&amp;idx=1&amp;sn=53bb46bf93999dfe69055f81d92eabc4&amp;chksm=cf4721e1f830a8f7e56ccb49a9f7b771c5b63511b50b1731255bdf1bcb184c478fd63ca33dbf&amp;scene=21#wechat_redirect" target="_blank">「干货！MySQL优化原理分析及优化方案总结」</a></p>
+<p>最常见的数据库模型主要是两种，即<strong>关系型数据库（SQL）</strong>和<strong>非关系型数据库（NoSQL）</strong>。</p>
+<p>关系型数据库：</p>
+<p>•大型：Oracle、DB2•中型：SQL Server、<code>MySQL</code>•小型：Access</p>
+<p>非关系型数据库：</p>
+<p>•临时性键值存储（memcached、<code>Redis</code>）•永久性键值存储（ROMA、Redis）•面向文档的数据库（MongoDB、CouchDB）•面向列的数据库（Cassandra、HBase）</p>
+<p>经常使用的是 Redis，可以参考这篇文章理解：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510725&amp;idx=1&amp;sn=cac5e94040e0fdbbeea63343dbc45d1d&amp;chksm=cf4721fff830a8e9ae9929aa34cee18f9bd435f3e77cd3451537a14e531580f0d823a18fb6f7&amp;scene=21#wechat_redirect" target="_blank">「玩转Redis｜学会这10点让你分分钟拿下Redis，满足你的一切疑问」</a></p>
+<p>常见数据库：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fd31be8c6b2343e1ba6314b12c9e0838~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>常见数据库</p>
+<h3 id="数据结构">数据结构</h3>
+<blockquote>
+<p>身为程序员的我们，每天都在和不同的数据打交道。那么我们真的对数据结构一清二楚了么？</p>
+</blockquote>
+<p>小羽的文章中也详细的图文介绍了各种数据结构的使用：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247512403&amp;idx=1&amp;sn=0d743e29ce6306f3b43eef7d44f8332a&amp;chksm=cf473a69f830b37f4d0dd22d2787960ba2adf124a0864b8833666b98cff4d161ddd0caed365a&amp;scene=21#wechat_redirect" target="_blank">「有人相爱，有人年少财务自由，有人数据结构都背不出来」</a></p>
+<p>对各类数据结构进行了分类，并且从<strong>定义、特点、原理解析使用方法以及实现的相关案例</strong>相结合：</p>
+<p>•栈 stack•队列 queue•链表 Link•散列表 Hash Table•排序二叉树•红黑树•B-TREE•位图</p>
+<p>数据结构推荐书籍：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/43345a38fdb44dc7a94d880e5d4b17ec~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>大话数据结构</p>
+<h3 id="算法">算法</h3>
+<blockquote>
+<p>算法无论是对于学习还是工作，都是必不可少的。我们掌握了这些算法背后的逻辑思想，那么是会对我们的学习和工作有很好的促进作用的。</p>
+</blockquote>
+<p>我在之前的文章中详细介绍过一些关于 Java 经典算法：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247514779&amp;idx=1&amp;sn=bcbd61f645d8506fc8bb7a99ddec4e2d&amp;chksm=cf4731a1f830b8b7a5753b538433cf55e2e83f51b66ac61def11ec37fde6b1e9fba7ffab64bd&amp;scene=21#wechat_redirect" target="_blank">「算法很美，听我讲完这些Java经典算法包你爱上她」</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247511402&amp;idx=1&amp;sn=44cd7f0a92a4cc32d9cf11f65abf0b41&amp;chksm=cf472650f830af46e97ba56fa240f559c17672f3645e6d26fa6bc97f8e3903c8f56e4803b492&amp;scene=21#wechat_redirect" target="_blank">「周末给女友讲了遍加密算法，没想到...」</a></p>
+<p>主要有以下经典算法，详细介绍了各个算法的<strong>简介、应用场景、步骤、代码示例</strong>：</p>
+<p>•二分查找•冒泡排序算法•插入排序算法•快速排序算法•希尔排序算法•归并排序算法•桶排序算法•基数排序算法•剪枝算法•回溯算法•最短路径算法•最大子数组算法•最长公共子序算法•最小生成树算法</p>
+<p>算法推荐书籍：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/592e9c2206cb42b3947c0cbac5b56713~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>算法图解</p>
+<h3 id="版本管理">版本管理</h3>
+<blockquote>
+<p>在现在市面上的大部分公司的代码都是通过版本管理工具来<strong>进行托管</strong>的，从之前的 SVN 到现在基本人人必用的 Git。</p>
+</blockquote>
+<p>我们需要了解 Git 的每一个<strong>具体命令和参数使用</strong>，知道执行每个命令会做什么，避免各类分支或者 fork 操作引起的<strong>冲突问题</strong>。</p>
+<p>可以帮助我们：</p>
+<p>1.保存开发过程中的代码，方便<strong>后续修改</strong>。2.能清楚的看到每一位团队成员提交、修改的代码，<strong>责任到人</strong>。3.方便我们完成<strong>协同开发</strong>的任务，高效工作。4.为后续客户提供关于项目<strong>不同版本</strong>的记录。</p>
+<p>关于代码版本管理的工具有很多，下面是我常用的：</p>
+<p>•SVN：替换了当年开源社区最为流行的版本控制软件 CVS，在 CVS 的功能的基础上有很多的提升同时也能较好的<strong>解决 CVS 系统的一些不足</strong>。•Git：用于 Linux 内核开发的版本控制工具，采用了<strong>分布式版本库</strong>的作法，不需要服务器端软件，就可以运作版本控制，使得源代码的发布和交流极其方便。•GitHub：GitHub 是目前为止，<strong>用户最多的工具</strong>了，而且也有很多的开源项目提供，一直都是程序员最钟爱的平台，想要学习的话，都可以去下载项目来学习。</p>
+<p>主流工具：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f2de79d5bc2b4e7cb56a5aa434a8d682~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>主流工具</p>
+<h3 id="构建工具">构建工具</h3>
+<blockquote>
+<p>构建工具和版本管理一样重要，公司实际开发中我们需要对 Jar 包进行依赖管理，目前主流的构建工具是&nbsp;<code>maven</code>（大部分城市） 和&nbsp;<code>gradle</code>（西安使用比较多）这两款。要想成为一个标准的软件开发人员，我们不仅要学会使用这些工具构建，也要掌握发生依赖冲突该如何解决。</p>
+</blockquote>
+<p>当然，除了 maven 和 gradle，这里也有其他一些构建工具，感兴趣的都可以了解下：</p>
+<p>Hudson：用Java编写的<strong>持续集成</strong>（CI）工具。</p>
+<p>Jenkins：用 Java 编写的一个<strong>开源持续集成</strong>工具。项目是在和 Oracle 发生争执后的来自于 Hudson 的分支。</p>
+<p>Apache Ant：用于<strong>自动化软件构建</strong>过程的软件工具，源于 2000 年初的的 Apache Tomcat 项目。</p>
+<p>SBT：用于 Scala 和 Java 项目的<strong>开源构建</strong>工具，类似于 Java 的 Maven 和 Ant。</p>
+<p>Atlassian Bamboo：<strong>持续集成和交付</strong>工具，它将自动化构建、测试和发布捆绑到单个流程中。</p>
+<p>TeamCity：来自于 JetBrains 的一个基于 Java 构建的<strong>管理和持续集成</strong>服务器。</p>
+<p>Grape：嵌入到 Groovy 的&nbsp;<code>JAR</code>&nbsp;依赖项管理器。</p>
+<p>Ivy：Apache Ant 项目的一个子项目，一个<strong>可传递</strong>的依赖项管理器。</p>
+<p>Leiningen：一个<strong>自动化构建和依赖性管理</strong>工具，用于使用 Clojure 编程语言写的软件项目。</p>
+<p>常用：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d713df0bc67a488caf21b84410943796~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>Jenkins</p>
+<h3 id="单元测试">单元测试</h3>
+<blockquote>
+<p>我们在平时开发过程中，当完成自己的功能模块后，都需要自测一遍，这样可以保证代码的<strong>准确性</strong>，减少不必要的 bug 出现。</p>
+</blockquote>
+<p>小羽用的最多的也就是 junit 进行单元测试了，使用的是 junit4 这种<strong>基于注解</strong>的方式来进行单元测试。</p>
+<p>常用注解：</p>
+<p>1、为了和 spring 集成获取配置的 bean, 通常使用&nbsp;<code>@RunWith</code>&nbsp;来加载 springjunit 这个核心类；</p>
+<p>2、使用&nbsp;<code>@ContextConfiguration</code>&nbsp;来加载相关的配置的文件；</p>
+<p>3、通过&nbsp;<code>@Resource</code>&nbsp;按名字来注入具体的 bean, 最后在需要测试的方法上面加上 @Test 来进行单元测试。</p>
+<p>测试原则：</p>
+<p>•源代码和测试代码需要<strong>分开</strong>；•测试类和目标源代码的类应该位于<strong>同一个包</strong>下面，即它们的包名应该一样；•测试的类名之前或之后加上&nbsp;<code>@Test</code>，测试的方法名通常也以 test 开头。</p>
+<p>代码示例：</p>
+<pre><code>@RunWith(SpringJUnit4ClassRunner.class)//运行spring相关环境 相当于spring监听功能
+@ContextConfiguration(locations={"classpath:spring-common.xml","classpath:spring-datasource.xml"})//读取spring配置文件 不识别* 只能识别具体文件 多个配置文件使用string数据传递
+public class TestSpring {
+  //注入Service层
+    private @Resource UserService userService;
+    @Test
+    public void testFind(){
+        List&lt;User&gt; userList = userService.findAllUserInfo(); 
+        for (User user : userList) {
+            System.err.println(user.toString());
+        }
+    }
+}
+</code></pre>
+<p>想要学习更多关于单元测试的知识，可以到这篇文章查看：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510721&amp;idx=1&amp;sn=28d6cc4021559f438a0947b6a722e180&amp;chksm=cf4721fbf830a8ed1185e2e58383c9cb694197484026ee33c34b90574378606ecb96c29b3ca0&amp;scene=21#wechat_redirect" target="_blank">「告别祈祷式编程｜单元测试在项目里的正确落地姿势」</a></p>
+<h3 id="代码调试">代码调试</h3>
+<blockquote>
+<p>代码调试在我们开发中，用的最多的是属于 debug 了，就是我们常说的<strong>打个断点</strong>，跟着程序一步一步执行，看哪一步有问题，从而排查 bug，是我们解决问题最有效的手段。</p>
+</blockquote>
+<p>当然我们一定要有问题排查的能力，定位到问题来解决。此外，也要学会<strong>查看日志</strong>，日志能清楚记录我们每一步都做了什么。</p>
+<p>这里也给大家提供一些<strong>在线调试</strong>的网站：</p>
+<p>codepad：一款简单的在线 IDE 编辑器服务，只需要把代码粘贴进去就可以编译运行了，支持C、C++、PHP、Python等&nbsp;<code>9</code>&nbsp;种编程语言。</p>
+<p>Ideone：一款在线的编译器和调试工具，它可以让你来编译，运行，测试和代码，支持 Java、 JavaScript、PHP、Python 等&nbsp;<code>40</code>&nbsp;多种编程语言。</p>
+<p>PractiCode：是一款在线&nbsp;<code>Web</code>&nbsp;代码调试工具，支持HTML、CSS、JavaScript、VBScript 和 PHP 等语言。</p>
+<p>cssdesk：是一个在线调试&nbsp;<code>CSS</code>&nbsp;代码的工具。</p>
+<p>Google Code Playground：是一款在线调试各种&nbsp;<code>Google JavaScript API</code>&nbsp;的工具。</p>
+<p>推荐：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a2a31f193fd64a0f8be0fda79b5cb611~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>IDdone</p>
+<h3 id="重构代码">重构代码</h3>
+<blockquote>
+<p>每个程序员都需要有最基本的能力去重构目前已有的代码，使代码达到最优但却不能影响任何的已有的功能。</p>
+</blockquote>
+<p>小羽整理了一些关于代码重构的常用方法：</p>
+<p>•提取子函数•公共方法放到父类中•下移函数到子类•封装固定的调用逻辑•使用泛型去除重复逻辑•函数避免过多的入参•转移函数，函数职责分明•状态模式•避免对象为 null•拆分功能</p>
+<p>推荐书籍：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/02028a6a37ba4ded8bc00059317a969c~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>重构</p>
+<h3 id="阅读源码">阅读源码</h3>
+<blockquote>
+<p>这个对于我们日后想要更好的晋升空间或者拿到更高的薪资是很重要的。所以我们平时要多阅读源码，掌握<strong>底层实现</strong>。</p>
+</blockquote>
+<p>虽然会花费我们大量的时间精力去<strong>深刻专研</strong>，但是当你面试时候，能对某一个技术点的源码给面试官一阵输出的话，那么面试的主动权就会掌握在你的手里。同时多阅读源码，对于我们解决 bug 也有帮助。</p>
+<p>总结一下在 IDEA 中如何阅读源码：</p>
+<p>1.定位到构造器/方法实现类2.查看类层级关系3.查看类结构4.源码统计5.具体源码</p>
+<h3 id="问题排查与解决能力">问题排查与解决能力</h3>
+<blockquote>
+<p>我们选择开发这条路，会遇到形形色色的问题，发生问题的时候，就是检验程序员能力的时候。很多时候，解决问题并不难，难的是<strong>定位问题</strong>。</p>
+</blockquote>
+<p>这里面会涉及到很多知识，对于我们的<strong>知识储备</strong>很重要，所以平时一定要做好积累。</p>
+<p>也可以从以下几个方面来提升自己的能力：</p>
+<p>•<strong>日志</strong>的查看•分析Java的堆栈信息•集群监控指标的查看</p>
+<p>日志可以在这块了解：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247512333&amp;idx=1&amp;sn=8d80240850e1468ff648324b305466e3&amp;chksm=cf473a37f830b321d5c737cdef12005361c1fccfba4a5cb946127664e9f839a41c192d6607d0&amp;scene=21#wechat_redirect" target="_blank">「别小看 Log 日志，它难住了我们组的架构师」</a></p>
+<h3 id="面向google编程">面向Google编程</h3>
+<blockquote>
+<p>国内已经有百度了，为什么大部分程序都会去选择使用谷歌呢，因为百度搜索出来的东西太杂，例如你搜索一个技术类的东西，但是百度可能会搜索很多不相干的东西，而谷歌搜索的结果会更加的<strong>专业化</strong>，这样寻找你需要的信息的时候会更有效率。　　　</p>
+</blockquote>
+<p>普通程序员是面向对象编程的，而真正的<strong>高级程序员</strong>则是面试 Google 编程的，学好正确的使用 Google 编程是很重要的，同时也是因为 Google 的 Chrome 浏览器自带了丰富的插件，对于我们程序员也十分友好。</p>
+<p>我之前介绍的一些关于 Chrome 浏览器插件的介绍：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510758&amp;idx=1&amp;sn=a410ae60f86220584a17727717f1816b&amp;chksm=cf4721dcf830a8ca78a2c50f4a20ecebc0ccd48f37af809e57918df2d7c07618ae28c87cd1e2&amp;scene=21#wechat_redirect" target="_blank">《Chrome浏览器必备插件推荐》</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510752&amp;idx=1&amp;sn=90cb340c38fef528548da6f5465d69ca&amp;chksm=cf4721daf830a8cc5d4882eb02769ae1fa1bac086595b27688dd81c97dad4ca6c5ff9ab57e47&amp;scene=21#wechat_redirect" target="_blank">《Chrome浏览器插件推荐之程序员系列》</a></p>
+<p>有问题，多 Google：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7b2a310768c64e6eaa541e45ec9ef269~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>Google</p>
+<h2 id="编码之外">编码之外</h2>
+<h3 id="笔记">笔记</h3>
+<blockquote>
+<p>互联网这个行业更新换代很快，需要保持不断的学习，学习的知识点很多，光靠大脑不可能全部记得住。</p>
+</blockquote>
+<p>我们可以把平时记录的<strong>技术点、知识、好文章</strong>保存或者记录在笔记上。</p>
+<p>小羽在这里推荐几款我使用的不错的笔记：</p>
+<p>•有道云•印象笔记•OneNote•<strong>语雀</strong></p>
+<p>推荐语雀：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/791d0d1d443e41cdaec2a7000681e560~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>语雀</p>
+<h3 id="markdown">MarkDown</h3>
+<blockquote>
+<p>Markdown 是一种可以使用普通文本编辑器编写的<strong>标记语言</strong>，通过简单的标记语法，它可以使普通文本内容具有一定的格式。</p>
+</blockquote>
+<p>我一般都是使用&nbsp;<code>typora</code>，这款界面简洁，支持实时预览，支持多种公式类型，支持TOC等标签这款先编写好，然后复制到自己喜欢的编辑器里进行<strong>渲染格式</strong>，最后发布文章到各个平台。</p>
+<p>推荐 Typora：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1689ea67a2ba47be9a989b4976904f67~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>Typora</p>
+<h3 id="学会写作">学会写作</h3>
+<blockquote>
+<p>写作是一个非常好的「进阶」 方式。但是平时我们的程序员同学都会很忙有很多事，导致了我们没有太多的时间，同时也很难持续的进行写作，那么我们应该要如何坚持写作呢？</p>
+</blockquote>
+<p>其实是无论坚持什么事情都不是一件容易的事情，写作可以先从<strong>技术博客</strong>开始，后面也可以写一写生活中的事情。反正就是先让自己写起来，先写起来之后养成习惯，你会受益一辈子的。</p>
+<p>一般都会选用上面所说的 Markdown 语法写作，编辑工具也很多，在线的、PC端的都有。</p>
+<p>比如我书签里的这些：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/50d4663d89bf44f5a07333ef7a15cd14~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>编辑器</p>
+<h3 id="团队协作">团队协作</h3>
+<blockquote>
+<p>我们开发过程中，无论哪一个项目都是很多人一起完成的。任何编程工作不可能会让你自己一个人完成，我们自己写的的代码必须与别人的<strong>交互或者混合</strong>。就算很优秀的程序员，如果无法与别人协作，都会给项目造成负面影响，对公司的正常运营造成影响。</p>
+</blockquote>
+<p>作为一个合格的程序员，我们更应该学会与人合作。有一句话我记得非常清楚，没有一个人的成功，每个人的成功都是建立在和别人合作的基础之上的， 我们是<strong>一个整体</strong>，需要共同面对困难，一起分享成功。</p>
+<p>下面的方法可以参考：</p>
+<p>•分工合理,责任明确,模块化•高效的沟通机制(聊天软件,任务面板,邮件等)•定期检查,及时调整(<code>codeReview</code>、日报、周报、大小会议)</p>
+<h3 id="不断学习">不断学习</h3>
+<blockquote>
+<p>在日常开发中，一定要学会去 github 等网站上，学习一些别人的优秀开源项目，学习别人的<strong>思想和构架</strong>，学习别人的逻辑。</p>
+</blockquote>
+<p>总结自己编码过程中的局限性，只有在不断的学习过程中，才能使的自己的技术不断上升。</p>
+<p>之前整理过一些关于<strong>学习平台网站</strong>的总结：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510762&amp;idx=1&amp;sn=fdf4d0cc50ceff924ba8c3fd70b147f3&amp;chksm=cf4721d0f830a8c6b90b4e2882354ff35a00889aaa5655cc509c24b435e621ae8c72219bd926&amp;scene=21#wechat_redirect" target="_blank">《程序员必备的技术网站合集》</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510756&amp;idx=1&amp;sn=d1ffca50631b398ed2de5ba048672958&amp;chksm=cf4721def830a8c8736453da347ae62c9d1d9494ad7cc532c42912379efcf823b1092c08d6c9&amp;scene=21#wechat_redirect" target="_blank">《程序员自由工作平台国内外汇总篇》</a></p>
+<p>我书签中的学习网站：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8396842109d049b4ab0fa09ee9340b47~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>学习网站</p>
+<h3 id="创建自己的产品">创建自己的产品</h3>
+<blockquote>
+<p>作为软件开发人员，我们不仅能够开发软件产品，还可以开发<strong>书籍和视频</strong>这样的信息产品。</p>
+</blockquote>
+<p>我认识的很多大佬，都与出版社有合作关系，出版了自己的书籍，或者入驻 b 站等视频领域有不错的成绩，这对于个人的&nbsp;<code>ip</code>&nbsp;塑造以及后续发展会提供很好的影响力。</p>
+<p>我认为应该具备以下能力：</p>
+<p>•要选择好<strong>方向</strong>，多调研，了解用户的需要。•在开始之前，尽量先去市场做看看有没有同类产品，了解<strong>现状</strong>。•注重好<strong>细节</strong>，以免后续产品缺陷太多。</p>
+<p>在以下平台都可以尝试：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4c5bdcac9dde48a7b22c38cd4c4d0849~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>创作平台</p>
+<h3 id="身体是革命的本钱">身体是革命的本钱</h3>
+<blockquote>
+<p>程序员的工作，大多是坐在电脑屏幕前，一坐就是几小时，<strong>缺乏锻炼</strong>，我们当中很多人都会得颈椎病，还有得了脂肪肝，一些人得了腰间盘突出，以至于年纪轻轻，身体就不行了。</p>
+</blockquote>
+<p>所以，一定要爱护自己的身体，<strong>学会养生</strong>，不仅是对自己负责，也是对社会负责。</p>
+<p>小羽在这里给出的一点建议：</p>
+<p>•保持充足的<strong>睡眠</strong>•养成规律的<strong>饮食</strong>•坚持<strong>健身</strong>•多跑步走动•合理的加班•培养其他<strong>兴趣</strong></p>
+<h3 id="学会技术输出和分享">学会技术输出和分享</h3>
+<blockquote>
+<p>将学到的编程知识写下来，并且将它<strong>分享</strong>给其他的程序员，将让你变得更优秀。写文章的好处是多方面的。你能够分享想法，并帮助全世界的程序员</p>
+</blockquote>
+<p>我们应该把每天学习的知识、技术，或者是看书的心得体会，用<strong>自己的方式</strong>表达出来。可以通过发博客、公众号等等平台，也可以通过视频的方式。</p>
+<p>在我书签里的这些平台，我都会坚持在每个平台分享：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/01059e8adbf7421c8e254c7e94c298fa~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>博客网站</p>
+<h3 id="尝试自媒体">尝试自媒体</h3>
+<blockquote>
+<p>什么是自媒体呢？从名称属性来看，很简单，就是<strong>自己做自己的媒体</strong>，自己将自己的东西分享出来，就是自媒体。</p>
+</blockquote>
+<p>对于我来说呢，我觉得自媒体还是<strong>很有前景</strong>的，有很多人说哪个类型自媒体已经很晚了。我觉得只要你自己用心做这件事，什么时候都不算晚。成功都是属于那些坚持到最后的人的。</p>
+<p>我之前也分享过一些关于自媒体的<strong>心得和总结</strong>：</p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510751&amp;idx=1&amp;sn=a398d2bbf8222815748bcdbebd181b4b&amp;chksm=cf4721e5f830a8f3d6c75b76103ff13531a17f5ed5f245474a1a37b8a61710347223a15f0d1b&amp;scene=21#wechat_redirect" target="_blank">「自媒体人必不可少的多平台同步、一文多发小助手」</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510712&amp;idx=1&amp;sn=dca25f6ac1de4d8ee3f4f0bbd112afef&amp;chksm=cf472182f830a894bd09f04dc6f2e6ee0b2fae61b3de0615c75f8527f8ee0c731ef2b84e96e5&amp;scene=21#wechat_redirect" target="_blank">「人人自媒体的时代，程序员该如何利用好自己的优势？我记住了这些神器...」</a></p>
+<p><a href="http://mp.weixin.qq.com/s?__biz=Mzg4MzU0NzczMw==&amp;mid=2247510709&amp;idx=1&amp;sn=d4248eaec2d82f464399ca7f5db41c2f&amp;chksm=cf47218ff830a8994ee37412762201490adaf76616ec52582fc328fa95d0fa7bb9611f237905&amp;scene=21#wechat_redirect" target="_blank">「写给普通人看的自媒体分享｜万事开头难，勇于分享自己，我们都很棒！」</a></p>
+<p>需要我们平时多收集整理一些需要会用到的方方面面的工具，才会如鱼得水，应用自如：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/11b45d1d97484f879d6665df205c9ccd~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>自媒体创作工具</p>
+<h3 id="多看官方文档">多看官方文档</h3>
+<blockquote>
+<p>官方文档远比网上的各种博客和论坛等更适合入门学习。当我们遇到很多问题和技术细节的时候，认真将官方文档过一遍，你会发现很多问题和认识模糊的地方都会<strong>清晰起来</strong>。</p>
+</blockquote>
+<p>程序员都应该掌握通过官方文档去学习一个技术的能力，掌握了这项能力，你就具备了学会其他<strong>一切技术框架</strong>的基础；而且最原始的官方文档，还能锻炼你的自我学习总结能力。</p>
+<p>Spring 官方文档示例：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6b2142936316471287f3df7b091c98c9~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>Spring官方文档</p>
+<h3 id="培养自学能力">培养自学能力</h3>
+<blockquote>
+<p>程序员无论合适都要有一颗保持学习的心，因为技术<strong>更新快、需求变化快</strong>，我们不学习就会被淘汰。</p>
+</blockquote>
+<p>机会和挑战只会分配给有准备的人，当我们有机遇能进更好的公司的时候，还是需要<strong>依靠自身的硬实力</strong>的，这个时候如果我们长期自学积累知识的话，相信都可以把握住任何机会的。</p>
+<p>我认为自学应该从这几方面入手：</p>
+<p>•先确定好当前的<strong>方向</strong>•做好长期<strong>吃苦</strong>的准备•有规律有目的型的学习•在一个<strong>安静</strong>的地方学习•利用好现有的<strong>网络资源与书籍</strong>**</p>
+<p>我虽然是做 Java 的，但是有时间也会去了解其他语言的书籍：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef90e586a4c5471981ace9c342c9e0c1~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>技术书籍</p>
+<h3 id="英语水平">英语水平</h3>
+<blockquote>
+<p>对于我们来说，因为技术文档都是英文的，虽然阅读别人的文档可以通过<strong>翻译成中文文档</strong>来查看，但是一味相信翻译并不可取，毕竟有错误和疏漏有时候都不知道。</p>
+</blockquote>
+<p>而且我们编程每天都在和英语打交道，有更好的英语水平，对我们<strong>代码的命名</strong>等等都会有很大的帮助。</p>
+<p>推荐几款不错的练习英语的软件：</p>
+<p>•<strong>百词斩</strong>•羊驼英语•扇贝单词•有道词典•英语流利说</p>
+<p>推荐百词斩：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/71ace541d313407eb917b395ad3d5b14~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>百词斩</p>
+<h3 id="扩展人际关系">扩展人际关系</h3>
+<blockquote>
+<p>程序员是一个长时间在电脑旁边的人类，我们的业余时间不多，周六日可能还加班，所以<strong>封闭性</strong>很强。</p>
+</blockquote>
+<p>但是我们一定要抽出时间来维护自己的人脉管理。本身压力也比较大，有了更多的朋友的话，我们闲时也可以一起约出来，聊聊天，谈谈未来的发展。每个人的<strong>格局</strong>都不一样，多多交流，才能不断进步。</p>
+<p>下面我给大家说一下我是怎么维护自己的人脉：</p>
+<p>•要学会<strong>主动</strong>联系•多参加一些<strong>社交</strong>活动•像优秀的人多取经•<strong>线上线下</strong>都可以认识</p>
+<h3 id="良好的逻辑思维">良好的逻辑思维</h3>
+<blockquote>
+<p>逻辑思维能力是我们学习、工作、以及生活中必不可少的一种能力。</p>
+</blockquote>
+<p>拥有良好的逻辑思维，有助于我们<strong>高效</strong>地学习，工作，以及生活。总之，练好逻辑思维，可以让我们变聪明、变自信，脱颖而出。</p>
+<p>•结构化思维：把事物组成框架，分类、有序的<strong>整合</strong>起来•系统化思维：整体考虑，注重每一个联系。•打破定势思维：要学会<strong>创新</strong>，增加求知欲。•情绪控制：合理控制自己的情绪。•换位思考：发生事情冲突，也要在<strong>别人角度</strong>考虑。</p>
+<h3 id="时间管理能力">时间管理能力</h3>
+<blockquote>
+<p>时间就是金钱，效率就是生命，一点也不过。我们现在这个社会大部分人都有<strong>拖延症</strong>，该如何解决呢？</p>
+</blockquote>
+<p>其实现在影响我们最大的就是手机了，相比大部分都会一有闲暇时间就会大有手机上的<strong>娱乐软件</strong>（短视频之类）来打发时间，避免这样，我们就需要一些时间管理工具来改善。</p>
+<p>给大家介绍一些我觉得不错的时间管理工具：</p>
+<p>•番茄 ToDo•Forest 专注森林•<strong>滴答清单</strong>•小日常•Pendo•块时间•极简代办•Todolist</p>
+<p>推荐滴答清单：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/03c0605fc848458284b7850cbcf54832~tplv-k3u1fbpfcp-zoom-1.image" alt="图片" loading="lazy"></p>
+<p>滴答清单</p>
+<h2 id="最后">最后</h2>
+<p>哈哈，不好意思，因为很久没更文，所以这一篇就写的有点多了，也算是补上欠下的文章。但是以上列出来的这些清单我相信你用心读完后，肯定还是会有所收获的。</p>
+<p>的确，软件开发最重要的技能是提升技术，只要完成任务即可，但是一味的为了完成公司代码而编程我觉得并不可取。</p>
+<p>我们也要为自己的未来考虑，毕竟摆在我们面前的 35 岁抉择是迟早会到的，所以不断提升自己的各方面技能才能起到未雨绸缪的作用。</p>
+<p>最后一句话，送给大家：<strong>硬实力决定下限，软实力决定上下限</strong>。编码之外的软实力也是我们不断前进的源源动力，一起加油吧！</p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 20:11</span>&nbsp;
+<a href="https://www.cnblogs.com/qianyueric/">浅羽技术</a>&nbsp;
+阅读(<span id="post_view_count">5</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736739" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736739);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 655084, cb_blogApp = 'qianyueric', cb_blogUserGuid = 'f78bbd12-2966-4cf7-99e5-08d69bd2885c';
+    var cb_entryId = 14736739, cb_entryCreatedDate = '2021-05-06 20:11', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 浅羽技术
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjuVXWyJ1jD7Qw3eDikTYvsbUwMoVFlZX_EX4Io1WMF1bNl8sIoXN5dXmewHxjApe1KGuJHTDK0jD6FtItyz9YlrlmtvX_QZO0WUx207DzvebAWD267gd_WSLK-RGTZhTF8" />
+</body>
+</html>

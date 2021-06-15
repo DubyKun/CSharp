@@ -1,0 +1,1341 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Consumer 概念。" />
+    <meta property="og:description" content="本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Consumer 概念。" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码分析] 消息队列 Kombu 之 Consumer - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-03-09 03:52';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14455093.html">
+    <span>[源码分析] 消息队列 Kombu 之 Consumer</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Consumer 概念。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码分析-消息队列-kombu-之-consumer">[源码分析] 消息队列 Kombu 之 Consumer</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码分析-消息队列-kombu-之-consumer">[源码分析] 消息队列 Kombu 之 Consumer</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-综述功能">0x01 综述功能</a></li><li><a href="#0x02-示例代码">0x02 示例代码</a></li><li><a href="#0x03-定义">0x03 定义</a><ul><li><a href="#31-定义">3.1 定义</a></li><li><a href="#32-queue">3.2 Queue</a></li></ul></li><li><a href="#0x04-init">0x04 Init</a><ul><li><a href="#41-处理调用">4.1 处理调用</a><ul><li><a href="#411-queues">4.1.1 queues</a></li><li><a href="#412-channel">4.1.2 channel</a></li><li><a href="#413-on_message">4.1.3 on_message</a></li></ul></li><li><a href="#42-建立联系">4.2 建立联系</a><ul><li><a href="#421-channel与queue">4.2.1 channel与queue</a></li><li><a href="#422-channel与exchange">4.2.2 channel与exchange</a></li><li><a href="#423-exchange--binding">4.2.3 Exchange &amp; Binding</a><ul><li><a href="#4231-channel-binding">4.2.3.1 Channel binding</a></li><li><a href="#4232-使用">4.2.3.2 使用</a></li></ul></li></ul></li></ul></li><li><a href="#0x05-完善联系">0x05 完善联系</a><ul><li><a href="#51-遍历queue">5.1 遍历Queue</a></li><li><a href="#52-consume-in-queue">5.2 consume in Queue</a></li><li><a href="#53-consume-in-channel">5.3 consume in Channel</a></li></ul></li><li><a href="#0x06-消费消息">0x06 消费消息</a><ul><li><a href="#61-drain_events-in-connection">6.1 drain_events in Connection</a></li><li><a href="#62-drain_events-in-transport">6.2 drain_events in Transport</a></li><li><a href="#63-get-in-multichannelpoller">6.3 get in MultiChannelPoller</a><ul><li><a href="#631-_register_brpop-in-multichannelpoller">6.3.1 _register_BRPOP in MultiChannelPoller</a></li><li><a href="#632-register-in-_poll">6.3.2 register in _poll</a></li><li><a href="#633-polltimeout-in-multichannelpoller">6.3.3 poll(timeout) in MultiChannelPoller</a></li><li><a href="#634-注册到redis驱动，负载均衡">6.3.4 注册到redis驱动，负载均衡</a></li><li><a href="#634-handle_event-in-multichannelpoller">6.3.4 handle_event in MultiChannelPoller</a></li><li><a href="#635-on_readable-in-multichannelpoller">6.3.5 on_readable in MultiChannelPoller</a></li><li><a href="#636-_brpop_read-in-channel">6.3.6 _brpop_read in Channel</a></li><li><a href="#637-从redis读取">6.3.7 从redis读取</a></li><li><a href="#638-回到_brpop_read">6.3.8 回到_brpop_read</a></li><li><a href="#639-_deliver-in-transport">6.3.9 _deliver in Transport</a></li><li><a href="#6310-basic_consume-in-channel">6.3.10 basic_consume in Channel</a></li><li><a href="#6311-_receive_callback-in-consumer">6.3.11 _receive_callback in Consumer</a></li></ul></li></ul></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>本系列我们介绍消息队列 Kombu。Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象。通过本文，大家可以了解 Kombu 中的 Consumer 概念。</p>
+<h2 id="0x01-综述功能">0x01 综述功能</h2>
+<p>Consumer 的作用主要如下：</p>
+<ul>
+<li>Exchange：MQ 路由，消息发送者将消息发至Exchange，Exchange负责将消息分发至队列。</li>
+<li>Queue：对应的队列抽象，存储着即将被应用消费掉的消息，Exchange负责将消息分发Queue，消费者从Queue接收消息；</li>
+<li>Consumers : 是接受消息的抽象类，consumer需要声明一个queue，并将queue与指定的exchange绑定，然后从queue里面接收消息。就是说，从用户角度，知道了一个 exchange，就可以从中读取消息，具体这个消息就是从 queue 中读取的。</li>
+</ul>
+<p>在具体的实现中，Consumer 把 queue 与 channel 联系起来。queue 里面有一个 channel，用来访问redis。Queue 也有 Exchange，知道访问具体 redis 哪个key（就是queue对应的那个key）。即 Consumer 消费消息是通过 Queue 来消费，然后 Queue 又转嫁给 Channel。</p>
+<p>所以服务端的逻辑大致为：</p>
+<ol>
+<li>建立连接；</li>
+<li>创建Exchange ；</li>
+<li>创建Queue，并将Exchange与Queue绑定，Queue的名称为routing_key ；</li>
+<li>创建Consumer对Queue监听；</li>
+</ol>
+<h2 id="0x02-示例代码">0x02 示例代码</h2>
+<p>下面使用如下代码来进行说明。</p>
+<p>本示例来自https://liqiang.io/post/kombu-source-code-analysis-part-5系列，特此深表感谢。</p>
+<pre><code class="language-python">def main(arguments):
+    hub = Hub()
+    exchange = Exchange('asynt_exchange')
+    queue = Queue('asynt_queue', exchange, 'asynt_routing_key')
+
+    def send_message(conn):
+        producer = Producer(conn)
+        producer.publish('hello world', exchange=exchange, routing_key='asynt_routing_key')
+        print('message sent')
+
+    def on_message(message):
+        print('received: {0!r}'.format(message.body))
+        message.ack()
+        # hub.stop()  # &lt;-- exit after one message
+
+    conn = Connection('redis://localhost:6379')
+    conn.register_with_event_loop(hub)
+
+    def p_message():
+        print(' kombu ')
+
+    with Consumer(conn, [queue], on_message=on_message):
+        send_message(conn)
+        hub.timer.call_repeatedly(3, p_message)
+        hub.run_forever()
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
+</code></pre>
+<p>前文已经完成了构建部分，下面来到了Consumer部分，即如下代码：</p>
+<pre><code class="language-python">with Consumer(conn, [queue], on_message=on_message):
+    send_message(conn)
+    hub.timer.call_repeatedly(
+        3, p_message
+    )
+    hub.run_forever()
+</code></pre>
+<h2 id="0x03-定义">0x03 定义</h2>
+<h3 id="31-定义">3.1 定义</h3>
+<p>Consumer主要成员变量如下：</p>
+<ul>
+<li>channel：存在 (kombu.Connection, Channel)   这两种可能，一个 Connection 就对应一个 MQ 的连接，Channel可以理解成共享一个Connection的多个轻量化连接。</li>
+<li>queues：(Sequence[kombu.Queue])类型。对应 queue 抽象，存储着即将被应用消费掉的消息，Exchange负责将消息分发Queue，消费者从Queue接收消息</li>
+<li>on_message：消息响应方法；</li>
+</ul>
+<p>这也是调用时传入的变量。</p>
+<pre><code class="language-python">class Consumer:
+    """Message consumer.
+
+    Arguments:
+        channel (kombu.Connection, ChannelT): see :attr:`channel`.
+        queues (Sequence[kombu.Queue]): see :attr:`queues`.
+        no_ack (bool): see :attr:`no_ack`.
+        auto_declare (bool): see :attr:`auto_declare`
+        callbacks (Sequence[Callable]): see :attr:`callbacks`.
+        on_message (Callable): See :attr:`on_message`
+        on_decode_error (Callable): see :attr:`on_decode_error`.
+        prefetch_count (int): see :attr:`prefetch_count`.
+    """
+    
+    #: The connection/channel to use for this consumer.
+    channel = None
+
+    #: A single :class:`~kombu.Queue`, or a list of queues to
+    #: consume from.
+    queues = None
+
+    #: Flag for automatic message acknowledgment.
+    no_ack = None
+
+    #: List of callbacks called in order when a message is received.
+    callbacks = None
+
+    #: Optional function called whenever a message is received.
+    on_message = None
+
+    #: List of accepted content-types.
+    accept = None
+
+    #: Initial prefetch count
+    prefetch_count = None
+
+    #: Mapping of queues we consume from.
+    _queues = None
+
+    _tags = count(1)   # global
+</code></pre>
+<h3 id="32-queue">3.2 Queue</h3>
+<p>我们也给出 Queue 的定义，其中主要成员变量如下：</p>
+<ul>
+<li>exchange (Exchange):  就是 queue 绑定的 Exchange；</li>
+<li>routing_key (str):  就是 queue 对应的 key；</li>
+<li>channel ：queue 绑定的 信道；</li>
+</ul>
+<p>具体定义如下：</p>
+<pre><code class="language-python">class Queue(MaybeChannelBound):
+    """A Queue declaration.
+
+        channel (ChannelT): The channel the Queue is bound to (if bound).
+
+    """
+
+    ContentDisallowed = ContentDisallowed
+
+    name = ''
+    exchange = Exchange('')
+    routing_key = ''
+
+    durable = True
+    exclusive = False
+    auto_delete = False
+    no_ack = False
+
+    attrs = (
+        ('name', None),
+        ('exchange', None),
+        ('routing_key', None),
+        ('queue_arguments', None),
+        ('binding_arguments', None),
+        ('consumer_arguments', None),
+        ('durable', bool),
+        ('exclusive', bool),
+        ('auto_delete', bool),
+        ('no_ack', None),
+        ('alias', None),
+        ('bindings', list),
+        ('no_declare', bool),
+        ('expires', float),
+        ('message_ttl', float),
+        ('max_length', int),
+        ('max_length_bytes', int),
+        ('max_priority', int)
+    )
+</code></pre>
+<h2 id="0x04-init">0x04 Init</h2>
+<p>在此方法中，先处理调用，随之建立联系。</p>
+<pre><code class="language-python">def __init__(self, channel, queues=None, no_ack=None, auto_declare=None,
+             callbacks=None, on_decode_error=None, on_message=None,
+             accept=None, prefetch_count=None, tag_prefix=None):
+    self.channel = channel
+    self.queues = maybe_list(queues or [])
+    self.no_ack = self.no_ack if no_ack is None else no_ack
+    self.callbacks = (self.callbacks or [] if callbacks is None
+                      else callbacks)
+    self.on_message = on_message
+    self.tag_prefix = tag_prefix
+    self._active_tags = {}
+
+    self.accept = prepare_accept_content(accept)
+    self.prefetch_count = prefetch_count
+
+    if self.channel:
+        self.revive(self.channel)
+</code></pre>
+<h3 id="41-处理调用">4.1 处理调用</h3>
+<h4 id="411-queues">4.1.1 queues</h4>
+<p>传入的参数queues被作为成员变量保存起来。</p>
+<pre><code class="language-python">self.queues = maybe_list(queues or [])
+</code></pre>
+<h4 id="412-channel">4.1.2 channel</h4>
+<p>传入的参数Connection被作为成员变量保存起来。</p>
+<pre><code class="language-python">self.channel = channel
+</code></pre>
+<h4 id="413-on_message">4.1.3 on_message</h4>
+<p>传入的参数on_message 作为消息响应方法保存起来。</p>
+<pre><code class="language-python">self.on_message = on_message
+</code></pre>
+<h3 id="42-建立联系">4.2 建立联系</h3>
+<p><u>用如下方法把 Exchange，Queue 与 Connection 联系起来</u>。</p>
+<pre><code class="language-python">def revive(self, channel):
+    
+    """Revive consumer after connection loss."""
+    self._active_tags.clear()
+    channel = self.channel = maybe_channel(channel)
+    
+    # modify dict size while iterating over it is not allowed
+    for qname, queue in list(self._queues.items()):
+        # name may have changed after declare
+        self._queues.pop(qname, None)
+        queue = self._queues[queue.name] = queue(self.channel)
+        queue.revive(channel)
+
+    if self.auto_declare:
+        self.declare()
+
+    if self.prefetch_count is not None:
+        self.qos(prefetch_count=self.prefetch_count)
+</code></pre>
+<p>进一步调用：</p>
+<pre><code class="language-python">when_bound, entity.py:598
+maybe_bind, abstract.py:76
+bind, abstract.py:70
+bind, entity.py:590
+__call__, abstract.py:66
+revive, messaging.py:400
+__init__, messaging.py:382
+main, testUb.py:46
+&lt;module&gt;, testUb.py:55
+</code></pre>
+<p>由此进入到了Queue类。</p>
+<h4 id="421-channel与queue">4.2.1 channel与queue</h4>
+<p>这里用如下方法把queue与channel联系起来。<u>queue 里面有一个 channel，用来访问redis，Queue 也有 Exchange，知道访问具体 redis 哪里</u>。</p>
+<p>每一个 Consumer 初始化的时候都是和 Channel 绑定的，也就是说我们 Consumer 包含了 Queue 也就和 Connection 关联起来了！</p>
+<p><u>Consumer 消费消息是通过 Queue 来消费，然后 Queue 又转嫁给 Channel</u>。</p>
+<pre><code class="language-python">channel = {Channel} &lt;kombu.transport.redis.Channel object at 0x7f9056a57278&gt;
+
+self = {Queue} &lt;Queue asynt -&gt; &lt;Exchange asynt(direct) bound to chan:1&gt; -&gt; asynt bound to chan:1&gt;
+</code></pre>
+<p>这样，conneciton就是queue的成员变量。</p>
+<pre><code class="language-python">def revive(self, channel):
+    """Revive channel after the connection has been re-established.
+    """
+    if self.is_bound:
+        self._channel = channel
+        self.when_bound()
+</code></pre>
+<h4 id="422-channel与exchange">4.2.2 channel与exchange</h4>
+<p>之前我们知道，Q<u>ueue是包括了exchange成员变量，目前channel也是exchange的成员变量</u>。</p>
+<p>Exchange：交换机，消息发送者将消息发至Exchange，Exchange负责将消息分发至队列。</p>
+<p>于是经由如下方法，准备把channel与exchange联系起来。</p>
+<pre><code class="language-python">def when_bound(self):
+    if self.exchange:
+        self.exchange = self.exchange(self.channel)
+</code></pre>
+<p>此时变量如下：</p>
+<pre><code class="language-python">channel = {Channel} &lt;kombu.transport.redis.Channel object at 0x7f9056a57278&gt;
+
+self = {Exchange} Exchange asynt(direct)
+</code></pre>
+<p>进而直接在Exchange基类，使用方法maybe_bind把channel与exchange联系起来。</p>
+<pre><code class="language-python">class MaybeChannelBound(Object):
+    """Mixin for classes that can be bound to an AMQP channel."""
+
+    _channel = None
+
+    def __call__(self, channel):
+        """`self(channel) -&gt; self.bind(channel)`."""
+        return self.bind(channel)
+
+    def bind(self, channel):
+        """Create copy of the instance that is bound to a channel."""
+        return copy(self).maybe_bind(channel)
+
+    def maybe_bind(self, channel):
+        """Bind instance to channel if not already bound."""
+        if not self.is_bound and channel:
+            self._channel = maybe_channel(channel)
+            self.when_bound()
+            self._is_bound = True
+        return self
+</code></pre>
+<h4 id="423-exchange--binding">4.2.3 Exchange &amp; Binding</h4>
+<p>这里会把 Exchange 和 queue 联系。<u>就是把 Exchange 和 routing_key 联系起来，然后把这些联系规则放到redis 之中</u>。</p>
+<p>堆栈如下：</p>
+<pre><code class="language-python">_queue_bind, redis.py:814
+queue_bind, base.py:568
+bind_to, entity.py:674
+queue_bind, entity.py:662
+_create_queue, entity.py:617
+declare, entity.py:606
+declare, messaging.py:417
+revive, messaging.py:404
+__init__, messaging.py:382
+</code></pre>
+<p>具体为</p>
+<pre><code class="language-python">class Queue(MaybeChannelBound):
+
+    def __init__(self, name='', exchange=None, routing_key='',
+                 channel=None, bindings=None, on_declared=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name or self.name
+        
+        if isinstance(exchange, str):
+            self.exchange = Exchange(exchange)
+        elif isinstance(exchange, Exchange):
+            self.exchange = exchange
+            
+        self.routing_key = routing_key or self.routing_key
+        self.bindings = set(bindings or [])
+        self.on_declared = on_declared
+
+        # allows Queue('name', [binding(...), binding(...), ...])
+        if isinstance(exchange, (list, tuple, set)):
+            self.bindings |= set(exchange)
+        if self.bindings:
+            self.exchange = None
+
+        # exclusive implies auto-delete.
+        if self.exclusive:
+            self.auto_delete = True
+        self.maybe_bind(channel)
+
+    def queue_bind(self, nowait=False, channel=None):
+        """Create the queue binding on the server."""
+        return self.bind_to(self.exchange, self.routing_key,
+                            self.binding_arguments,
+                            channel=channel, nowait=nowait)
+
+    def bind_to(self, exchange='', routing_key='',
+                arguments=None, nowait=False, channel=None):
+        if isinstance(exchange, Exchange):
+            exchange = exchange.name
+
+        return (channel or self.channel).queue_bind(
+            queue=self.name,
+            exchange=exchange,
+            routing_key=routing_key,
+            arguments=arguments,
+            nowait=nowait,
+        )
+</code></pre>
+<h5 id="4231-channel-binding">4.2.3.1 Channel binding</h5>
+<p>具体调用到Channel，代码位于 kombu/transport/redis.py。</p>
+<pre><code class="language-python">def _queue_bind(self, exchange, routing_key, pattern, queue):
+    if self.typeof(exchange).type == 'fanout':
+        # Mark exchange as fanout.
+        self._fanout_queues[queue] = (
+            exchange, routing_key.replace('#', '*'),
+        )
+    with self.conn_or_acquire() as client:
+        client.sadd(self.keyprefix_queue % (exchange,),
+                    self.sep.join([routing_key or '',
+                                   pattern or '',
+                                   queue or '']))
+</code></pre>
+<p>代码然后调用到redis client。</p>
+<pre><code class="language-python"># SET COMMANDS
+def sadd(self, name, *values):
+    "Add ``value(s)`` to set ``name``"
+    return self.execute_command('SADD', name, *values)
+</code></pre>
+<p>具体变量如下，我们代码中，exchange内容为_kombu.binding.asynt_exchange。routing_key的是asynt_routing_key。</p>
+<pre><code class="language-python">name = {str} '_kombu.binding.asynt_exchange'
+self = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+values = {tuple: 1} asynt_routing_keysynt_queue
+</code></pre>
+<p>我们看看Redis内容，发现新建内容如下：</p>
+<pre><code class="language-java">127.0.0.1:6379&gt; smembers _kombu.binding.asynt_exchange
+1) "asynt_routing_key\x06\x16\x06\x16asynt_queue"
+</code></pre>
+<p>集合名字为：self.keyprefix_queue % (exchange,), 对于我们就为：<code>_kombu.binding.asynt_exchange</code>。<br>
+集合每个item为：<code>routing_key + sep + pattern + sep + queue</code>。我们这里sep = '\x06\x16'。</p>
+<h5 id="4232-使用">4.2.3.2 使用</h5>
+<p>当发消息时候，Exchange的作用是将发送的 <code>routing_key</code> 转化为 <code>queue</code> 的名字。这样发送就知道发到哪个 <code>queue</code> 。这里的 exchange 内容为 _kombu.binding.asynt_exchange。</p>
+<pre><code class="language-python">def get_table(self, exchange):
+    key = self.keyprefix_queue % exchange
+    with self.conn_or_acquire() as client:
+        values = client.smembers(key)
+        if not values:
+            raise InconsistencyError(NO_ROUTE_ERROR.format(exchange, key))
+        return [tuple(bytes_to_str(val).split(self.sep)) for val in values]
+</code></pre>
+<p>得到的集合内容为：</p>
+<p><code>{b'asynt_routing_key\x06\x16\x06\x16asynt_queue'}</code></p>
+<p>即从 exchange 得到 routing_key ---&gt; queue 的规则，然后再依据  routing_key 得到  queue。就知道 Consumer 和 Producer 需要依据哪个 queue 交换消息。</p>
+<p>逻辑如下：</p>
+<pre><code class="language-java">                                  +---------------------------------+
+                                  |         exchange                |
+                                  |                                 |
+                 1 routing_key x  |                                 |
++----------+                      |                                 |      +------------+
+| Producer |  +-----------------&gt; |   routing_key x ---&gt;  queue x   |      |  Consumer  |
++--------+-+                      |                                 |      +------------+
+         |                        |   routing_key y ---&gt;  queue y   |
+         |                        |                                 |           ^
+         |                        |   routing_key z ---&gt;  queue z   |           |
+         |                        |                                 |           |
+         |                        +---------------------------------+           |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                                                      |
+         |                                  +-----------+                       |
+         |        2 message                 |           |        3 message      |
+         +-------------------------------&gt;  |  queue X  |  +--------------------+
+                                            |           |
+                                            +-----------+
+
+</code></pre>
+<p>因此，此时总体逻辑如下图：</p>
+<pre><code class="language-python">+----------------------+               +-------------------+
+| Consumer             |               | Channel           |
+|                      |               |                   |        +-----------------------------------------------------------+
+|                      |               |    client  +-------------&gt; | Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379&gt; |
+|      channel  +--------------------&gt; |                   |        +-----------------------------------------------------------+
+|                      |               |    pool           |
+|                      |   +---------&gt; |                   | &lt;------------------------------------------------------------+
+|      queues          |   |           |                   |                                                              |
+|                      |   |    +----&gt; |    connection +---------------+                                                  |
+|        |             |   |    |      |                   |           |                                                  |
++----------------------+   |    |      +-------------------+           |                                                  |
+         |                 |    |                                      v                                                  |
+         |                 |    |      +-------------------+       +---+-----------------+       +--------------------+   |
+         |                 |    |      | Connection        |       | redis.Transport     |       | MultiChannelPoller |   |
+         |                 |    |      |                   |       |                     |       |                    |   |
+         |                 |    |      |                   |       |                     |       |     _channels +--------+
+         |                 |    |      |                   |       |        cycle +------------&gt; |     _fd_to_chan    |
+         |                 |    |      |     transport +---------&gt; |                     |       |     _chan_to_sock  |
+         |       +--------&gt;+    |      |                   |       |                     |    +------+ poller         |
+         |       |              |      +-------------------+       +---------------------+    |  |     after_read     |
+         |       |              |                                                             |  |                    |
+         |       |              |                                                             |  +--------------------+
+         |       |              |      +------------------+                   +---------------+
+         |       |              |      | Hub              |                   |
+         |       |              |      |                  |                   v
+         |       |              |      |                  |            +------+------+
+         |       |              |      |      poller +---------------&gt; | _poll       |
+         |       |              |      |                  |            |             |         +-------+
+         |       |              |      |                  |            |    _poller+---------&gt; |  poll |
+         v       |              |      +------------------+            |             |         +-------+
+                 |              |                                      +-------------+
+    +-------------------+       |      +----------------+
+    | Queue      |      |       |      | Exchange       |
+    |      _chann+l     |       +----+ |                |
+    |                   |              |                |
+    |      exchange +----------------&gt; |     channel    |
+    |                   |              |                |
+    |                   |              |                |
+    +-------------------+              +----------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227110943446-852351964.png" alt="" loading="lazy"></p>
+<p>现在我们知道：</p>
+<ul>
+<li>Consumers：接受消息的抽象类，consumer需要声明一个queue，并将queue与指定的exchange绑定，然后从queue里面接收消息。</li>
+<li>Exchange：MQ 路由，消息发送者将消息发至Exchange，Exchange负责将消息分发至队列。</li>
+<li>Queue：对应的 queue 抽象，存储着即将被应用消费掉的消息，Exchange负责将消息分发Queue，消费者从Queue接收消息；</li>
+<li>Channel：与AMQP中概念类似，可以理解成共享一个Connection的多个轻量化连；</li>
+</ul>
+<p>于是逻辑链已经形成，大约是这样的，后文完善：</p>
+<ul>
+<li>Producer发送消息到Exchange；</li>
+<li>Exchange中有成员变量Channel，也有成员变量Queues。</li>
+<li>于是Exchange负责通过Channel将消息分发至Queue，Exchange的作用只是将发送的 <code>routing_key</code> 转化为 <code>queue</code> 的名字。</li>
+<li>Consumer去Queue取消息；</li>
+</ul>
+<p>逻辑大致通了，但是缺少动态操作完成此逻辑，我们将在后续完善动态逻辑。</p>
+<h2 id="0x05-完善联系">0x05 完善联系</h2>
+<p>在init之后，第二步会完善联系。</p>
+<p>python的上下文管理。在python中实现了__enter__和__exit__方法，即支持上下文管理器协议。上下文管理器就是支持上下文管理器协议的对象，它是为了with而生。当with语句在开始运行时，会在上下文管理器对象上调用 <strong>enter</strong> 方法。with语句运行结束后，会在上下文管理器对象上调用 <strong>exit</strong> 方法。</p>
+<p>所以这里是调用<code>__enter__</code>，即 consumer 函数，其目的如下：</p>
+<ul>
+<li>调用Channel继续处理，<code>Channel</code>将<code>Consumer</code>标签，<code>Consumer</code>要消费的队列，以及标签与队列的映射关系都记录下来，等待循环调用。</li>
+<li>另外，还通过<code>Transport</code>将队列与回调函数列表的映射关系记录下来，以便于从队列中取出消息后执行回调函数。</li>
+</ul>
+<pre><code class="language-python">class Consumer:
+    """Message consumer.
+
+    Arguments:
+        channel (kombu.Connection, ChannelT): see :attr:`channel`.
+        queues (Sequence[kombu.Queue]): see :attr:`queues`.
+        no_ack (bool): see :attr:`no_ack`.
+        auto_declare (bool): see :attr:`auto_declare`
+        callbacks (Sequence[Callable]): see :attr:`callbacks`.
+        on_message (Callable): See :attr:`on_message`
+        on_decode_error (Callable): see :attr:`on_decode_error`.
+        prefetch_count (int): see :attr:`prefetch_count`.
+    """
+
+    def __enter__(self):
+        self.consume()
+        return self
+</code></pre>
+<h3 id="51-遍历queue">5.1 遍历Queue</h3>
+<p>使用<code>_basic_consume</code>方法处理<u>Consumer相关的队列列表中的每一项</u>，其中处理最后一个Queue时设置标志<code>nowait=False</code>。</p>
+<pre><code class="language-python">def consume(self, no_ack=None):
+    """Start consuming messages.
+
+    Can be called multiple times, but note that while it
+    will consume from new queues added since the last call,
+    it will not cancel consuming from removed queues (
+    use :meth:`cancel_by_queue`).
+
+    Arguments:
+        no_ack (bool): See :attr:`no_ack`.
+    """
+    queues = list(self._queues.values())
+    if queues:
+        no_ack = self.no_ack if no_ack is None else no_ack
+
+        H, T = queues[:-1], queues[-1]
+        for queue in H:
+            self._basic_consume(queue, no_ack=no_ack, nowait=True)
+        self._basic_consume(T, no_ack=no_ack, nowait=False)
+</code></pre>
+<p><code>_basic_consume</code>方法代码如下：</p>
+<p>是将消费者标签以及回调函数传给<code>Queue</code>的<code>consume</code>方法。</p>
+<pre><code class="language-python">def _basic_consume(self, queue, consumer_tag=None,
+                   no_ack=no_ack, nowait=True):
+    tag = self._active_tags.get(queue.name)
+    if tag is None:
+        tag = self._add_tag(queue, consumer_tag)
+        queue.consume(tag, self._receive_callback,
+                      no_ack=no_ack, nowait=nowait)
+    return tag
+</code></pre>
+<h3 id="52-consume-in-queue">5.2 consume in Queue</h3>
+<p>对于每一个 queue，都会调用其 consume 函数。</p>
+<p><code>Queue</code>的<code>consume</code>方法代码：</p>
+<pre><code class="language-python">class Queue(MaybeChannelBound):
+
+  def consume(self, consumer_tag='', callback=None,
+              no_ack=None, nowait=False):
+      """Start a queue consumer.
+
+      Consumers last as long as the channel they were created on, or
+      until the client cancels them.
+
+      Arguments:
+          consumer_tag (str): Unique identifier for the consumer.
+              The consumer tag is local to a connection, so two clients
+              can use the same consumer tags. If this field is empty
+              the server will generate a unique tag.
+
+          no_ack (bool): If enabled the broker will automatically
+              ack messages.
+
+          nowait (bool): Do not wait for a reply.
+
+          callback (Callable): callback called for each delivered message.
+      """
+      if no_ack is None:
+          no_ack = self.no_ack
+      return self.channel.basic_consume(
+          queue=self.name,
+          no_ack=no_ack,
+          consumer_tag=consumer_tag or '',
+          callback=callback,
+          nowait=nowait,
+          arguments=self.consumer_arguments)
+</code></pre>
+<p>前面提到，queue与channel已经联系了起来。</p>
+<p>每一个 Consumer 初始化的时候都是和 Channel 绑定的，也就是说我们 Consumer 包含了 Queue 也就和 Connection 关联起来了！</p>
+<p>Consumer 消费消息是通过 Queue 来消费，然后 Queue 又转嫁给 Channel。</p>
+<h3 id="53-consume-in-channel">5.3 consume in Channel</h3>
+<p>因此又回到了<code>Channel</code>，就是<code>Channel</code>的<code>basic_consume</code>代码：</p>
+<p>调用到基类basic_consume方法。</p>
+<pre><code class="language-python">class Channel(virtual.Channel):
+
+    def basic_consume(self, queue, *args, **kwargs):
+        
+        if queue in self._fanout_queues:
+            exchange, _ = self._fanout_queues[queue]
+            self.active_fanout_queues.add(queue)
+            self._fanout_to_queue[exchange] = queue
+            
+        ret = super().basic_consume(queue, *args, **kwargs)
+
+        # Update fair cycle between queues.
+        #
+        # We cycle between queues fairly to make sure that
+        # each queue is equally likely to be consumed from,
+        # so that a very busy queue will not block others.
+        #
+        # This works by using Redis's `BRPOP` command and
+        # by rotating the most recently used queue to the
+        # and of the list.  See Kombu github issue #166 for
+        # more discussion of this method.
+        self._update_queue_cycle()
+        return ret
+</code></pre>
+<p>基类是 virtual.Channel，其作用是：</p>
+<p><u><code>Channel</code>将<code>Consumer</code>标签，<code>Consumer</code>要消费的队列，以及标签与队列的映射关系都记录下来，等待循环调用。另外，还通过<code>Transport</code>将队列与回调函数列表的映射关系记录下来，以便于从队列中取出消息后执行回调函数。</u></p>
+<p>变量是：</p>
+<ul>
+<li>_tag_to_queue：标签与队列的映射关系；</li>
+<li>_active_queues：<code>Consumer</code>要消费的队列；</li>
+<li>_consumers：<code>Consumer</code>标签；</li>
+<li>connection：<code>Transport</code>；</li>
+<li>connection._callbacks：队列与回调函数列表的映射关系；</li>
+</ul>
+<p>数值如下：</p>
+<pre><code class="language-python">self._tag_to_queue = {dict: 1} {'None1': 'asynt'}
+self._active_queues = {list: 1} ['asynt']
+self._consumers = {set: 1} {'None1'}
+self.connection = {Transport} &lt;kombu.transport.redis.Transport object at 0x7fb3ee0155f8&gt;
+self.connection._callbacks = {dict: 1} {'asynt': &lt;function Channel.basic_consume.&lt;locals&gt;._callback at 0x7fb3ecd4a2f0&gt;}
+</code></pre>
+<p>代码如下：</p>
+<pre><code class="language-java">def basic_consume(self, queue, no_ack, callback, consumer_tag, **kwargs):
+    """Consume from `queue`."""
+    self._tag_to_queue[consumer_tag] = queue
+    self._active_queues.append(queue)
+
+    def _callback(raw_message):
+        message = self.Message(raw_message, channel=self)
+        if not no_ack:
+            self.qos.append(message, message.delivery_tag)
+        return callback(message)
+
+    self.connection._callbacks[queue] = _callback
+    self._consumers.add(consumer_tag)
+
+    self._reset_cycle()
+</code></pre>
+<p>_reset_cycle 代码如下，看起来就是调用了 FairCycle，实际上没有用到，因为cycle已经有预设。<code>cycle</code>是一个<code>MultiChannelPoller</code>实例。</p>
+<pre><code class="language-python">def _reset_cycle(self):
+    self._cycle = FairCycle(
+        self._get_and_deliver, self._active_queues, Empty)
+</code></pre>
+<p>具体如下图：</p>
+<pre><code class="language-python">+----------+    +-------+     +---------+
+| Consumer |    | Queue |     | Channel |
++----+-----+    +---+---+     +-----+---+
+     |              |               |
+     |              |               |
+__enter__           |               |
+     |              |               |
+     |              |               |
+ consume            |               |
+     |              |               |
+     |              |               |
+_basic_consume      |               |
+     |              |               |
+     |              |               |
+     |   consume    |               |
+     +------------&gt; |               |
+     |              | basic_consume |
+     |              |               |
+     |              | +-----------&gt; |
+     |              |               |
+     |              |               |
+     |              |          _reset_cycle
+     |              |               |
+     |              |               |
+     |              |               |
+     |              |               |
+     |              |               |
+     v              v               v
+
+</code></pre>
+<h2 id="0x06-消费消息">0x06 消费消息</h2>
+<p>为了更好的分析，我们暂时注销hub，使用drain_events消费消息，这样更直观。</p>
+<p>就是说，<u>Consumer 已经和 Channel 联系起来，知道读取redis 中的哪个key。但是现在缺少一个读取消息的引擎。这个引擎可以驱动消息读取，每次有消息，就调用 consumer 中的回调函数来处理消息</u>。</p>
+<p>在没有引擎的情况下，<strong>drain_events 就可以起到引擎的作用</strong>。</p>
+<pre><code class="language-python">with Consumer(conn, [queue], on_message=on_message):
+    send_message(conn)
+    # hub.timer.call_repeatedly(3, p_message)
+    # hub.run_forever()
+    conn.drain_events(timeout=1)
+</code></pre>
+<h3 id="61-drain_events-in-connection">6.1 drain_events in Connection</h3>
+<p>drain_events 调用 Connection 的方法来进行消费。</p>
+<pre><code class="language-python">def drain_events(self, **kwargs):
+    """Wait for a single event from the server.
+
+    Arguments:
+        timeout (float): Timeout in seconds before we give up.
+    """
+    return self.transport.drain_events(self.connection, **kwargs)
+</code></pre>
+<h3 id="62-drain_events-in-transport">6.2 drain_events in Transport</h3>
+<p>在 Transport中的drain_events ，是在无限执行<code>get(self._deliver, timeout=timeout)</code></p>
+<p><code>get</code>是<code>self.cycle</code>的一个方法，<code>cycle</code>是一个<code>MultiChannelPoller</code>实例：</p>
+<p>所以<code>get</code>是<code>&lt;bound method MultiChannelPoller.get of &lt;kombu.transport.redis.MultiChannelPoller object at 0x7feab312b358&gt;&gt;</code></p>
+<pre><code class="language-python">def drain_events(self, connection, timeout=None):
+    time_start = monotonic()
+    get = self.cycle.get
+    polling_interval = self.polling_interval
+    if timeout and polling_interval and polling_interval &gt; timeout:
+        polling_interval = timeout
+    while 1:
+        try:
+            get(self._deliver, timeout=timeout)
+        except Empty:
+            if timeout is not None and monotonic() - time_start &gt;= timeout:
+                raise socket.timeout()
+            if polling_interval is not None:
+                sleep(polling_interval)
+        else:
+            break
+</code></pre>
+<h3 id="63-get-in-multichannelpoller">6.3 get in MultiChannelPoller</h3>
+<p><code>Transport</code>相关联的每一个channel都要执行<code>drain_events</code>。具体分两步：</p>
+<ul>
+<li>
+<p>对于每一个channel都注册；</p>
+</li>
+<li>
+<p>进行poll；</p>
+</li>
+</ul>
+<p>代码如下：</p>
+<pre><code class="language-python">def get(self, callback, timeout=None):
+    self._in_protected_read = True
+    try:
+        for channel in self._channels:
+            if channel.active_queues:           # BRPOP mode?
+                if channel.qos.can_consume():
+                    self._register_BRPOP(channel)
+            if channel.active_fanout_queues:    # LISTEN mode?
+                self._register_LISTEN(channel)
+
+        events = self.poller.poll(timeout)
+        if events:
+            for fileno, event in events:
+                ret = self.handle_event(fileno, event)
+                if ret:
+                    return
+        # - no new data, so try to restore messages.
+        # - reset active redis commands.
+        self.maybe_restore_messages()
+        raise Empty()
+    finally:
+        self._in_protected_read = False
+        while self.after_read:
+            try:
+                fun = self.after_read.pop()
+            except KeyError:
+                break
+            else:
+                fun()
+</code></pre>
+<h4 id="631-_register_brpop-in-multichannelpoller">6.3.1 _register_BRPOP in MultiChannelPoller</h4>
+<p>具体注册如下，我们先来看看 <code>_register_BRPOP</code>，这里做了两个判断，第一个是判断当前的 channel 是否放进了 epoll 模型里面，如果没有，那么就放进去；同时，如果之前这个 channel 不在 epoll 里面，那么这次放进去了。</p>
+<pre><code class="language-python">def _register_BRPOP(self, channel):
+    """Enable BRPOP mode for channel."""
+    ident = channel, channel.client, 'BRPOP'
+    if not self._client_registered(channel, channel.client, 'BRPOP'):
+        channel._in_poll = False
+        self._register(*ident)
+    if not channel._in_poll:  # send BRPOP
+        channel._brpop_start()
+</code></pre>
+<h4 id="632-register-in-_poll">6.3.2 register in _poll</h4>
+<p>最终进行Poll注册，这样当redis的socket对应的fd有消息，就会进行处理。</p>
+<p>变量如下：&lt;kombu.utils.eventio._poll object at 0x7feab2d7d780&gt;</p>
+<pre><code class="language-python">def register(self, fd, events):
+    fd = fileno(fd)
+    poll_flags = 0
+    if events &amp; ERR:
+        poll_flags |= POLLERR
+    if events &amp; WRITE:
+        poll_flags |= POLLOUT
+    if events &amp; READ:
+        poll_flags |= POLLIN
+    self._quick_register(fd, poll_flags)
+    return fd
+</code></pre>
+<h4 id="633-polltimeout-in-multichannelpoller">6.3.3 poll(timeout) in MultiChannelPoller</h4>
+<p>当poll有消息，则相应处理。</p>
+<pre><code class="language-python">events = self.poller.poll(timeout)
+if events:
+    for fileno, event in events:
+        ret = self.handle_event(fileno, event)
+        if ret:
+            return
+</code></pre>
+<h4 id="634-注册到redis驱动，负载均衡">6.3.4 注册到redis驱动，负载均衡</h4>
+<p>但是，这个 connection 还没有对 epoll 起效果，所以发送一个 <code>_brpop_start</code>。</p>
+<p>这里可以看到，是对 asynt_queue 发起了监听请求，也就是说队列有消息过来，会被响应到。</p>
+<p>变量如下：</p>
+<pre><code class="language-java">keys = {list: 5} ['asynt_queue', 'asynt_queue\x06\x163', 'asynt_queue\x06\x166', 'asynt_queue\x06\x169', 1]
+queues = {list: 1} ['asynt_queue']
+</code></pre>
+<p>代码如下：</p>
+<pre><code class="language-python">def _brpop_start(self, timeout=1):
+    queues = self._queue_cycle.consume(len(self.active_queues))
+    if not queues:
+        return
+    keys = [self._q_for_pri(queue, pri) for pri in self.priority_steps
+            for queue in queues] + [timeout or 0]
+    self._in_poll = self.client.connection
+    self.client.connection.send_command('BRPOP', *keys)
+</code></pre>
+<p>此处有一个负载均衡需要说明：</p>
+<p>_queue_cycle属于均衡策略，就是选择下一次哪个queue的策略，items就是具体queue列表。比如：</p>
+<pre><code class="language-python">class round_robin_cycle:
+    """Iterator that cycles between items in round-robin."""
+
+    def __init__(self, it=None):
+        self.items = it if it is not None else []
+
+    def update(self, it):
+        """Update items from iterable."""
+        self.items[:] = it
+
+    def consume(self, n):
+        """Consume n items."""
+        return self.items[:n]
+</code></pre>
+<p><u>_brpop_start就是启动了下一次读取，选择哪一个queue</u>。</p>
+<pre><code class="language-python">consume, scheduling.py:79
+_brpop_start, redis.py:725
+_register_BRPOP, redis.py:314
+on_poll_start, redis.py:328
+on_poll_start, redis.py:1072
+create_loop, hub.py:294
+run_once, hub.py:193
+run_forever, hub.py:185
+main, testUb.py:49
+&lt;module&gt;, testUb.py:53
+</code></pre>
+<h4 id="634-handle_event-in-multichannelpoller">6.3.4 handle_event in MultiChannelPoller</h4>
+<p>因为已经把 file 和 poll 联系起来，所以对调用对应的响应方法，而响应方法会进行read消息。</p>
+<pre><code class="language-python">def handle_event(self, fileno, event):
+    if event &amp; READ:
+        return self.on_readable(fileno), self
+    elif event &amp; ERR:
+        chan, type = self._fd_to_chan[fileno]
+        chan._poll_error(type)
+</code></pre>
+<h4 id="635-on_readable-in-multichannelpoller">6.3.5 on_readable in MultiChannelPoller</h4>
+<p>这里听说 Redis 已经准备好了，所以就来获取拿到的结果，然后就解析起来了，解析成功之后，自然要处理这个消息呀，于是乎又回到了这里 <code>redis.py</code>：</p>
+<p>提取fd对应的channel的响应方法如下：</p>
+<pre><code class="language-python">def on_readable(self, fileno):
+    chan, type = self._fd_to_chan[fileno]
+    if chan.qos.can_consume():
+        chan.handlers[type]()
+</code></pre>
+<h4 id="636-_brpop_read-in-channel">6.3.6 _brpop_read in Channel</h4>
+<p>前面对chan.handlers已经进行了注册。</p>
+<pre><code class="language-java">handlers = {dict: 2} 
+ 'BRPOP' = {method} &lt;bound method Channel._brpop_read of &lt;kombu.transport.redis.Channel object at 0x7fbad4170f28&gt;&gt;
+ 'LISTEN' = {method} &lt;bound method Channel._receive of &lt;kombu.transport.redis.Channel object at 0x7fbad4170f28&gt;&gt;
+</code></pre>
+<p>因此调用_brpop_read。</p>
+<pre><code class="language-python">def _brpop_read(self, **options):
+    try:
+        try:
+            dest__item = self.client.parse_response(self.client.connection,
+                                                    'BRPOP',
+                                                    **options)
+        except self.connection_errors:
+            # if there's a ConnectionError, disconnect so the next
+            # iteration will reconnect automatically.
+            self.client.connection.disconnect()
+            raise
+        if dest__item:
+            dest, item = dest__item
+            dest = bytes_to_str(dest).rsplit(self.sep, 1)[0]
+            self._queue_cycle.rotate(dest)
+            self.connection._deliver(loads(bytes_to_str(item)), dest)
+            return True
+        else:
+            raise Empty()
+    finally:
+        self._in_poll = None
+</code></pre>
+<h4 id="637-从redis读取">6.3.7 从redis读取</h4>
+<p>这里会从redis驱动读取，文件/redis/connection.py，从SocketBuffer读取。</p>
+<p>代码为：</p>
+<pre><code class="language-python">def readline(self):
+    buf = self._buffer
+    buf.seek(self.bytes_read)
+    data = buf.readline()
+    while not data.endswith(SYM_CRLF):
+        # there's more data in the socket that we need
+        self._read_from_socket()
+        buf.seek(self.bytes_read)
+        data = buf.readline()
+
+    self.bytes_read += len(data)
+
+    # purge the buffer when we've consumed it all so it doesn't
+    # grow forever
+    if self.bytes_read == self.bytes_written:
+        self.purge()
+
+    return data[:-2]
+</code></pre>
+<p>当读到 response 之后，调用 Redis驱动中对应命令的 回调方法来处理。此处命令为BRPOP。回调方法为：<code>string_keys_to_dict('BLPOP BRPOP', lambda r: r and tuple(r) or None)</code>。</p>
+<p>代码为：</p>
+<pre><code class="language-python">def parse_response(self, connection, command_name, **options):
+    "Parses a response from the Redis server"
+    try:
+        response = connection.read_response()
+    except ResponseError:
+        if EMPTY_RESPONSE in options:
+            return options[EMPTY_RESPONSE]
+        raise
+    if command_name in self.response_callbacks:
+        return self.response_callbacks[command_name](response, **options)
+    return response
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-java">command_name = {str} 'BRPOP'
+connection = {Connection} Connection&lt;host=localhost,port=6379,db=0&gt;
+options = {dict: 0} {}
+self = {Redis} Redis&lt;ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;&gt;
+ connection = {Connection} Connection&lt;host=localhost,port=6379,db=0&gt;
+ connection_pool = {ConnectionPool} ConnectionPool&lt;Connection&lt;host=localhost,port=6379,db=0&gt;&gt;
+ response_callbacks = {CaseInsensitiveDict: 179} {.
+  'LPUSH' = {function} &lt;function Redis.&lt;lambda&gt; at 0x7fbad4276ea0&gt;
+  'RPUSH' = {function} &lt;function Redis.&lt;lambda&gt; at 0x7fbad4276ea0&gt;
+  'SORT' = {function} &lt;function sort_return_tuples at 0x7fbad4275f28&gt;
+  'ZSCORE' = {function} &lt;function float_or_none at 0x7fbad4276598&gt;
+  'ZINCRBY' = {function} &lt;function float_or_none at 0x7fbad4276598&gt;
+  'BLPOP' = {function} &lt;function Redis.&lt;lambda&gt; at 0x7fbad4276f28&gt;
+  'BRPOP' = {function} &lt;function Redis.&lt;lambda&gt; at 0x7fbad4276f28&gt;
+   ....
+</code></pre>
+<p>这些代码堆栈如下：</p>
+<pre><code class="language-java">readline, connection.py:251
+read_response, connection.py:324
+read_response, connection.py:739
+parse_response, client.py:915
+_brpop_read, redis.py:738
+on_readable, redis.py:358
+handle_event, redis.py:362
+get, redis.py:380
+drain_events, base.py:960
+drain_events, connection.py:318
+main, testUb.py:50
+&lt;module&gt;, testUb.py:53
+</code></pre>
+<h4 id="638-回到_brpop_read">6.3.8 回到_brpop_read</h4>
+<p>从Redis驱动获得消息后，回到了 _brpop_read，信息如下：</p>
+<pre><code class="language-java">dest__item = {tuple: 2} 
+ 0 = {bytes: 11} b'asynt_queue'
+ 1 = {bytes: 321} b'{"body": "aGVsbG8gd29ybGQ=", "content-encoding": "utf-8", "content-type": "text/plain", "headers": {}, "properties": {"delivery_mode": 2, "delivery_info": {"exchange": "asynt_exchange", "routing_key": "asynt_routing_key"}, "priority": 0, "body_encoding":
+</code></pre>
+<h4 id="639-_deliver-in-transport">6.3.9 _deliver in Transport</h4>
+<p>当获得消息之后，会取出对应queue的callback，进行调用。</p>
+<p>变量如下：&lt;kombu.transport.redis.Transport object at 0x7feab30f25c0&gt;</p>
+<pre><code class="language-python">def _deliver(self, message, queue):
+    try:
+        callback = self._callbacks[queue]
+    except KeyError:
+        logger.warning(W_NO_CONSUMERS, queue)
+        self._reject_inbound_message(message)
+    else:
+        callback(message)
+</code></pre>
+<h4 id="6310-basic_consume-in-channel">6.3.10 basic_consume in Channel</h4>
+<p>代码继续走到 basic_consume</p>
+<p>&lt;kombu.transport.redis.Channel object at 0x7feab3235f28&gt;</p>
+<pre><code class="language-python">def basic_consume(self, queue, no_ack, callback, consumer_tag, **kwargs):
+    """Consume from `queue`."""
+    self._tag_to_queue[consumer_tag] = queue
+    self._active_queues.append(queue)
+
+    def _callback(raw_message):
+        message = self.Message(raw_message, channel=self)
+        if not no_ack:
+            self.qos.append(message, message.delivery_tag)
+        return callback(message)
+
+    self.connection._callbacks[queue] = _callback
+    self._consumers.add(consumer_tag)
+
+    self._reset_cycle()
+</code></pre>
+<h4 id="6311-_receive_callback-in-consumer">6.3.11 _receive_callback in Consumer</h4>
+<p>上文的 _callback 就是 _receive_callback in Consumer，所以这时候就调用过去。</p>
+<p>&lt;Consumer: [&lt;Queue asynt -&gt; &lt;Exchange asynt(direct) bound to chan:1&gt; -&gt; asynt bound to chan:1&gt;]&gt;</p>
+<pre><code class="language-python">def _receive_callback(self, message):
+    accept = self.accept
+    on_m, channel, decoded = self.on_message, self.channel, None
+    try:
+        m2p = getattr(channel, 'message_to_python', None)
+        if m2p:
+            message = m2p(message)
+        if accept is not None:
+            message.accept = accept
+        if message.errors:
+            return message._reraise_error(self.on_decode_error)
+        decoded = None if on_m else message.decode()
+    except Exception as exc:
+        if not self.on_decode_error:
+            raise
+        self.on_decode_error(message, exc)
+    else:
+        return on_m(message) if on_m else self.receive(decoded, message)
+</code></pre>
+<p>最终调用用户方法。</p>
+<pre><code class="language-python">on_message, testUb.py:36
+_receive_callback, messaging.py:620
+_callback, base.py:630
+_deliver, base.py:980
+_brpop_read, redis.py:748
+on_readable, redis.py:358
+handle_event, redis.py:362
+get, redis.py:380
+drain_events, base.py:960
+drain_events, connection.py:318
+main, testUb.py:50
+&lt;module&gt;, testUb.py:53
+</code></pre>
+<p>具体如下：</p>
+<pre><code class="language-python">+----------+ +---------+ +------------------+    +------+ +---------+    +-----+  +---------+
+|Connection| |Transport| |MultiChannelPoller|    |_poll | | Channel |    |redis|  |Consumer |
++----+-----+ +------+--+ +------------+-----+    +----+-+ +-----+---+    +--+--+  +---+-----+
+     |              |                 |               |         |           |         |
+     +              |                 |               |         |           |         |
+  drain_events      |                 |               |         |           |         |
+     +              +                 |               |         |           |         |
+     +-------&gt;  drain_events          |               |         |           |         |
+     |              +                 +               |         |           |         |
+     |              | +------------&gt; get              |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |              _register_BRPOP    |         |           |         |
+     |              |                 +               +         |           |         |
+     |              |                 | +-----------&gt; register  |           |         |
+     |              |                 |               +         |           |         |
+     |              |                 +               |         |           |         |
+     |              |               poll              |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |             handle_event        |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |                 +               |         |           |         |
+     |              |            on_readable          |         |           |         |
+     |              |                 +               |         +           |         |
+     |              |                 |  +-----------------&gt;_brpop_read     |         |
+     |              |                 |               |         +           |         |
+     |              +                 |               |         +---------&gt; |         |
+     |          _deliver  &lt;-------------------------------------+           |         |
+     |              +                 |               |         |           |         |
+     |              |                 |               |         |           |         |
+     |              |                 |               |         |           |         |
+     |              | +----------------------------------&gt; basic|consume    |         |
+     |              |                 |               |         |           |         |
+     |              |                 |               |         +---------&gt; |         |
+     |              |                 |               |         |           |         |
+     |              |                 |               |         |           |         |
+     |              |                 |               |         |           v         |
+     |              |                 |               |         |                     |
+     |              |                 |               |         |          _receive_ca|lback
+     |              |                 |               |         |                     |
+     v              v                 v               v         v                     |
+                                                                                      v
+
+</code></pre>
+<p>从上图可以看出模块的用途。</p>
+<p>手机上如图</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202102/1850883-20210227110915726-1304255259.png" alt="" loading="lazy"></p>
+<p>至此，我们已经完成了 Consumer 的分析，下文我们进行 Producer 的分析。</p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://www.jianshu.com/p/5569173e2cb5" target="_blank">celery 7 优秀开源项目kombu源码分析之registry和entrypoint </a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/42859874" target="_blank">(二)放弃pika,选择kombu </a></p>
+<p><a href="https://blog.csdn.net/weixin_37947156/article/details/76374347" target="_blank">kombu消息框架&lt;二&gt; </a></p>
+<p><a href="https://blog.csdn.net/yujs20081002227/article/details/55667443" target="_blank">AMQP中的概念</a></p>
+<p><a href="https://blog.csdn.net/chengqiuming/article/details/80542025" target="_blank">AMQP的基本概念</a></p>
+<p><a href="https://blog.csdn.net/weixin_37641832/article/details/83270778" target="_blank">深入理解AMQP协议</a></p>
+<p><a href="https://gtcsq.readthedocs.io/en/latest/openstack/kombu.html" target="_blank">kombu和消息队列总结 </a></p>
+<p><a href="https://blog.csdn.net/wangbowj123/article/details/77885294" target="_blank">关于epoll版服务器的理解（Python实现）</a></p>
+<p><a href="https://www.cnblogs.com/small-office/p/10532827.html" target="_blank">celery源码解读</a></p>
+<p><a href="https://www.cnblogs.com/linxiyue/p/11357285.html" target="_blank">Kombu源码分析(一)概述</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-03-09 15:52</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">188</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14455093" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14455093);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14455093, cb_entryCreatedDate = '2021-03-09 15:52', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjt-AyDbN_cn-_7OoqyC27zfu21l_sKJfs0uT-Z3hPuT5mLPSmnyHYmFVKokydK37MwASiXXuQFfJ-xPZXFI6LGQkCVzOXOdizy4gb7JRqYV4S6c6SR3IHVFFR_lwLWH1cI" />
+</body>
+</html>

@@ -1,0 +1,655 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本系列将继续通过源码分析，和大家一起深入学习 Celery。本文是系列第一篇，借鉴了几" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本系列将继续通过源码分析，和大家一起深入学习 Celery。本文是系列第一篇，借鉴了几" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码解析] 并行分布式框架 Celery 之架构 (1) - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-03-26 10:40';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14562308.html">
+    <span>[源码解析] 并行分布式框架 Celery 之架构 (1)</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。本系列将继续通过源码分析，和大家一起深入学习 Celery。本文是系列第一篇，借鉴了几位网友的大作，按照自己的理解再重新整理，遂得此文。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码解析-并行分布式框架-celery-之架构-1">[源码解析] 并行分布式框架 Celery 之架构 (1)</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码解析-并行分布式框架-celery-之架构-1">[源码解析] 并行分布式框架 Celery 之架构 (1)</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-celery-简介">0x01 Celery 简介</a><ul><li><a href="#11-什么是-celery">1.1 什么是 Celery</a></li><li><a href="#12-场景">1.2 场景</a></li><li><a href="#13-特性">1.3 特性</a></li><li><a href="#14-区别">1.4 区别</a></li></ul></li><li><a href="#0x02-celery的架构">0x02 Celery的架构</a><ul><li><a href="#21-组件">2.1 组件</a></li><li><a href="#22-任务流程">2.2 任务流程</a></li><li><a href="#23-架构图">2.3 架构图</a></li></ul></li><li><a href="#0x03-celery-设计推理">0x03 Celery 设计推理</a><ul><li><a href="#31-celery-基本功能">3.1 Celery 基本功能</a></li><li><a href="#32-celery-辅助功能">3.2 Celery 辅助功能</a></li><li><a href="#33-如何划分">3.3 如何划分</a></li></ul></li><li><a href="#0x04-对-amqp--kombu-的封装">0x04 对 AMQP / Kombu 的封装</a><ul><li><a href="#41-封装">4.1 封装</a></li><li><a href="#42-queues">4.2 Queues</a></li></ul></li><li><a href="#0x05-tbc">0x05 TBC</a></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。</p>
+<p>前面我们用几篇文章分析了 Kombu，为 Celery 的分析打下了基础。</p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455431.html" target="_blank">源码分析] 消息队列 Kombu 之 mailbox</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455294.html" target="_blank">源码分析] 消息队列 Kombu 之 Hub</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455093.html" target="_blank">源码分析] 消息队列 Kombu 之 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455186.html" target="_blank">源码分析] 消息队列 Kombu 之 Producer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454934.html" target="_blank">源码分析] 消息队列 Kombu 之 启动过程</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454761.html" target="_blank">源码解析] 消息队列 Kombu 之 基本架构</a></p>
+<p>本系列将继续通过源码分析，和大家一起深入学习 Celery。本文是系列第一篇，借鉴了几位网友的大作，按照自己的理解再重新整理，遂得此文。</p>
+<h2 id="0x01-celery-简介">0x01 Celery 简介</h2>
+<h3 id="11-什么是-celery">1.1 什么是 Celery</h3>
+<p>Celery是Python世界中最受欢迎的后台工作管理者之一。它是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。</p>
+<p>利用多线程，如Eventlet，gevent等，Celery的任务能被并发地执行在单个或多个工作服务器（worker servers）上。任务能异步执行（后台运行）或同步执行（等待任务完成）。Celery用于生产系统时候每天可以处理数以百万计的任务。</p>
+<p>Celery是用Python编写的，但该协议可以在任何语言实现。它也可以与其他语言通过webhooks实现。</p>
+<p>Celery建议的消息队列是RabbitMQ，但也支持Redis, Beanstalk, MongoDB, CouchDB, 和数据库（使用SQLAlchemy的或Django的 ORM） 。并且可以同时充当生产者和消费者。</p>
+<h3 id="12-场景">1.2 场景</h3>
+<p>使用Celery的常见场景如下：</p>
+<ul>
+<li>
+<p>Web应用。当用户触发的一个操作需要较长时间才能执行完成时，可以把它作为任务交给Celery去异步执行，执行完再返回给用户。这段时间用户不需要等待，提高了网站的整体吞吐量和响应时间。</p>
+</li>
+<li>
+<p>定时任务。生产环境经常会跑一些定时任务。假如你有上千台的服务器、上千种任务，定时任务的管理很困难，Celery可以帮助我们快速在不同的机器设定不同种任务。</p>
+</li>
+<li>
+<p>同步完成的附加工作都可以异步完成。比如发送短信/邮件、推送消息、清理/设置缓存等。</p>
+</li>
+</ul>
+<h3 id="13-特性">1.3 特性</h3>
+<p>Celery提供了如下的特性：</p>
+<ul>
+<li>
+<p>方便地查看定时任务的执行情况，比如执行是否成功、当前状态、执行任务花费的时间等。</p>
+</li>
+<li>
+<p>可以使用功能齐备的管理后台或者命令行添加、更新、删除任务。</p>
+</li>
+<li>
+<p>方便把任务和配置管理相关联。</p>
+</li>
+<li>
+<p>可选多进程、Eventlet 和 Gevent 三种模式并发执行。</p>
+</li>
+<li>
+<p>提供错误处理机制。</p>
+</li>
+<li>
+<p>提供多种任务原语，方便实现任务分组、拆分和调用链。</p>
+</li>
+<li>
+<p>支持多种消息代理和存储后端。</p>
+</li>
+</ul>
+<h3 id="14-区别">1.4 区别</h3>
+<p>消息队列和任务队列，最大的不同之处就在于理念的不同 -- <strong>消息队列传递的是“消息”，任务队列传递的是“任务”</strong>。</p>
+<ul>
+<li>消息队列用来快速消费队列中的消息。消息队列更侧重于消息的吞吐、处理，具有有处理海量信息的能力。另外利用消息队列的生长者和消费者的概念，也可以实现任务队列的功能，但是还需要进行额外的开发。</li>
+<li>任务队列是用来执行一个耗时任务。任务队列则提供了执行任务所需的功能，比如任务的重试，结果的返回，任务状态记录等。虽然也有并发的处理能力，但一般不适用于高吞吐量快速消费的场景。</li>
+</ul>
+<h2 id="0x02-celery的架构">0x02 Celery的架构</h2>
+<p>Celery 的基本逻辑为：分布式异步消息任务队列。</p>
+<p><u>在 Celery 中，采用的是分布式的管理方式，每个节点之间都是通过广播/单播进行通信，从而达到协同效果。实际上，只有部分辅助管理功能才会协同，基础业务功能反而没有借助协同</u>。</p>
+<h3 id="21-组件">2.1 组件</h3>
+<p>Celery包含如下组件：</p>
+<ul>
+<li>
+<p>Celery Beat：任务调度器，Beat进程会读取配置文件的内容，周期性地将配置中到期需要执行的任务发送给任务队列。</p>
+</li>
+<li>
+<p>Celery Worker：执行任务的消费者，通常会在多台服务器运行多个消费者来提高执行效率。</p>
+</li>
+<li>
+<p>Broker：消息代理，或者叫作消息中间件，接受任务生产者发送过来的任务消息，存进队列再按序分发给任务消费方（通常是消息队列或者数据库）。</p>
+</li>
+<li>
+<p>Producer：调用了Celery提供的API、函数或者装饰器而产生任务并交给任务队列处理的都是任务生产者。</p>
+</li>
+<li>
+<p>Result Backend：任务处理完后保存状态信息和结果，以供查询。Celery默认已支持 Redis、RabbitMQ、MongoDB、Django ORM、SQLAlchemy 等方式。</p>
+</li>
+</ul>
+<p>再理解一下：</p>
+<ul>
+<li>系统可以有多个"消息队列"（message Queue），不同的消息可以指定发送给不同的Message Queue。</li>
+<li>上述功能是通过Exchange来实现的，发送消息到"消息队列"中时，可以指定 routing_key，Exchange 通过routing_key 来把消息路由（routes）到不同的"消息队列"中去（Celery的底层依赖Kombu，里面涉及Exchange）。</li>
+<li>exchange 对应 一个消息队列（queue），即：通过 "消息路由" 的机制使exchange对应queue，每个queue对应每个worker。</li>
+</ul>
+<h3 id="22-任务流程">2.2 任务流程</h3>
+<p>Celery 通过消息机制进行通信，通常使用中间人（Broker）作为客户端和职程（Worker）调节。启动一个任务的流程是：</p>
+<ul>
+<li>客户端向消息队列发送一条消息；</li>
+<li>然后中间人（Broker）将消息传递给一个职程（Worker），支持RabbitMQ、Redis等作为Broker。；</li>
+<li>最后由职程（Worker）进行执行中间人（Broker）分配的任务；</li>
+</ul>
+<h3 id="23-架构图">2.3 架构图</h3>
+<p>Celery的架构图如下所示：</p>
+<pre><code class="language-python"> +-----------+            +--------------+
+ | Producer  |            |  Celery Beat |
+ +-------+---+            +----+---------+
+         |                     |
+         |                     |
+         v                     v
+
+       +-------------------------+
+       |          Broker         |
+       +------------+------------+
+                    |
+                    |
+                    |
+     +-------------------------------+
+     |              |                |
+     v              v                v
++----+-----+   +----+------+   +-----+----+
+| Exchange |   |  Exchange |   | Exchange |
++----+-----+   +----+------+   +----+-----+
+     |              |               |
+     v              v               v
+
+  +-----+       +-------+       +-------+
+  |queue|       | queue |       | queue |
+  +--+--+       +---+---+       +---+---+
+     |              |               |
+     |              |               |
+     v              v               v
+
++---------+     +--------+     +----------+
+| worker  |     | Worker |     |  Worker  |
++-----+---+     +---+----+     +----+-----+
+      |             |               |
+      |             |               |
+      +-----------------------------+
+                    |
+                    |
+                    v
+                +---+-----+
+                | backend |
+                +---------+
+
+</code></pre>
+<h2 id="0x03-celery-设计推理">0x03 Celery 设计推理</h2>
+<p>目前我们得到如下信息：</p>
+<ul>
+<li>Celery 的基本逻辑为：分布式异步消息任务队列；</li>
+<li>Celery底层依赖 Kombu，基于 Kombu 完成基本功能；</li>
+<li>之前我们通过若干文章，基本了解了 Kombu 的大致逻辑；</li>
+</ul>
+<p>下面我们就需要依据 Kombu来推论 Celery 应该如何设计。</p>
+<h3 id="31-celery-基本功能">3.1 Celery 基本功能</h3>
+<p>首先，我们看看为了完成基本功能，Celery 应该具备哪些组件（模块），<u>我们会提出一些问题，这些问题将在后续的分析中陆续得到解答</u>。</p>
+<p>因为Celery 的基本逻辑为：分布式异步消息任务队列，所以Celery包含如下基础组件：</p>
+<ul>
+<li><strong>Producer</strong>：需要有一个组件完成如下功能 ：把用户定义的代码打包整合成任务提交给任务队列处理。问题就在于：
+<ul>
+<li>对于任务，也就是task如何处理？</li>
+<li>task的本质是什么？</li>
+<li>task 应该包括哪些功能？</li>
+<li>如果task是函数，如何把task函数传递给服务端？如果task函数内容很大怎么办？</li>
+<li>如何把task相关信息从客户端传递到服务端？</li>
+</ul>
+</li>
+<li><strong>Broker</strong>：为了解耦合，需要有一个中间组件来缓存消息。这就是 消息代理，或者叫作消息中间件。其作用是接受任务生产者发送过来的任务消息，存进队列再按序分发给任务消费方（通常是消息队列或者数据库）。问题在于：
+<ul>
+<li>如何区分不同的消息来源，即如何路由？</li>
+<li>是否有容错机制？</li>
+</ul>
+</li>
+<li><strong>Worker</strong>：需要有一个组件来执行任务，这就是 Worker：
+<ul>
+<li>Worker 需要从 broker 接受任务。<u>这就需要一个consumer，问题就是：Consumer 如何从 broker 获取消息</u>。</li>
+<li>接受任务之后，Worker 需要了解任务，知道怎么执行任务，执行任务。<u>所以有一个问题：Worker 怎么知道 client 端的任务？</u></li>
+<li>通常会在多台服务器运行多个 worker 来提高执行效率。<u>这就涉及到一个问题：多个 worker 之间如何协调？如何在多个 Worker 之间分配任务？</u></li>
+</ul>
+</li>
+<li><strong>Result Backend</strong>：任务处理完后保存状态信息和结果，以供查询。Celery默认已支持Redis、RabbitMQ、MongoDB、Django ORM、SQLAlchemy等方式。</li>
+</ul>
+<h3 id="32-celery-辅助功能">3.2 Celery 辅助功能</h3>
+<p>以上为基础功能，但是作为分布式异步消息任务队列，我们还需要辅助功能（以及相关问题），比如。</p>
+<ul>
+<li>
+<p>用于执行定时任务的timer；</p>
+</li>
+<li>
+<p>需要处理监控事件；</p>
+</li>
+<li>
+<p>如何通过远程命令管理；</p>
+</li>
+<li>
+<p>worker 出现问题，如何处理；</p>
+</li>
+<li>
+<p>如何提高并发？</p>
+</li>
+<li>
+<p>如何封装amqp？</p>
+</li>
+<li>
+<p>如何进行消息循环引擎？</p>
+</li>
+<li>
+<p>以上功能哪些属于带有分布式特点的？</p>
+</li>
+</ul>
+<h3 id="33-如何划分">3.3 如何划分</h3>
+<p>进一步问题是：<u>这些辅助功能是作为基础功能模块的一部分？还是独立出来成为一个功能模块？</u></p>
+<p>这其实是一个哲学问题，每种实现都有其道理，或者说，很多决定其实就是作者灵光一现（临时拍脑袋）的产物。</p>
+<p>比如我们后面提到的 Consumer 组件，表面上看，就是一个从broker获取消息的功能模块，直接使用 kombu 的 consumer 就可以做到。</p>
+<p>但是实际上，<u>celery Consumer 组件的概念远远要大于Kombu的Consumer</u>，不只是利用了Kombu的Consumer从broker取得消息。也包括消息的消费，分发，监控，心跳等一系列功能。可以说，除了消息循环引擎 被 hub 承担，多进程被 Pool，Autoscaler 承担，定时任务被 timer，beat 承担之外，其他主要功能都被 Consumer 承担。</p>
+<p>因此，我们需要看看：</p>
+<ul>
+<li>
+<p>哪些组件可以利用 Kombu直接完成，哪些需要Celery自己重新设计。</p>
+</li>
+<li>
+<p>若重新设计，哪些可以基于Kombu设计，如何调用相应Kombu模块。</p>
+</li>
+<li>
+<p>若使用Kombu模块作为Celery模块的变量，这些Kombu模块分别属于哪些Celery模块。</p>
+</li>
+</ul>
+<h2 id="0x04-对-amqp--kombu-的封装">0x04 对 AMQP / Kombu 的封装</h2>
+<p>Celery如果想成为消息处理系统，首先需要解决消息协议和消息传输问题。</p>
+<ul>
+<li>消息协议由 AMQP（Advanced Message Queuing Protocol:高级消息队列协议）解决。Celery 支持所有AMQP路由机制，可以通过配置的方式，执行相关的消息路由。</li>
+<li>消息实现和传输由 Kombu 解决。由之前对 Kombu 的分析我们知道，Kombu 的定位是一个兼容 AMQP 协议的消息队列抽象，是一个把消息传递封装成统一接口的库。</li>
+</ul>
+<p>所以我们首先看看如何封装  AMQP / Kombu。</p>
+<p>具体封装是在 celery/app/amqp.py 文件中，其中主要有两个类：AMQP 和 Queues。</p>
+<h3 id="41-封装">4.1 封装</h3>
+<p>AMQP类的功能是 发送/接受消息，是对amqp协议实现的再一次封装，在这里其实就是对 kombu 类的再一次封装。</p>
+<p>我们可以看到，其内部成员变量都是来自于 Kombu。比如 Connection, Consumer, Exchange, Producer, Queue, pools。</p>
+<pre><code class="language-python">from kombu import Connection, Consumer, Exchange, Producer, Queue, pools
+
+class AMQP:
+    """App AMQP API: app.amqp."""
+
+    Connection = Connection
+    Consumer = Consumer
+    Producer = Producer
+
+    #: compat alias to Connection
+    BrokerConnection = Connection
+
+    queues_cls = Queues
+
+    #: Cached and prepared routing table.
+    _rtable = None
+
+    #: Underlying producer pool instance automatically
+    #: set by the :attr:`producer_pool`.
+    _producer_pool = None
+
+    # Exchange class/function used when defining automatic queues.
+    # For example, you can use ``autoexchange = lambda n: None`` to use the
+    # AMQP default exchange: a shortcut to bypass routing
+    # and instead send directly to the queue named in the routing key.
+    autoexchange = None
+</code></pre>
+<p>为了更好的理解，我们打印出amqp类的具体内容来看看。</p>
+<pre><code class="language-python">amqp = {AMQP}  
+ BrokerConnection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Connection = {type} &lt;class 'kombu.connection.Connection'&gt;
+ Consumer = {type} &lt;class 'kombu.messaging.Consumer'&gt;
+ Producer = {type} &lt;class 'kombu.messaging.Producer'&gt;
+ app = {Celery} &lt;Celery myTest at 0x252bd2903c8&gt;
+ autoexchange = {NoneType} None
+ default_exchange = {Exchange} Exchange celery(direct)
+ default_queue = {Queue} &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;
+ producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+ publisher_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+ queues = {Queues: 1} {'celery': &lt;unbound Queue celery -&gt; &lt;unbound Exchange celery(direct)&gt; -&gt; celery&gt;}
+ queues_cls = {type} &lt;class 'celery.app.amqp.Queues'&gt;
+ router = {Router} &lt;celery.app.routes.Router object at 0x00000252BDC6B248&gt;
+ routes = {tuple: 0} ()
+ task_protocols = {dict: 2} {1: &lt;bound method AMQP.as_task_v1 of &lt;celery.app.amqp.AMQP object at 0x00000252BDC74148&gt;&gt;, 2: &lt;bound method AMQP.as_task_v2 of &lt;celery.app.amqp.AMQP object at 0x00000252BDC74148&gt;&gt;}
+  _event_dispatcher = {EventDispatcher} &lt;celery.events.dispatcher.EventDispatcher object at 0x00000252BE750348&gt;
+  _producer_pool = {ProducerPool} &lt;kombu.pools.ProducerPool object at 0x00000252BDC8F408&gt;
+  _rtable = {tuple: 0} ()
+</code></pre>
+<p>具体逻辑如下：</p>
+<pre><code class="language-python">+---------+
+| Celery  |    +----------------------------+
+|         |    |   celery.app.amqp.AMQP     |
+|         |    |                            |
+|         |    |                            |
+|         |    |          BrokerConnection +-----&gt;  kombu.connection.Connection
+|         |    |                            |
+|   amqp+-----&gt;+          Connection       +-----&gt;  kombu.connection.Connection
+|         |    |                            |
++---------+    |          Consumer         +-----&gt;  kombu.messaging.Consumer
+               |                            |
+               |          Producer         +-----&gt;  kombu.messaging.Producer
+               |                            |
+               |          producer_pool    +-----&gt;  kombu.pools.ProducerPool
+               |                            |
+               |          queues           +-----&gt;  celery.app.amqp.Queues
+               |                            |
+               |          router           +-----&gt;  celery.app.routes.Router
+               +----------------------------+
+</code></pre>
+<h3 id="42-queues">4.2 Queues</h3>
+<p><u>Queues 则是一个扩展，一个逻辑概念，可以认为是 Broker 概念的进一步缩减版</u>。</p>
+<p>Producer 把任务发送给 Queues，Worker 从 Queues 获取任务，进行消费。</p>
+<p>app.amqp.queues 就是 Queues 的一个实例，在其中存储了本 Worker 可以读取的所有 kombu.Queue。</p>
+<pre><code class="language-python">class Queues(dict):
+    """Queue name⇒ declaration mapping.
+
+    Arguments:
+        queues (Iterable): Initial list/tuple or dict of queues.
+        create_missing (bool): By default any unknown queues will be
+            added automatically, but if this flag is disabled the occurrence
+            of unknown queues in `wanted` will raise :exc:`KeyError`.
+        max_priority (int): Default x-max-priority for queues with none set.
+    """
+
+    #: If set, this is a subset of queues to consume from.
+    #: The rest of the queues are then used for routing only.
+    _consume_from = None
+
+    def __init__(self, queues=None, default_exchange=None,
+                 create_missing=True, autoexchange=None,
+                 max_priority=None, default_routing_key=None):
+        dict.__init__(self)
+        self.aliases = WeakValueDictionary()
+        self.default_exchange = default_exchange
+        self.default_routing_key = default_routing_key
+        self.create_missing = create_missing
+        self.autoexchange = Exchange if autoexchange is None else autoexchange
+        self.max_priority = max_priority
+        if queues is not None and not isinstance(queues, Mapping):
+            queues = {q.name: q for q in queues}
+        queues = queues or {}
+        for name, q in queues.items():
+            self.add(q) if isinstance(q, Queue) else self.add_compat(name, **q)
+</code></pre>
+<p>对于一个 Consumer，可以配置其 queue，一个 Consumer 可以有多个queue，比如：</p>
+<pre><code class="language-python">def add_consumer(state, queue, exchange=None, exchange_type=None,
+                 routing_key=None, **options):
+    """Tell worker(s) to consume from task queue by name."""
+    state.consumer.call_soon(
+        state.consumer.add_task_queue,
+        queue, exchange, exchange_type or 'direct', routing_key, **options)
+    return ok(f'add consumer {queue}')
+</code></pre>
+<p>add_consumer 名字个人认为有一定误导，其实是添加 queue，但是名字看起来像添加 Consumer。</p>
+<p>而在 Consumer 之中，会对 queues 进行具体配置。</p>
+<pre><code class="language-python">def add_task_queue(self, queue, exchange=None, exchange_type=None,
+                   routing_key=None, **options):
+    cset = self.task_consumer
+    queues = self.app.amqp.queues
+    if queue in queues:
+        q = queues[queue]
+    else:
+        exchange = queue if exchange is None else exchange
+        exchange_type = ('direct' if exchange_type is None
+                         else exchange_type)
+        q = queues.select_add(queue,
+                              exchange=exchange,
+                              exchange_type=exchange_type,
+                              routing_key=routing_key, **options)
+    if not cset.consuming_from(queue):
+        cset.add_queue(q)
+        cset.consume()
+        info('Started consuming from %s', queue)
+</code></pre>
+<h2 id="0x05-tbc">0x05 TBC</h2>
+<p>通过以上的分析，大家应该对 Celery 的架构有了初步的了解。在下篇文章中，我们将从几个方面做进一步思考，敬请期待。</p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://blog.csdn.net/sky6even/article/details/81409800" target="_blank">Nginx资料之Master与Worker基础概念</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow?lang=ZH_CN" target="_blank">1: Worker 启动流程概述</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-execute-engine?lang=ZH_CN" target="_blank">2: Worker 的执行引擎</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement?lang=ZH_CN" target="_blank">3: Task 对象的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-scheduler-task-implements?lang=ZH_CN" target="_blank">4: 定时任务的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control?lang=ZH_CN" target="_blank">5: 远程控制管理</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-event-implemention?lang=ZH_CN" target="_blank">6: Events 的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-interact-between-workers?lang=ZH_CN" target="_blank">7: Worker 之间的交互</a></p>
+<p><a href="https://liqiang.io/post/state-and-result-implement-in-celery?lang=ZH_CN" target="_blank">8: State 和 Result</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/63959912" target="_blank">Spark分布式计算引擎的应用</a></p>
+<p><a href="https://blog.csdn.net/weixin_39574388/article/details/111711542" target="_blank">mfc 消息消息队列概念_消息队列和任务队列到底有什么不同？</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-03-26 22:40</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">54</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14562308" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14562308);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14562308, cb_entryCreatedDate = '2021-03-26 22:40', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtq5rDElNoG-_9B44HrvcyWrqEby3RA_BXP5b6ztiQt19MXT8mR97gqWKSckEmOHxbKw1hXnoN42ilAjTgXdKJ7_SkoJkILmLduMiNSbmTL_8SaVxHnUFJT-Irtta6BlCU" />
+</body>
+</html>

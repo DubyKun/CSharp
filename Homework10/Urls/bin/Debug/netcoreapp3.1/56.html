@@ -1,0 +1,507 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    <meta name="description" content="apiAutoTestWeb使用说明 apiAutoTestWeb是为apiAutoTest的可视化版本，其采用前后端分离(FastAPI &#x2B; Vue2)方式实现 具体使用: Python3 &#x2B; Fa" />
+    <meta property="og:description" content="apiAutoTestWeb使用说明 apiAutoTestWeb是为apiAutoTest的可视化版本，其采用前后端分离(FastAPI &#x2B; Vue2)方式实现 具体使用: Python3 &#x2B; Fa" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>FastAPI + Vue 前后端分离 接口自动化测试工具 apiAutoTestWeb - zy7y - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/blacklowkey/bundle-blacklowkey.min.css?v=1gj9-XJKL9BZFkjdvROYQPiPWjQXk-hsXXZGtqkfaSc" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/zy7y/custom.css?v=6vd15zmdoE&#x2B;ujQ1hzLwPf7pR01c=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/blacklowkey/bundle-blacklowkey-mobile.min.css?v=zrVn_w7PYXoSvEFaixHbQGlNNXNZ3h27-9PpkXZLYns" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/zy7y/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/zy7y/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/zy7y/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 525824;
+        var currentBlogApp = 'zy7y';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'BlackLowKey';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 04:19';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <a href="https://github.com/zy7y" target="_blank">
+　　<img style="position: fixed; top: 0; right: 0; border: 0; z-index: 1;" src="https://images.cnblogs.com/cnblogs_com/jackson0714/779808/o_github.png" >
+</a>
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/zy7y/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/zy7y/">柒意</a>
+</h1>
+<h2>路漫漫其修远兮，吾将上下而求索。 -《离骚》
+QQ群：851163511（没技术大佬，本站上的个人项目问题都可以在这里咨询）</h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/zy7y/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/zy7y">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/zy7y/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/zy7y/p/14735690.html">
+    <span>FastAPI + Vue 前后端分离 接口自动化测试工具 apiAutoTestWeb</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="apiautotestweb使用说明">apiAutoTestWeb使用说明</h1>
+<blockquote>
+<p><a href="https://gitee.com/zy7y/apiAutoTestWeb" target="_blank">apiAutoTestWeb</a>是为apiAutoTest的可视化版本，其采用前后端分离(<a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a> + <a href="https://cn.vuejs.org/" target="_blank">Vue2</a>)方式实现</p>
+<p>具体使用: Python3 + FastAPI + Vue + element-ui + vue element admin + Tortoise ORM + jwt(python-jose) + apscheduler + aiohttp + aiofiles + jsonpath</p>
+</blockquote>
+<h1 id="演示地址">演示地址</h1>
+<p><mark><strong><a href="http://49.232.203.244:2152/" target="_blank">http://49.232.203.244:2152/</a></strong></mark></p>
+<p>点击即可访问: <a href="http://49.232.203.244:2152/" target="_blank">前端入口</a>, <a href="http://49.232.203.244:1338/docs" target="_blank">接口文档</a></p>
+<h1 id="目的">目的</h1>
+<blockquote>
+<p>尝试将学了一年FastAPI 和Vue 做个结合,动手做才能更快的获得知识，在做的时候基本是遇到什么问题就查，最终出来了这一版本.</p>
+</blockquote>
+<h1 id="相比apiautotest">相比apiAutoTest</h1>
+<ol>
+<li>
+<p>header支持使用自定义函数以及其他接口参数变量</p>
+<blockquote>
+<p>弊端: 将无法再对单个用例不使用header或者单独使用header，为此移除了token操作</p>
+</blockquote>
+</li>
+<li>
+<p>增加了定时任务， 后台运行</p>
+</li>
+<li>
+<p>支持<a href="https://graphql.cn/" target="_blank">graphql</a>规范接口测试</p>
+</li>
+<li>
+<p>将excel数据托管到可视化界面和数据库管理</p>
+<blockquote>
+<p>弊端: 感觉更繁琐了，需要不停的在页面切换</p>
+</blockquote>
+</li>
+<li>
+<p>暂不支持SQL</p>
+<blockquote>
+<p>tip: 不排除自定义函数中可以使用sql</p>
+</blockquote>
+</li>
+<li>
+<p>扩展函数</p>
+<blockquote>
+<p>不支持，安装第三方库</p>
+</blockquote>
+</li>
+<li>
+<p>前端表单填写采用文本域，没法校验是否有问题</p>
+</li>
+<li>
+<p>上传文件接口暂不支持</p>
+</li>
+</ol>
+<h1 id="功能介绍">功能介绍</h1>
+<h2 id="1-登录">1. 登录</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502102037287.png" alt="" loading="lazy"></p>
+<ul>
+<li>页面并没有写注册入口, 暂时只能通过接口来注册.</li>
+<li>默认的演示账号: tester 密码: 123456</li>
+</ul>
+<h2 id="2-首页">2. 首页</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502115916433.png" alt="" loading="lazy"></p>
+<h2 id="3-说明文档">3. 说明文档</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502115930597.png" alt="" loading="lazy"></p>
+<h2 id="4-项目管理">4. 项目管理</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502103059858.png" alt="" loading="lazy"></p>
+<h2 id="5-环境管理">5. 环境管理</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502103630089.png" alt="" loading="lazy"></p>
+<ul>
+<li>基准header, 类似JSON的写法<code>{"Authorization":"${token}"}</code>欲使用token，当token变量存在的时候会自动给其替换，其他接口(在token提取接口之后的)将被自动使用， 其具体效果见<code>报告详细</code>, <code>变量知识(见用例模块)</code></li>
+<li>当然也可以使用<code>自定义函数</code>来解决下面的问题</li>
+</ul>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502104011903.png" alt="" loading="lazy"></p>
+<h2 id="6-接口管理">6. 接口管理</h2>
+<ul>
+<li>
+<p><a href="https://www.runoob.com/w3cnote/restful-architecture.html" target="_blank">RESTful规范</a></p>
+<blockquote>
+<p>也实用一般的http/https(带证书暂未测试，应该不支持)接口</p>
+</blockquote>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502104436160.png" alt="" loading="lazy"></p>
+<p>路径可以使用<code>自定义函数</code>、<code>参数变量</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502110622127.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p><a href="https://graphql.cn/" target="_blank">GraphQL规范</a></p>
+<blockquote>
+<p>目前个人公司项目接触到，发现只能是post请求，json数据格式传输</p>
+</blockquote>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502104458705.png" alt="" loading="lazy"></p>
+</li>
+</ul>
+<h2 id="7-用例管理">7. 用例管理</h2>
+<ul>
+<li>
+<p>RESTful规范</p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502105234223.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>参数类型: 根据接口文档选择</p>
+</li>
+<li>
+<p>请求参数: 类json(<code>只所以说是类json写法是因为后面有些地方使用非字符串的参数时会有是不合法json的情况</code>)写法, 可以使用<code>自定义函数</code>,<code>参数变量</code></p>
+</li>
+<li>
+<p>预期结果: <code>{"$.meta":{ "msg": "登录成功", "status": 200 }}</code>，<code>$.meta</code> 实际结果(<code>将会通过jsonpath对当前接口的响应提取内容$.meta为jsonpath表达式，意为从当前响应json中提取第一层级为key为meta的内容</code>),<code>{ "msg": "登录成功", "status": 200 }</code>预期结果内容, 支持多个预期结果，添加多个键值对即可</p>
+</li>
+<li>
+<p>提取参数: <code>{"token":"$.data.token"}</code>, <code>token</code>为参数变量，<code>$.data.token</code>从当前接口响应提取token的值并赋值给自定义变量token,  如果已经存在变量token，那么这个token 会覆盖之前的变量token内容，</p>
+</li>
+<li>
+<p>GraphQL规范： 除了query语句部分不同，其他一致</p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502110248043.png" alt="" loading="lazy"></p>
+</li>
+</ul>
+<h2 id="8-任务管理">8. 任务管理</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502112453362.png" alt="" loading="lazy"></p>
+<ul>
+<li>立即执行:  必须等待执行完成之后，自动跳转报告信息，且无法在测试过程中去做其他操作</li>
+<li>后台执行：任务将在后台运行，需要执行去报告管理查看，然后可以去做其他操作</li>
+<li>定时信息：展示该任务的定时信息，会显示下次运行时间</li>
+<li>删除: 会删除任务以及定时任务</li>
+</ul>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502112437202.png" alt="" loading="lazy"></p>
+<ul>
+<li>
+<p>选择用例：需先选择对应的环境，然后此处可以选择对应项目下的所有用例，<code>已选中用例的展示顺序，将决定接口依次运行的顺序，会直接影响到每个接口变量参数的使用</code>，你应该在使用变量参数前执行提取该变量参数的接口</p>
+</li>
+<li>
+<p>定时任务：目前定时任务是写在内存中的，每次应用重启，已有的定时任务都会失效</p>
+<blockquote>
+<p>可通过，删除任务，编辑任务的定时任务开关来删除或者关闭定时任务</p>
+<p>为避免服务器歇菜，还请谨慎使用定时任务, 及时关闭，并且服务器上设置了每天早5点30分会对项目进行重新部署，每次重新部署后所有定时任务都将失效(任务储存在内存中)</p>
+</blockquote>
+</li>
+<li>
+<p>定时规则: 遵顼<code>cron</code>表达式示例给出的<code>* * * * *</code>意为每分钟执行一次任务</p>
+</li>
+</ul>
+<h2 id="9-报告管理">9. 报告管理</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502112927615.png" alt="" loading="lazy"></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113109583.png" alt="" loading="lazy"></p>
+<ul>
+<li>点击测试结果可筛选结果</li>
+<li>点击首行的箭头展开查看详细</li>
+</ul>
+<h3 id="报告解读">报告解读</h3>
+<ol>
+<li>
+<p>请求信息: <code>显示当前用例的请求前 VS 请求后的 数据处理</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113332567.png" alt="" loading="lazy"></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113451617.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>提取参数: <code>显示当前用例的提取参数表达式</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113524141.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>响应结果： <code>显示当前用例的响应结果</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113655236.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>断言信息：<code>显示当前用例的断言内容</code></p>
+<blockquote>
+<p><code>$.meta ? {'msg': '登录成功', 'status': 200}</code> 用例中书写的预期结果内容</p>
+<p><code>{'msg': '登录成功', 'status': 200} == {'msg': '登录成功', 'status': 200}</code> 处理后实际的预期结果内容</p>
+</blockquote>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502113835929.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>当前参数池：<code>显示当前用例运行之后的可用参数变量</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502114225072.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>异常信息：<code>显示当前用例运行出现的异常信息</code></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502114637048.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>关于异常的种类分析还需要统计后，也许后面会更新在文档上，目前如果出现异常请仔细查看<code>请求信息</code>，和<code>异常信息</code>等内容</p>
+</blockquote>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502114919036.png" alt="" loading="lazy"></p>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502115019284.png" alt="" loading="lazy"></p>
+</li>
+</ol>
+<h2 id="7-扩展脚本">7. 扩展脚本</h2>
+<p><a href="https://imgtu.com/i/gZWbC9" target="_blank"><img src="https://z3.ax1x.com/2021/05/02/gZWbC9.png" alt="gZWbC9.png" loading="lazy"></a></p>
+<blockquote>
+<p>每次编辑之后，需要保存才会生效，此处的函数仅能作用于 <code>接口path,用例请求参数、预期结果</code>中，不支持调试</p>
+</blockquote>
+<h2 id="8-json校验">8. Json校验</h2>
+<p><img src="https://gitee.com/zy7y/blog_images/raw/master/img/image-20210502115624216.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>提供了实时的json格式校验</p>
+</blockquote>
+<h1 id="参考资料">参考资料</h1>
+<ul>
+<li>
+<p>Vue: <a href="https://cn.vuejs.org/" target="_blank">https://cn.vuejs.org/</a></p>
+</li>
+<li>
+<p>Element-ui: <a href="https://element.eleme.cn/#/zh-CN/component/installation" target="_blank">https://element.eleme.cn/#/zh-CN/component/installation</a></p>
+</li>
+<li>
+<p>vue-element-admin: <a href="https://panjiachen.gitee.io/vue-element-admin-site/zh/" target="_blank">https://panjiachen.gitee.io/vue-element-admin-site/zh/</a></p>
+</li>
+<li>
+<p>FastAPI: <a href="https://fastapi.tiangolo.com/" target="_blank">https://fastapi.tiangolo.com/</a></p>
+</li>
+<li>
+<p>Tortoise ORM: <a href="https://tortoise-orm.readthedocs.io/en/latest/" target="_blank">https://tortoise-orm.readthedocs.io/en/latest/</a></p>
+<blockquote>
+<p>还有源码中注释的链接资料</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="最后">最后</h1>
+<ol>
+<li>感谢在此过程中我查过的所有资料的作者，提供答案的网友</li>
+<li>该项目作为一个<code>Demo</code>，任有很多<code>Bug</code>和冗余代码可以优化</li>
+<li>如果你有什么建议或者<code>Bug</code>反馈可以在<a href="https://gitee.com/zy7y/apiAutoTestWeb.git" target="_blank">源码仓库</a>进行反馈</li>
+<li>如果你也想加入这个项目可以直接申请成为仓库成员</li>
+<li>如果你需要及时得到问题回复可以加入该QQ群<code>851163511</code></li>
+<li>如果你觉得这个项目有点用处，有帮助到你，还请点个<code>star</code>
+<ul>
+<li>Gitee: <a href="https://gitee.com/zy7y/apiAutoTestWeb.git" target="_blank">https://gitee.com/zy7y/apiAutoTestWeb.git</a></li>
+<li>Github: <a href="https://github.com/zy7y/apiAutoTestWeb.git" target="_blank">https://github.com/zy7y/apiAutoTestWeb.git</a></li>
+</ul>
+</li>
+<li>视频过程
+<ul>
+<li><a href="https://space.bilibili.com/438858333/channel/detail?cid=179917&amp;ctype=0" target="_blank">https://space.bilibili.com/438858333/channel/detail?cid=179917&amp;ctype=0</a></li>
+<li>RESTful接口流程演示：<a href="https://www.bilibili.com/video/BV1Q64y1y7oF" target="_blank">https://www.bilibili.com/video/BV1Q64y1y7oF</a></li>
+<li>GraphQL接口流程演示：<a href="https://www.bilibili.com/video/BV1r84y1F7ew" target="_blank">https://www.bilibili.com/video/BV1r84y1F7ew</a></li>
+<li>服务器部署：<a href="https://www.bilibili.com/video/bv1f5411g7fA" target="_blank">https://www.bilibili.com/video/bv1f5411g7fA</a></li>
+</ul>
+</li>
+</ol>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 16:19</span>&nbsp;
+<a href="https://www.cnblogs.com/zy7y/">zy7y</a>&nbsp;
+阅读(<span id="post_view_count">113</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735690" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735690);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 525824, cb_blogApp = 'zy7y', cb_blogUserGuid = '8a430ad0-facd-4ae7-3443-08d5b93323ea';
+    var cb_entryId = 14735690, cb_entryCreatedDate = '2021-05-06 16:19', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 zy7y
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjv-iQ4Y_mt2BzXBoC_t5xGN52hmWaZ9lf2vwtQHPBIHbtL5jTmwDy5b9s42brZ25q8Azhk5S7UT9WeLJ0ZraMotI-gusL8-BQNtFaXh7d36A0YnIyehAy-cTIuZe3LpF9k" />
+</body>
+</html>

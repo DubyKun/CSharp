@@ -1,0 +1,869 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    <meta name="description" content="socks5协议详解和netty实现源代码" />
+    <meta property="og:description" content="socks5协议详解和netty实现源代码" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>使用netty实现socks5协议 - 狂盗一枝梅 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/bluesky/bundle-bluesky.min.css?v=crS-BJKdvIW2vVfJGJMix4EoW6XR-Z12_psc8V6YTNc" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/kuangdaoyizhimei/custom.css?v=rm55o2gagu2QZRsW0z7iXWdTVko=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/bluesky/bundle-bluesky-mobile.min.css?v=R6fv62IpzGSvTM7pHsnRgkrk1El3gMSYm75Iwe80srs" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/kuangdaoyizhimei/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/kuangdaoyizhimei/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/kuangdaoyizhimei/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 147792;
+        var currentBlogApp = 'kuangdaoyizhimei';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'BlueSky';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 04:51';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <!-- ............自定义首部代码开始............ -->
+<!-- 自定义进度条 -->
+<div id="myProgressBar" style="display: none;"></div>
+
+<!-- 自定义导航条 -->
+<div id="mynavbar" style="margin-top: 0px;">
+    <div style="position:relative;width:65pc;height:70px;margin:0 auto;">
+    	<a style="width: auto;height: 22px;margin-left: 25px;" class="c-c"  href="https://www.cnblogs.com/kuangdaoyizhimei">
+<img id="nv-icon" style="width: auto;height: 38px;outline: 0;margin-top: 12px;">
+
+    	</a>
+    	<div id="mynavbar_menu">
+	    	<a href="https://www.cnblogs.com/summertime-wu" class="c-c">首页</a>
+	    	<a href="https://msg.cnblogs.com/send/summertime-wu" class="c-c">联系</a>
+	    	<a id="myGayhubUrl" href="https://github.com/Summertime-Wu" class="c-c">Github</a>
+	    	<a id="friendLink" href="#">友情链接</a>
+	    	<a href="https://www.cnblogs.com/">博客园</a>
+            <a href="https://i.cnblogs.com/posts">管理</a>
+	    	<a id="aboutMe" href="#">关于</a>
+	    </div>
+    </div>
+</div>
+
+<!-- 自定义头部锚点 -->
+<a name="mtop"></a>
+
+<!-- 自定义头部 -->
+<div id="myheader">
+	<!-- 背景图片 -->
+    <div id="myheader_bg"></div>
+    <!-- 遮罩层 -->
+    <div id="myheader_cover" title="点我点我">
+        <!-- 博客标题 -->
+        <div id="mypost_title">
+            <div id="mypost_title_h" style="font-weight: 500;font-size: 21px;"></div>
+            <div id="mypost_title_f"></div>
+            <div id="mypost_title_e">
+                <a href="https://www.cnblogs.com/" class="c-c" style="">暂未分类</a>
+            </div> 
+        </div>  
+    </div>
+</div>
+<!-- ............自定义首部代码结束............ -->
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/kuangdaoyizhimei/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/kuangdaoyizhimei/">狂盗一枝梅</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/kuangdaoyizhimei/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%8B%82%E7%9B%97%E4%B8%80%E6%9E%9D%E6%A2%85">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/kuangdaoyizhimei/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14735895.html">
+    <span>使用netty实现socks5协议</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        socks5协议详解和netty实现源代码
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h2 id="一、socks5协议简介">一、socks5协议简介</h2>
+<blockquote>
+<p><strong>SOCKS</strong>是一种<a href="https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE" target="_blank">网络传输协议</a>，主要用于客户端与外网服务器之间通讯的中间传递。</p>
+<p>SOCKS是”SOCKetS”的<a href="https://zh.wikipedia.org/wiki/%E7%BC%A9%E5%86%99" target="_blank">缩写</a>[<a href="https://zh.wikipedia.org/wiki/SOCKS#cite_note-1" target="_blank">注 1]</a>。 当<a href="https://zh.wikipedia.org/wiki/%E9%98%B2%E7%81%AB%E5%A2%99_(%E7%BD%91%E7%BB%9C)" target="_blank">防火墙</a>后的客户端要访问外部的服务器时，就跟SOCKS<a href="https://zh.wikipedia.org/wiki/%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8" target="_blank">代理服务器</a>连接，这个代理服务器控制客户端访问外网的资格，允许的话，就将客户端的请求发往外部的服务器。</p>
+</blockquote>
+<p>SOCKS 协议第 4 版本为基于 TCP 协议的 C/S 应用，包括 TELNET, FTP 和 使用广泛的信息发现协议如 HTTP 、 WAIS 提供了不保证安全性的防火墙穿透服务。</p>
+<p>SOCKS 5 扩展了第 4 版本，加入了 UDP 协议支持，在框架上加入了强认证功能，并且地址信息也加入了域名和 IPV6 的支持。</p>
+<p>SOCKS协议不提供<a href="https://zh.wikipedia.org/wiki/%E5%8A%A0%E5%AF%86" target="_blank">加密</a>。</p>
+<p><img src="https://blog.kdyzm.cn/storage/thumbnails/_signature/28SKA41UK5RIPL36KOJ1IDFT78.png" alt="image-20210506143400298" loading="lazy"></p>
+<p>socks5协议适用如下几种场景：</p>
+<ul>
+<li>局域网内只有某台机器被授权访问网络，其它机器需要连接外部网络，但是未被授权，这时候可以在被授权机器上运行socks5协议的服务端，其它局域网内未被授权的机器上运行socks5客户端程序通过被授权机器上网。</li>
+<li>网络管理。socks5代理服务器会代理所有流量，所以能获取所有客户端想要访问的目标地址和端口号，这时候代理服务器可以自主决定是否允许客户端访问目标服务器。</li>
+<li>其它。懂的自然懂，但是由于流量特征明显而且未加密，所以一旦开始用，立马会被封掉服务器，不要玩火，这里仅作为技术研究使用。</li>
+</ul>
+<h2 id="二、socks5协议交互过程">二、socks5协议交互过程</h2>
+<p>socks5协议大体上会经过两个或者三个交互过程，这取决于是否有认证流程。以用户名密码认证方式为例，完整的流程如下图所示</p>
+<p><img src="https://blog.kdyzm.cn/storage/thumbnails/_signature/DQDJ8G90RE49JPG9HO1O4IRER.png" alt="image-20210506153323085" loading="lazy"></p>
+<h3 id="1、版本和认证方式交互">1、版本和认证方式交互</h3>
+<p>第一步，客户端向代理服务器发送代理请求，其中包含了代理的版本和认证方式：</p>
+<pre><code class="language-bash">   +----+----------+----------+
+   |VER | NMETHODS | METHODS  |
+   +----+----------+----------+
+   | 1  |    1     | 1 to 255 |
+   +----+----------+----------+
+</code></pre>
+<p>如果是socks5代理，第一个字段<code>VER</code>的值是<code>0x05</code>，表明是socks代理的第5个版本。</p>
+<p>第二个字段<code>NMETHODS</code>表示支持的认证方式，第三个字段是一个数组，包含了支持的认证方式列表：</p>
+<ul>
+<li><code>0x00</code>: 不需要认证</li>
+<li><code>0x01</code>: GSSAPI认证</li>
+<li><code>0x02</code>: 用户名和密码方式认证</li>
+<li><code>0x03</code>: IANA认证</li>
+<li><code>0x80-0xfe</code>: 保留的认证方式</li>
+<li><code>0xff</code>: 不支持任何认证方式</li>
+</ul>
+<p>服务端收到客户端的代理请求后，选择双方都支持的认证方式回复给客户端：</p>
+<pre><code class="language-bash">+----+--------+
+|VER | METHOD |
++----+--------+
+| 1  |   1    |
++----+--------+
+</code></pre>
+<p>这个过程完成之后，服务端知道了客户端想要使用的socks版本号，告诉客户端是否使用认证；客户端则通过请求服务端，得知下一步是否需要认证。</p>
+<h3 id="2、认证交互">2、认证交互</h3>
+<p>如果上一步版本和认证方式交互的结果，服务器不需要认证，则可以跳过该步骤，否则需要进行认证交互。</p>
+<p>上一步协商好了使用的认证方式，这里以使用用户名和密码交互方式为例，接下来客户端需要发送用户名和密码给服务端让服务端进行认证，请求格式如下所示</p>
+<pre><code class="language-bash"> +----+------+----------+------+----------+
+ |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
+ +----+------+----------+------+----------+
+ | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
+ +----+------+----------+------+----------+
+</code></pre>
+<ul>
+<li>VER：固定长度一个字节，固定值X'01'表示用户名密码认证</li>
+<li>ULEN：用户名长度，固定一个字节大小</li>
+<li>UNAME：用户名，不固定大小，但是其长度和ULEN一致</li>
+<li>PLEN：密码长度，固定一个字节大小</li>
+<li>PASSWD：密码，不固定大小，但是其长度和PLEN一致</li>
+</ul>
+<p>服务端会进行用户名和密码的校验，然后做出如下响应</p>
+<pre><code class="language-bash"> +----+--------+
+ |VER | STATUS |
+ +----+--------+
+ | 1  |   1    |
+ +----+--------+
+</code></pre>
+<p>如果服务器响应STATUS的值为X'00'，表示认证成功；其它状态表示认证失败，这时候客户端需要关闭连接。</p>
+<h3 id="3、数据交互">3、数据交互</h3>
+<p>如果上一步用户名密码认证成功，或者无用户名密码认证，则会进入数据交互阶段，这阶段会进行真正的数据传输。首先，客户端会发送一个请求告诉服务端本次请求的信息，格式如下所示</p>
+<pre><code class="language-bash"> +----+-----+-------+------+----------+----------+
+ |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+ +----+-----+-------+------+----------+----------+
+ | 1  |  1  | X'00' |  1   | Variable |    2     |
+ +----+-----+-------+------+----------+----------+
+</code></pre>
+<ul>
+<li><strong>VER</strong> 是SOCKS版本，0x05；</li>
+<li><strong>CMD</strong> 是SOCK的命令码
+<ul>
+<li><strong>0x01</strong> 表示CONNECT请求</li>
+<li><strong>0x02</strong> 表示BIND请求</li>
+<li><strong>0x03</strong> 表示UDP转发</li>
+</ul>
+</li>
+<li><strong>RSV</strong> 0x00，保留</li>
+<li><strong>ATYP</strong> DST.ADDR类型
+<ul>
+<li><strong>0x01</strong> IPv4地址</li>
+<li><strong>0x03</strong> 域名类型</li>
+<li><strong>0x04</strong> IPv6地址</li>
+</ul>
+</li>
+<li><strong>DST.ADDR</strong> 目标服务地址，如果是IPv4类型，则固定4个字节长度；如果是域名类型，第一个字节是域名长度，剩余的内容为域名内容；如果是IPv6类型，固定16个字节长度。</li>
+<li><strong>DST.PORT</strong> 目标服务端口，固定两个字节长度</li>
+</ul>
+<p>代理服务在接收到该连接报文后，会创建和目标服务器的连接，同时返回和目标服务建立连接的结果报文</p>
+<pre><code class="language-bash">+----+-----+-------+------+----------+----------+
+|VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
++----+-----+-------+------+----------+----------+
+| 1  |  1  | 0x00  |  1   | Variable |    2     |
++----+-----+-------+------+----------+----------+
+</code></pre>
+<ul>
+<li><strong>VER</strong>是SOCKS版本，0x05；</li>
+<li><strong>REP</strong>应答字段，表示和目标服务建立连接的结果
+<ul>
+<li><strong>0x00</strong> 表示成功</li>
+<li><strong>0x01</strong> 普通SOCKS服务器连接失败</li>
+<li><strong>0x02</strong> 现有规则不允许连接</li>
+<li><strong>0x03</strong> 网络不可达</li>
+<li><strong>0x04</strong> 主机不可达</li>
+<li><strong>0x05</strong> 连接被拒</li>
+<li><strong>0x06</strong> TTL超时</li>
+<li><strong>0x07</strong> 不支持的命令</li>
+<li><strong>0x08</strong> 不支持的地址类型</li>
+<li><strong>0x09</strong> - 0xFF未定义</li>
+</ul>
+</li>
+<li><strong>RSV</strong> 0x00，保留</li>
+<li><strong>ATYP</strong> BND.ADDR类型
+<ul>
+<li><strong>0x01</strong> IPv4地址，DST.ADDR部分4字节长度</li>
+<li><strong>0x03</strong> 域名，DST.ADDR部分第一个字节为域名长度，DST.ADDR剩余的内容为域名，没有0结尾。</li>
+<li><strong>0x04</strong> IPv6地址，16个字节长度。</li>
+</ul>
+</li>
+<li><strong>BND.ADDR</strong> 目标服务地址</li>
+<li><strong>BND.PORT</strong> 目标服务端口</li>
+</ul>
+<p><strong>至此，Socks5协议的“握手”部分完成，可以开始发送数据。代理服务器只需要将收到的客户端数据“盲目”的转发到目标服务，同时将收到的目标服务数据转发给客户端，只是一个中继（Relay）的角色。</strong></p>
+<h2 id="三、netty实现">三、netty实现</h2>
+<h3 id="1基本实现">1.基本实现</h3>
+<p>netty作为使用java实现的高级网络编程框架，实现socks5协议最终作为代理服务器程序再合适不过了。从上面的交互流程上来看，整个过程还是稍稍有些复杂的，netty框架的特色之一就是实现了各种协议的编解码器给开发人员使用，开箱即用，非常方便。</p>
+<p>netty提供了三个解码器和一个编码器帮助开发人员实现socks5协议的服务端的绝大多数功能。</p>
+<table>
+<thead>
+<tr>
+<th>编码器</th>
+<th style="text-align: left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>io.netty.handler.codec.socksx.v5.Socks5ServerEncoder</td>
+<td style="text-align: left">socks5协议交互过程中编码服务端给客户端的响应</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>解码器</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>io.netty.handler.codec.socksx.v5.Socks5InitialRequestDecoder</td>
+<td>版本和认证方式交互阶段解码客户端请求</td>
+</tr>
+<tr>
+<td>io.netty.handler.codec.socksx.v5.Socks5PasswordAuthRequestDecoder</td>
+<td>认证交互阶段解码客户端认证请求</td>
+</tr>
+<tr>
+<td>io.netty.handler.codec.socksx.v5.Socks5CommandRequestDecoder</td>
+<td>数据交互阶段解码客户端连接请求</td>
+</tr>
+</tbody>
+</table>
+<p>这几个解码器解决了从抽象的协议请求到对象的转换；而编码器解决了对象到抽象的协议转换。所以这些编解码器只是解决了这些问题还是不够的，剩下的逻辑需要自己实现才行。所以对应着三个解码器，有三个后续的自定义的入栈处理器与其一一对应</p>
+<table>
+<thead>
+<tr>
+<th>处理器</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Socks5InitialRequestInboundHandler</td>
+<td>响应版本和认证方式交互阶段客户端请求</td>
+</tr>
+<tr>
+<td>Socks5PasswordAuthRequestInboundHandler</td>
+<td>响应认证交互阶段客户端认证请求</td>
+</tr>
+<tr>
+<td>Socks5CommandRequestInboundHandler</td>
+<td>响应数据交互阶段客户端连接请求</td>
+</tr>
+</tbody>
+</table>
+<p>在第三阶段，在收到客户端发起连接请求后，代理服务器连接目标服务器，这时候涉及到转发客户端的请求到目标服务器以及转发目标服务器的响应到客户端，所以这里设计了两个入栈处理器</p>
+<table>
+<thead>
+<tr>
+<th>处理器</th>
+<th>作用</th>
+<th>绑定的Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client2DestInboundHandler</td>
+<td>转发客户端请求到目标服务器</td>
+<td>客户端与代理服务器之间的Channel</td>
+</tr>
+<tr>
+<td>Dest2ClientInboundHandler</td>
+<td>转发目标服务器响应到客户端</td>
+<td>代理服务器和目标服务器之间的Cahnnel</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2黑名单处理">2.黑名单处理</h3>
+<p>这里想要实现一个功能，就是在黑名单中的地址不允许连接，如果是http请求，则直接返回错误页面；https请求或者其它类型协议则直接断开连接。</p>
+<p>这个功能在第三阶段连接阶段实现，因为只有这时候才知道客户端想要访问的网络地址。</p>
+<pre><code class="language-java">//检查黑名单
+if (inBlackList(msg.dstAddr())) {
+    log.info("{} 地址在黑名单中，拒绝连接", msg.dstAddr());
+    //假装连接成功
+    DefaultSocks5CommandResponse commandResponse = new DefaultSocks5CommandResponse(Socks5CommandStatus.SUCCESS, socks5AddressType);
+    ctx.writeAndFlush(commandResponse);
+    ctx.pipeline().addLast("HttpServerCodec", new HttpServerCodec());
+    ctx.pipeline().addLast(new BlackListInboundHandler());
+    ctx.pipeline().remove(Socks5CommandRequestInboundHandler.class);
+    ctx.pipeline().remove(Socks5CommandRequestDecoder.class);
+    return;
+}
+</code></pre>
+<p>这里自定义了<code>BlackListInboundHandler</code>处理http请求类型并返回在黑名单中的友好页面提示。</p>
+<h2 id="四、项目地址和使用说明">四、项目地址和使用说明</h2>
+<p>项目地址：<a href="https://gitee.com/kdyzm/socks5-netty" target="_blank">https://gitee.com/kdyzm/socks5-netty</a></p>
+<p>使用方法：由于在windows环境下系统并非天然支持socks5协议，所以需要借助Proxifier工具使其支持socks5；另外，如果出现了连接速度缓慢，有些网页打不开的现象，是Proxifier没设置好，一定要注意使用代理的dns设置，菜单：Profile-&gt;Name Resolution 取消<code>Detect DNS settings automatically</code>选项，勾选<code>Resolve hostnames through proxy</code>，之后就好了。</p>
+<h2 id="五、参考文档">五、参考文档</h2>
+<p><a href="https://zh.wikipedia.org/wiki/SOCKS" target="_blank">https://zh.wikipedia.org/wiki/SOCKS</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1781560" target="_blank">https://cloud.tencent.com/developer/article/1781560</a></p>
+<p><a href="https://www.dyxmq.cn/network/socks5.html" target="_blank">https://www.dyxmq.cn/network/socks5.html</a></p>
+<p><a href="https://www.quarkay.com/code/383/socks5-protocol-rfc-chinese-traslation" target="_blank">https://www.quarkay.com/code/383/socks5-protocol-rfc-chinese-traslation</a></p>
+<p><a href="https://blog.csdn.net/qq_33215972/article/details/105657960" target="_blank">https://blog.csdn.net/qq_33215972/article/details/105657960</a></p>
+<p><a href="https://segmentfault.com/a/1190000038498680" target="_blank">https://segmentfault.com/a/1190000038498680</a></p>
+<p><a href="https://tools.ietf.org/html/rfc1928" target="_blank">https://tools.ietf.org/html/rfc1928</a></p>
+<p><a href="https://tools.ietf.org/html/rfc1929" target="_blank">https://tools.ietf.org/html/rfc1929</a></p>
+<p><a href="https://tools.ietf.org/html/rfc1961" target="_blank">https://tools.ietf.org/html/rfc1961</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 16:51</span>&nbsp;
+<a href="https://www.cnblogs.com/kuangdaoyizhimei/">狂盗一枝梅</a>&nbsp;
+阅读(<span id="post_view_count">133</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735895" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735895);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 147792, cb_blogApp = 'kuangdaoyizhimei', cb_blogUserGuid = 'bdaaad45-60a3-e211-82de-84c4f0333004';
+    var cb_entryId = 14735895, cb_entryCreatedDate = '2021-05-06 16:51', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 狂盗一枝梅
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    <div id="page_end_html">
+        <!-- ............自定义尾部代码开始............ -->
+<div id="post-bottom-bar" class="post-bottom-bar" style="bottom: 0px;">
+	<div class="bottom-bar-inner">
+		<!-- 左边 -->
+        <div class="bottom-bar-items social-share" style="float: left;">
+            <span class="bottom-bar-item bottom-bar-facebook">
+                <a id="bottom-d" href="javascript:void(0)" target="_blank">好文要赞</a>
+            </span>
+            <span class="bottom-bar-item bottom-bar-twitter">
+                <a id="bottom-g" href="javascript:void(0)" target="_blank">关注我</a>
+            </span>
+            <span class="bottom-bar-item bottom-bar-qrcode">
+                <a id="bottom-s" href="javascript:void(0)" target="_blank">收藏该文</a>
+            </span>
+        </div>
+        <!-- 右边 -->
+        <div class="bottom-bar-items right" style="float: right;">
+            <span class="bottom-bar-item"><a id="mbottom-left" href="javascript:void(0);">←</a></span>
+            <span class="bottom-bar-item"><a id="mbottom-right" href="javascript:void(0);">→</a></span>
+            <span class="bottom-bar-item"><a href="#mfooter">↓</a></span>
+            <span class="bottom-bar-item"><a href="#mtop">↑</a></span>
+        </div>
+	</div> 
+</div>
+<a name="mfooter"></a>
+
+<!-- 遮罩层（用于图片点击放大），
+    代码来自https://www.cnblogs.com/zhanxiaoyun/p/8259451.html-->
+<div id="outerdiv" style="text-align: center;position: fixed;z-index: 1000;top: 0;left: 0;
+    width: 100%;height: 100%;background-color: rgba(255,255,255,.9);display: none;">
+    <img id="bigimg" style="height: auto;width: auto;border: 0; 
+        margin: auto;position: absolute;top: 0;bottom: 0;left: 0;right: 0;">
+</div>
+<!-- ............自定义尾部代码结束............ -->
+
+
+<script type="text/javascript" src="https://blog-static.cnblogs.com/files/summertime-wu/nprogress.js"></script>
+<script type="text/javascript">
+
+    //博主名称 可不改，默认取博客园提供的
+    var nickName = null;
+    //slogan
+    var slogan = '立德立言，无闻西东';
+    //icon
+    var icon = "https://img2020.cnblogs.com/blog/516671/202104/516671-20210421182138882-1923189268.png";
+    //默认博客背景图片
+    var defaultPic="https://img2018.cnblogs.com/blog/1138447/201904/1138447-20190426121949417-1115592219.jpg";
+    //icon(浏览器标题栏上的)
+    var iconB="https://img2018.cnblogs.com/blog/1138447/201909/1138447-20190911161817172-1737762696.png";
+    //友情链接地址
+    var friendLink="https://www.cnblogs.com/kuangdaoyizhimei/p/14685396.html";
+    //关于地址
+    var aboutMe="https://www.cnblogs.com/kuangdaoyizhimei/p/14685428.html";
+    //Github地址,假如博客username与Github username相同，不用改。
+    //如 cnblogs.com/username github.com/username 这样就不用改
+    var myGayhubUrl = "https://github.com/kdyzm";
+</script>
+<script type="text/javascript">
+	/**
+		用来设置初始时需要执行的js
+	*/
+	$(document).ready(function(){
+
+        //获取博主名字
+        if (nickName == null){
+            var footerOverTestArray = $($("#footer")[0].childNodes[2]).text().trim().split(" ");
+            nickName = footerOverTestArray[footerOverTestArray.length - 1];
+        }
+
+		//加载顶部进度条
+	    NProgress.start();
+	    NProgress.done();
+	    $("#myProgressBar").hide();
+
+	    //设置背景图片地址
+	    if ($("#head_bg_img").val()!=null && $("#head_bg_img").val()!="") {
+	    	$("#myheader_bg").css("background-image","url("+$("#head_bg_img").val()+")");
+	    }else{
+    		$("#myheader_bg").css("background-image","url("+defaultPic+")");
+	    }
+
+	    //设置标题
+        if($("#cb_post_title_url").html()){
+            $("#mypost_title_h").html($("#cb_post_title_url").html());
+        }else{
+            $("#mypost_title_h").html(nickName);
+        }
+
+	    //正文和标题淡入
+	    $("#mainContent").css("opacity","1");
+	    $("#mainContent").css("margin-top","0");
+	    $("#mypost_title").css("opacity","1");
+	    $("#mypost_title").css("top","75pt");
+
+        /* --根据个人配置修改页面 start-- */
+        //修改a链接
+        var ccList = $(".c-c");
+        for(var cc of ccList){
+            $(cc).attr("href", $(cc).attr("href").replace("summertime-wu",currentBlogApp));
+        }
+        //设置Github链接
+        if (myGayhubUrl != null ){$("#myGayhubUrl").attr("href",myGayhubUrl)}
+        //设置友链的链接
+        $("#friendLink").attr("href",friendLink);
+        //设置关于的链接
+        $("#aboutMe").attr("href",aboutMe);
+        //设置两个iocn图标
+        $("#nv-icon").attr("src",icon);
+        var linkObject = document.createElement("link");
+        linkObject.rel = "shortcut icon";
+        linkObject.href = iconB;
+        document.getElementsByTagName("head")[0].appendChild(linkObject);
+        //设置底部栏按钮
+        if (window.location.href == "https://www.cnblogs.com/"+currentBlogApp|| 
+                window.location.href == "https://www.cnblogs.com/"+currentBlogApp+"/"||
+                window.location.href == "http://www.cnblogs.com/"+currentBlogApp|| 
+                window.location.href == "http://www.cnblogs.com/"+currentBlogApp+"/") {
+            $("#bottom-d").html("友情链接");
+            $("#bottom-d").attr("href",friendLink);
+        }else{
+            var url = window.location.href;
+            var lastUrl = url.substring(url.lastIndexOf("/")+1);
+            var mpageId = lastUrl.substring(0,lastUrl.indexOf("."));
+            $("#bottom-d").click(function(){
+                DiggIt(mpageId,cb_blogId,1);
+                green_channel_success(this,'谢谢推荐！');
+            })
+        }
+        /* --根据个人配置修改页面 end-- */
+	})
+
+	/**
+		设置ajax请求加载完所有数据时执行的js
+	*/
+	setTimeout(afterAjax,1000);
+	function afterAjax(){
+		//假如是首页
+		if (window.location.href == "https://www.cnblogs.com/"+currentBlogApp|| 
+			window.location.href == "https://www.cnblogs.com/"+currentBlogApp+"/"||
+			window.location.href == "http://www.cnblogs.com/"+currentBlogApp|| 
+			window.location.href == "http://www.cnblogs.com/"+currentBlogApp+"/") {
+			$("#mypost_title_e").html("<a href='https://cnblogs.com/"+currentBlogApp+"'>"+slogan+"</a>");
+		}else{
+		    var classification = null;
+		    if ($("#BlogPostCategory").html()!=null && $("#BlogPostCategory").html()!= "") {
+		    	classification = $("#BlogPostCategory").html();
+		    	classification = classification.substring(3,classification.length);
+		    }else{
+		    	classification = "<a href='https://cnblogs.com/"+currentBlogApp+"'>暂未分类</a>";
+		    }
+		    var ftitle = "Published on "+ $("#post-date").html() + " in " +  classification
+		    + " with <a href='https://cnblogs.com/"+currentBlogApp+"'>"+nickName+"</a>";
+		    //设置副标题标题
+		    $("#mypost_title_f").html(ftitle);
+		    //设置标题分类按钮
+		    $("#mypost_title_e").html(classification);
+		    //设置底部导航条上一篇下一篇文章
+		    var pnp = $("#post_next_prev a");
+		    $("#mbottom-left").attr("href",pnp[1].href);
+		    if (pnp.length>2) {
+		    	$("#mbottom-right").attr("href",pnp[3].href);
+		    }
+		}
+		$("#myheader_bg").css("filter","blur(0px)");
+
+        //优化评论区样式
+        $("#comment_form_container p:last").hide();
+        $("#commentbox_opt a:last").hide();
+        $("#tbCommentBody").attr('placeholder','Your comment here. Be cool. ');
+	}
+
+
+	/** 
+		自定义的js方法
+	*/
+	//设置底部导航条点击关注按钮事件
+	$("#bottom-g").click(function(){
+		$('#green_channel_follow').click()
+		return false
+	})
+	$("#bottom-s").click(function(){
+		AddToWz(cb_entryId);
+		return false;
+	})
+
+
+	//通过滚动条控制导航条的展现隐藏
+	var oldScrollNum = 0;
+	window.onscroll = function(){
+		var t = document.documentElement.scrollTop || document.body.scrollTop;
+		//下滑
+		if (t>oldScrollNum) {
+			if (t>120) {
+				$("#mynavbar").css("margin-top","-70px");//顶部导航
+				$("#post-bottom-bar").css("bottom","-3pc");//底部导航
+			}
+			if (t>300) {
+				$("#right_meun").css("display","inline-block");//右侧导航
+			}
+		//上拉
+		}else{
+			//防止用a链接跳转也触发效果
+			if (oldScrollNum-t<20) {
+				$("#mynavbar").css("margin-top","0px");//顶部导航
+				$("#post-bottom-bar").css("bottom","0");//底部导航
+			}
+			if (t<=300) {
+				$("#right_meun").css("display","none");//右侧导航
+			}
+		}
+		oldScrollNum = t;
+	}
+
+	//背景大图点击模糊||清晰
+	$("#myheader_cover").click(function(){
+		if ($("#myheader_bg").css("filter") == "blur(3px)") {
+			$("#myheader_bg").css("filter","blur(0px)");
+		}else{
+			$("#myheader_bg").css("filter","blur(3px)");
+		}
+	})
+
+
+    $("#outerdiv").click(function(){//再次点击淡出消失弹出层    
+        $(this).fadeOut("fast");    
+    }); 
+
+ </script>
+
+ <script type="text/javascript">  
+    var setMyBlog = {
+        setCopyright: function() {
+            //设置版权信息，转载出处自动根据页面url生成
+            var info_str = '<p>作者：<a target="_blank">@gzdaijie</a><br>'+
+                '本文为作者原创，转载请注明出处：<a class="uri"></a></p><hr></hr>', 
+                info = $(info_str),
+                info_a = info.find("a"),
+                url = window.location.href;
+            $(info_a[0]).attr("href","https://github.com/gzdaijie");
+            $(info_a[1]).attr("href",url).text(url);
+            $("#cnblogs_post_body").prepend(info);
+        },
+        setCodeRow: function(){
+            // 代码行号显示
+            var pre = $("pre.sourceCode"); //选中需要更改的部分
+            if(pre && pre.length){
+                pre.each(function() {
+                    var item = $(this);
+                    var lang = item.attr("class").split(" ")[1]; //判断高亮的语言
+                    item.html(item.html().replace(/<[^>]+>/g,"")); //将<pre>标签中的html标签去掉
+                    item.removeClass().addClass("brush: " + lang +";"); //根据语言添加笔刷
+                    SyntaxHighlighter.all();
+                })
+            }
+        },
+        setAtarget: function() {
+            // 博客内的链接在新窗口打开
+            $("#cnblogs_post_body a").each(function(){
+                this.target = "_blank";
+            }) 
+        },
+        setContent: function() {
+            // 根据h2、h3标签自动生成目录
+            var captions_ori = $("#cnblogs_post_body h2"),
+            	captions_ori2 = $("#cnblogs_post_body h3"),
+                captions = $("#cnblogs_post_body h2,#cnblogs_post_body h3").clone(),
+                content = $("<ul id='right_meun'></ul>");
+            $("#cnblogs_post_body").prepend(content.append(captions));
+            var index = -1,index2 = -1;
+            captions.replaceWith(function(){
+                var self = this;
+                if(self.tagName == "H2" || self.tagName == "h2"){
+                    // 设置点击目录跳转
+                    index += 1;
+                    $('<a name="' + '_caption_' + index + '"></a>').insertBefore(captions_ori[index]); 
+                    return '<li id="'+index+'li"><a href="#_caption_' + index + '">' + self.innerHTML + '</a><ul></ul></li>';
+                } else {
+                	// add by summertime-wu 增加h3链接跳转
+                	index2 += 1;
+                	$('<a name="' + '_caption' + index2 + '"></a>').insertBefore(captions_ori2[index2]); 
+                	$("#"+index+"li ul").append("<li><a href='#_caption" + index2 + "' style='color:#5f5f5f;'>" +self.innerHTML+"</a></li>");
+                    return ;
+                }
+            });
+        },
+        runAll: function() {
+            /* 运行所有方法
+             * setAtarget() 博客园内标签新窗口打开
+             * setContent() 设置目录
+             * setCopyright() 设置版权信息
+             * setCodeRow() 代码行号显示
+             */ 
+            this.setAtarget(); 
+            //假如为手机端不显示目录
+            if(document.body.clientWidth>=1000){
+                this.setContent();
+            }
+            // this.setCopyright();
+            this.setCodeRow();
+        }
+    }
+    setMyBlog.runAll();
+</script>
+
+<!-- 代码行号 -->
+<script src="//cdn.bootcss.com/highlightjs-line-numbers.js/1.1.0/highlightjs-line-numbers.min.js"></script>
+<script>hljs.initLineNumbersOnLoad();</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjv3eTLUQHYnxZkIX_NGSXzlWpiMTCelGTfdteZ8CyP_dbJifPutDfXpQaADD1mjB-TVeA-oFjR0CFm2POM9Hj9zGqUXbcSAY9RZ8DIl8_g-zAdxTGH7XVRIEgwG2WhZfvw" />
+</body>
+</html>

@@ -1,0 +1,1566 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。经过多篇文章之后，我们介绍了 Celery 如何启动，也介绍了 Task。本文我们就看" />
+    <meta property="og:description" content="Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。经过多篇文章之后，我们介绍了 Celery 如何启动，也介绍了 Task。本文我们就看" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>[源码解析] 并行分布式任务队列 Celery 之 消费动态流程 - 罗西的思考 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright.min.css?v=00nt3ajQUVX0gvFynxRY-4TOqQaW32yFChuBOrvOqLk" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/lessismoreright/bundle-lessismoreright-mobile.min.css?v=cSBXSFXCBG9KdnF2sdUs-Rwu75GHG2_Gs50OCy_ecGg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/rossiXYZ/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/rossiXYZ/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/rossiXYZ/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 556264;
+        var currentBlogApp = 'rossiXYZ';
+        var cb_enable_mathjax = true;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'LessIsMoreRight';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-04-12 09:11';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: {
+        equationNumbers: { autoNumber: ['AMS'], useLabelIds: true },
+        extensions: ['extpfeil.js', 'mediawiki-texvc.js'],
+        Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script>
+    <script src="https://mathjax.cnblogs.com/2_7_5/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;v=20200504"></script>
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        
+
+    </div>
+    <div id="home">
+    <div id="header">
+        <div id="blogTitle">
+            <div class="title"><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>
+</div>
+<div class="subtitle">一手伸向技术，一手伸向生活</div>
+
+        </div>
+        <div id="navigator">
+            
+<ul id="navList">
+    <li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+    <li id="nav_myhome">
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/rossiXYZ/">
+首页</a>
+</li>
+    <li id="nav_newpost">
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+    <li id="nav_contact">
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%BD%97%E8%A5%BF%E7%9A%84%E6%80%9D%E8%80%83">
+联系</a></li>
+    <li id="nav_rss">
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/rossiXYZ/rss/">
+订阅</a></li>
+    <li id="nav_admin">
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+            <div class="blogStats">
+                <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+            </div>
+        </div>
+    </div>
+    <div id="main">
+        <div id="mainContent">
+            <div class="forFlow">
+                <div id="post_detail">
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/rossiXYZ/p/14639556.html">
+    <span>[源码解析] 并行分布式任务队列 Celery 之 消费动态流程</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                    <div id="cnblogs_post_description" style="display: none">
+        Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。经过多篇文章之后，我们介绍了 Celery 如何启动，也介绍了 Task。本文我们就看看收到一个任务之后，Celery（包括 Kombu）内部的消费流程脉络（到多进程之前）。
+    </div>
+<div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="源码解析-并行分布式任务队列-celery-之-消费动态流程">[源码解析] 并行分布式任务队列 Celery 之 消费动态流程</h1>
+<p></p><div class="toc"><div class="toc-container-header">目录</div><ul><li><a href="#源码解析-并行分布式任务队列-celery-之-消费动态流程">[源码解析] 并行分布式任务队列 Celery 之 消费动态流程</a><ul><li><a href="#0x00-摘要">0x00 摘要</a></li><li><a href="#0x01-来由">0x01 来由</a></li><li><a href="#0x02-逻辑-in-kombu">0x02 逻辑 in kombu</a><ul><li><a href="#21-消息循环----hub-in-kombu">2.1 消息循环 -- hub in kombu</a></li><li><a href="#22-broker抽象----transport-in-kombu">2.2 Broker抽象 -- Transport in kombu</a></li><li><a href="#23-执行引擎-----multichannelpoller-in-kombu">2.3 执行引擎 --- MultiChannelPoller in kombu</a></li><li><a href="#24-解读消息----channel-in-kombu">2.4 解读消息 -- Channel in kombu</a></li><li><a href="#25-开始回调----transport-in-kombu">2.5 开始回调 -- Transport in kombu</a></li><li><a href="#26-开始回调----channel-in-kombu">2.6 开始回调 -- Channel in kombu</a></li><li><a href="#27-调用回调----consumer-in-kombu">2.7 调用回调 -- Consumer in kombu</a></li><li><a href="#28-来到-celery-范畴----consumer-in-celery">2.8 来到 Celery 范畴 -- Consumer in Celery</a><ul><li><a href="#281-配置回调">2.8.1 配置回调</a></li><li><a href="#282-回调函数">2.8.2 回调函数</a></li></ul></li></ul></li><li><a href="#0x03-逻辑-in-celery">0x03 逻辑 in Celery</a><ul><li><a href="#31-逻辑入口-----consumer-in-celery">3.1 逻辑入口 --- consumer in Celery</a><ul><li><a href="#311-解析-message">3.1.1 解析 message</a></li><li><a href="#312-获得-strategy">3.1.2 获得 strategy</a></li><li><a href="#313-调用-strategy">3.1.3 调用 strategy</a></li></ul></li><li><a href="#32-策略-----strategy">3.2 策略 --- strategy</a><ul><li><a href="#321-逻辑-in-strategy">3.2.1 逻辑 in strategy</a></li><li><a href="#322-获得实例">3.2.2 获得实例</a></li><li><a href="#323-调用实例">3.2.3 调用实例</a></li></ul></li><li><a href="#33-打工人----worker-in-celery">3.3 打工人 -- Worker in Celery</a><ul><li><a href="#331-request-in-celery">3.3.1 Request in Celery</a></li><li><a href="#332-basepool-in-celery">3.3.2 BasePool in Celery</a></li><li><a href="#333-asynpool-in-celery">3.3.3 AsynPool in Celery</a><ul><li><a href="#3331-部分变量事先设置">3.3.3.1 部分变量事先设置</a></li><li><a href="#3332-发送给子进程">3.3.3.2 发送给子进程</a></li></ul></li></ul></li></ul></li><li><a href="#0xee-本系列文章">0xEE 本系列文章</a></li><li><a href="#0xff-参考">0xFF 参考</a></li></ul></li></ul></div><p></p>
+<h2 id="0x00-摘要">0x00 摘要</h2>
+<p>Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。</p>
+<p>经过多篇文章之后（在文末有链接），我们介绍了 Celery 如何启动，也介绍了 Task。本文我们就看看收到一个任务之后，Celery（包括 Kombu）内部的消费流程脉络（到多进程之前）。</p>
+<p>目的 是 做一个暂时性总结，梳理目前思路，为下一阶段分析多进程做准备。</p>
+<p>因为是具体流程梳理，所以会涉及到比较多的堆栈信息和运行时变量，希望大家理解。</p>
+<h2 id="0x01-来由">0x01 来由</h2>
+<p>之前在分析celery的worker的启动过程中，我们提到了，Celery 最后开启了loop等待任务来消费，启动时候定义的回调函数就是 on_task_received，缩减版堆栈如下。</p>
+<pre><code class="language-python">on_task_received, consumer.py:542
+_receive_callback, messaging.py:620
+_callback, base.py:630
+_deliver, base.py:980
+_brpop_read, redis.py:748
+on_readable, redis.py:358
+create_loop, hub.py:361
+asynloop, loops.py:81
+start, consumer.py:592
+start, bootsteps.py:116
+start, consumer.py:311
+start, bootsteps.py:365
+start, worker.py:204
+worker, worker.py:327
+caller, base.py:132
+new_func, decorators.py:21
+invoke, core.py:610
+main, core.py:782
+start, base.py:358
+worker_main, base.py:374
+</code></pre>
+<p>我们可以大致看出一个逻辑流程：</p>
+<ul>
+<li>在 Kombu 范畴是：
+<ul>
+<li>在消息循环（hub） 中获取了消息；</li>
+<li>经由 Broker抽象（Transport）和 执行引擎（MultiChannelPoller）处理之后，把消息解读出来；</li>
+<li>开始调用 Celery 的回调函数；</li>
+</ul>
+</li>
+<li>在 Celery 范畴是：
+<ul>
+<li>经由回调函数这个逻辑入口开始，先调用到了 Strategy 根据不同条件做不同的处理；</li>
+<li>然后把 工作 委托给 Worker，就是由 Worker 来执行用户 task；</li>
+<li>因为需要提高效率，所以需要有多线程处理，就是运行多个线程执行多个 worker；</li>
+</ul>
+</li>
+</ul>
+<p>仅凭堆栈没有一个整体概念，本文我们就看看 Celery 是如何消费消息的。</p>
+<p>具体我们从 poll 开始看起，<u>即 Redis 之中有一个新的任务消息，Celery 的 BRPOP 对应的 FD 收到了 Poll 响应</u>。</p>
+<h2 id="0x02-逻辑-in-kombu">0x02 逻辑 in kombu</h2>
+<p>我们从 kombu 开始看。</p>
+<p>首先给出 Kombu 部分的整理逻辑图，这样大家就有了一个整体直观的了解：</p>
+<pre><code class="language-python"> +-------------+        +-------------------+                                +-------------------------+
+ | hub         |    1   | Transport         |                2               |MultiChannelPoller       |
+ |             | fileno |                   |      cycle.on_readable(fileno) |                         |
+ |       cb +--------------&gt; on_readable   +-------------------------------------&gt; _fd_to_chan[fileno] |
+ |             |        |                   |                                |                         |
+ |      poll   |        |                   +-&lt;---------------+              |  chan.handlers[type]+---------------+
+ +-------------+        |  _callbacks[queue]|                 |              |                         |           |
+                        |        +          |                 |              +-------------------------+           |
+                        |        |          |                 |                                                    |
+                        +-------------------+                 |                                                    |
+                                 |                            |                                                    |
+                                 |                            |              +-----------------------+             |
+                                 |                            |              | Channel               |      3      |
+                                 |                            |              |                       | _brpop_read |
+                                 |                            |              |                       |             |
+                                 |                            +----------------+ connection          +&lt;------------+
+                                 |                   _deliver(message, queue)|                       |
+                                 |        5                      4           |                       |
+                                 |     callback(message)                     |                       |
+                                 +----------------------------------------------&gt; callback(message)+---------------+
+                                                                             +-----------------------+             |
+                                                                                                                   |
+                                                                             +----------------------+              |
+                                                                             | Consumer             |              |
+                                                             on_m(message)   |                      |              |
+                                                      +---------------------------+  on_message     | &lt;------------+
+                                                      |                      |                      |  _receive_callback
+    kombu                                             |                      +----------------------+          6
+                                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+                                                      |
+    Celery                                            |
+                                         +---------------------------+
+                                         | Consumer   |              |
+                                         |            |              |
+                                         |            v              |
+                                         |      on_task_received     |
+                                         |                           |
+                                         |                           |
+                                         +---------------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090054927-802268274.png" alt="" loading="lazy"></p>
+<p>我们在上图中可以看到逻辑上分为 Kombu 和 Celery 两个范畴，消息先从 Kombu 开始，然后来到了 Celery。</p>
+<h3 id="21-消息循环----hub-in-kombu">2.1 消息循环 -- hub in kombu</h3>
+<p>我们首先从消息循环 hub 开始入手。</p>
+<p>在  kombu/asynchronous/hub.py 中有如下代码：</p>
+<p>可以看到，<u>当 poll 有消息，就会调用 readers[fd] 配置的 cb</u>。<u>这里的 td 就是 redis socket 对应的 fd</u>。</p>
+<p>简略版代码如下：</p>
+<pre><code class="language-python">def create_loop(self,
+                generator=generator, sleep=sleep, min=min, next=next,
+                Empty=Empty, StopIteration=StopIteration,
+                KeyError=KeyError, READ=READ, WRITE=WRITE, ERR=ERR):
+    
+    readers, writers = self.readers, self.writers
+    poll = self.poller.poll
+    
+    while 1:
+        if readers or writers:
+            to_consolidate = []
+            try:
+                events = poll(poll_timeout)
+
+            for fd, event in events or ():
+
+                if event &amp; READ:
+                   cb, cbargs = readers[fd]
+
+                cb(*cbargs)
+</code></pre>
+<h3 id="22-broker抽象----transport-in-kombu">2.2 Broker抽象 -- Transport in kombu</h3>
+<p><u>readers[fd] 之中注册的是 Transport 类的 on_readable 回调函数</u>，所以代码来到 Transport。</p>
+<p>其作用为调用 MultiChannelPoller 处理。</p>
+<p>代码位置为：kombu/transport/redis.py，这里的 cycle 就是 Transport。</p>
+<pre><code class="language-python">def on_readable(self, fileno):
+    """Handle AIO event for one of our file descriptors."""
+    self.cycle.on_readable(fileno)
+</code></pre>
+<p>此时变量为：</p>
+<pre><code class="language-python">fileno = {int} 34
+
+self = {Transport} &lt;kombu.transport.redis.Transport object at 0x7fcbaeeb6710&gt;
+</code></pre>
+<p>如下，逻辑跑到了 Transport：</p>
+<pre><code class="language-python">+-------------+         +---------------+
+|   hub       |         |   Transport   |
+|             | fileno  |               |
+|       cb +--------------&gt; on_readable |
+|             |         |               |
+|      poll   |         |               |
++-------------+         +---------------+
+</code></pre>
+<h3 id="23-执行引擎-----multichannelpoller-in-kombu">2.3 执行引擎 --- MultiChannelPoller in kombu</h3>
+<p>此时代码来到 MultiChannelPoller。由前面系列文章我们知道，<u>MultiChannelPoller 的作用是把 Channel 和 Poll 联系起来。其作用为调用 poll fd 对应的 Channel 进一步处理</u>。</p>
+<p>从代码能看到，<u>每一个 fd 对应一个 Channel，因为 poll 只是告诉 Celery 某个 fd 有消息，但是具体怎么读消息，还需要 Celery 进一步处理</u>。</p>
+<p>因为 Celery 任务 使用的是 redis BRPOP 操作实现，所以此时获取的是 BRPOP 对应的回调函数 _brpop_read。</p>
+<p>代码位置为：kombu/transport/redis.py。</p>
+<pre><code class="language-python">def on_readable(self, fileno):
+    chan, type = self._fd_to_chan[fileno]
+    if chan.qos.can_consume():
+        chan.handlers[type]()
+</code></pre>
+<p>此时变量如下，我们可以看到对应的各个逻辑部分：</p>
+<pre><code class="language-python">chan.handlers[type] = {method} &lt;bound method Channel._brpop_read of &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;&gt;
+
+chan = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;
+
+fileno = {int} 34
+
+self = {MultiChannelPoller} &lt;kombu.transport.redis.MultiChannelPoller object at 0x7fcbaddfd048&gt;
+
+type = {str} 'BRPOP'
+</code></pre>
+<h3 id="24-解读消息----channel-in-kombu">2.4 解读消息 -- Channel in kombu</h3>
+<p>此时 代码来到 Channel。代码为：kombu/transport/redis.py。</p>
+<p><u>Channel 这部分的作用为调用 redis client进行读消息，对消息进行解读，从而提出其中的 queue（就是代码片段里面的 dest 变量），这样就知道应该哪个用户（即 queue 对应的用户）来处理消息。然后使用 self.connection._deliver 对消息进行相应分发</u>。</p>
+<p>具体 _brpop_read 代码如下：</p>
+<pre><code class="language-python">def _brpop_read(self, **options):
+    try:
+        try:
+            dest__item = self.client.parse_response(self.client.connection,
+                                                    'BRPOP',
+                                                    **options)
+        except self.connection_errors:
+            # if there's a ConnectionError, disconnect so the next
+            # iteration will reconnect automatically.
+            self.client.connection.disconnect()
+            raise
+        if dest__item:
+            dest, item = dest__item
+            dest = bytes_to_str(dest).rsplit(self.sep, 1)[0]
+            self._queue_cycle.rotate(dest)
+            self.connection._deliver(loads(bytes_to_str(item)), dest) # 消息分发
+            return True
+        else:
+            raise Empty()
+    finally:
+        self._in_poll = None
+</code></pre>
+<p>此时变量为：</p>
+<pre><code class="language-python">dest = {str} 'celery'
+
+dest__item = {tuple: 2} 
+ 0 = {bytes: 6} b'celery'
+ 1 = {bytes: 861} b'{"body": "W1syLCAxN10sIHt9LCB7ImNhbGxiYWNrcyI6IG51bGwsICJlcnJiYWNrcyI6IG51bGwsICJjaGFpbiI6IG51bGwsICJjaG9yZCI6IG51bGx9XQ==", "content-encoding": "utf-8", "content-type": "application/json", "headers": {"lang": "py", "task": "myTest.add", "id": "863cf9b2-
+
+item = b'{"body": "W1syLCAxN10sIHt9LCB7ImNhbGxiYWNrcyI6IG51bGwsICJlcnJiYWNrcyI6IG51bGwsICJjaGFpbiI6IG51bGwsICJjaG9yZCI6IG51bGx9XQ==", "content-encoding": "utf-8", "content-type": "application/json", "headers": {"lang": "py", "task": "myTest.add", "id": "863cf9b2-
+
+self = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;
+</code></pre>
+<h3 id="25-开始回调----transport-in-kombu">2.5 开始回调 -- Transport in kombu</h3>
+<p>代码回到 Transport。</p>
+<p>此时代码作用为调用 <code>self._callbacks</code> 的 回调函数 进行处理。可以看出来，这里记录了对于 queue 的 回调。</p>
+<p><code>_callback</code> 为：&lt;function Channel.basic_consume.<locals>._callback at 0x7fcbaef56d08&gt;。</locals></p>
+<p>而且可以看出来任务消息的具体格式和内容，比如 {'exchange': '', 'routing_key': 'celery'}，从这里就能知道 对应的 queue 是什么。</p>
+<p>代码位置为：transport/virtual/base.py。</p>
+<pre><code class="language-python">def _deliver(self, message, queue):
+    try:
+        callback = self._callbacks[queue]
+    except KeyError:
+        logger.warning(W_NO_CONSUMERS, queue)
+        self._reject_inbound_message(message)
+    else:
+        callback(message)
+</code></pre>
+<p>变量如下，我们可以看到，Celery 此时的三个不同的回调就对应了三个不同功能。</p>
+<ul>
+<li><code>celeryev.c755f81c-415e-478f-bb51-def341a96c0c</code> 就是对应 Event处理；</li>
+<li><code>celery@.celery.pidbox</code> 就是对应 control；</li>
+<li><code>celery</code> 就是正常消息消费；</li>
+</ul>
+<pre><code class="language-java">self._callbacks = {dict: 3} 
+ 'celeryev.c755f81c-415e-478f-bb51-def341a96c0c' = {function} &lt;function Channel.basic_consume.&lt;locals&gt;._callback at 0x7fcbaef23048&gt;
+ 'celery@.celery.pidbox' = {function} &lt;function Channel.basic_consume.&lt;locals&gt;._callback at 0x7fcbaef56488&gt;
+ 'celery' = {function} &lt;function Channel.basic_consume.&lt;locals&gt;._callback at 0x7fcbaef56d08&gt;
+
+message = {dict: 5} {'body': 'W1syLCAxN10sIHt9LCB7ImNhbGxiYWNrcyI6IG51bGwsICJlcnJiYWNrcyI6IG51bGwsICJjaGFpbiI6IG51bGwsICJjaG9yZCI6IG51bGx9XQ==', 'content-encoding': 'utf-8', 'content-type': 'application/json', 'headers': {'lang': 'py', 'task': 'myTest.add', 'id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'parent_id': None, 'argsrepr': '(2, 17)', 'kwargsrepr': '{}', 'origin': 'gen19806@ demini'}, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'reply_to': 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93', 'delivery_mode': 2, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}, 'priority': 0, 'body_encoding': 'base64', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc'}}
+
+queue = {str} 'celery'
+    
+self = {Transport} &lt;kombu.transport.redis.Transport object at 0x7fcbaeeb6710&gt;
+</code></pre>
+<p>此时逻辑图如下：</p>
+<pre><code class="language-python">+-------------+        +-------------------+                                +-------------------------+
+| hub         |    1   | Transport         |                2               |MultiChannelPoller       |
+|             | fileno |                   |      cycle.on_readable(fileno) |                         |
+|       cb +--------------&gt; on_readable   +-------------------------------------&gt; _fd_to_chan[fileno] |
+|             |        |                   |                                |                         |
+|      poll   |        |                   +-&lt;---------------+              |  chan.handlers[type]+------------+
++-------------+        |  _callbacks[queue]|                 |              |                         |        |
+                       |                   |                 |              +-------------------------+        |
+                       |                   |                 |                                                 |
+                       +-------------------+                 |                                                 |
+                                                             |                                                 |
+                                                             |              +-----------------+                |
+                                                             |              | Channel         |        3       |
+                                                             |              |                 |   _brpop_read  |
+                                                             |              |                 |                |
+                                                             +----------------+ connection    | &lt;--------------+
+                                                    _deliver(message, queue)|                 |
+                                                                4           |                 |
+                                                                            +-----------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090118104-1395840049.png" alt="" loading="lazy"></p>
+<h3 id="26-开始回调----channel-in-kombu">2.6 开始回调 -- Channel in kombu</h3>
+<p>代码继续回调到 kombu/transport/virtual/base.py。</p>
+<p>就是  queue 的 回调函数 basic_consume。因为此时 channel 得到了 queue 对应的 redis 消息，<u>所以 Channel 就需要调用这个 queue 对应的回调函数。就是 调用 Consumer 的回调函数</u>。</p>
+<pre><code class="language-python">def basic_consume(self, queue, no_ack, callback, consumer_tag, **kwargs):
+    """Consume from `queue`."""
+    self._tag_to_queue[consumer_tag] = queue
+    self._active_queues.append(queue)
+
+    def _callback(raw_message):
+        message = self.Message(raw_message, channel=self)
+        if not no_ack:
+            self.qos.append(message, message.delivery_tag)
+        return callback(message)
+
+    self.connection._callbacks[queue] = _callback
+    self._consumers.add(consumer_tag)
+
+    self._reset_cycle()
+</code></pre>
+<p>此时 变量为：</p>
+<pre><code class="language-python">callback = {method} &lt;bound method Consumer._receive_callback of &lt;Consumer: [&lt;Queue celery -&gt; &lt;Exchange celery(direct) bound to chan:1&gt; -&gt; celery bound to chan:1&gt;]&gt;&gt;
+    
+message = {Message} &lt;Message object at 0x7fcbaef3eaf8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc', 'body_length': 82, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'}, 'd
+
+raw_message = {dict: 5} {'body': 'W1syLCAxN10sIHt9LCB7ImNhbGxiYWNrcyI6IG51bGwsICJlcnJiYWNrcyI6IG51bGwsICJjaGFpbiI6IG51bGwsICJjaG9yZCI6IG51bGx9XQ==', 'content-encoding': 'utf-8', 'content-type': 'application/json', 'headers': {'lang': 'py', 'task': 'myTest.add', 'id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'parent_id': None, 'argsrepr': '(2, 17)', 'kwargsrepr': '{}', 'origin': 'gen19806@ demini'}, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'reply_to': 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93', 'delivery_mode': 2, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}, 'priority': 0, 'body_encoding': 'base64', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc'}}
+                                                                    
+self = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;
+</code></pre>
+<p>此时逻辑图如下：</p>
+<pre><code class="language-python">+-------------+        +-------------------+                                +-------------------------+
+| hub         |    1   | Transport         |                2               |MultiChannelPoller       |
+|             | fileno |                   |      cycle.on_readable(fileno) |                         |
+|       cb +--------------&gt; on_readable   +-------------------------------------&gt; _fd_to_chan[fileno] |
+|             |        |                   |                                |                         |
+|      poll   |        |                   +-&lt;---------------+              |  chan.handlers[type]+---------------+
++-------------+        |  _callbacks[queue]|                 |              |                         |           |
+                       |        +          |                 |              +-------------------------+           |
+                       |        |          |                 |                                                    |
+                       +-------------------+                 |                                                    |
+                                |                            |                                                    |
+                                |                            |              +-----------------------+             |
+                                |                            |              | Channel               |      3      |
+                                |                            |              |                       | _brpop_read |
+                                |                            |              |                       |             |
+                                |                            +----------------+ connection          +&lt;------------+
+                                |                   _deliver(message, queue)|                       |
+                                |        5                      4           |                       |
+                                |     callback(message)                     |                       |
+                                +----------------------------------------------&gt; callback(message)+---------------&gt;
+                                                                            +-----------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090133532-1522749143.png" alt="" loading="lazy"></p>
+<h3 id="27-调用回调----consumer-in-kombu">2.7 调用回调 -- Consumer in kombu</h3>
+<p>Kombu Consumer 回调的代码位于：kombu/messaging.py</p>
+<p>具体是调用 用户注册在 Kombu Consumer  的回调函数。注意的是： Kombu Comsumer 的用户就是 Celery，所以这里马上就调用到了 Celery 之前注册的回调函数。</p>
+<pre><code class="language-python">def _receive_callback(self, message):
+    accept = self.accept
+    on_m, channel, decoded = self.on_message, self.channel, None
+    try:
+        m2p = getattr(channel, 'message_to_python', None)
+        if m2p:
+            message = m2p(message)
+        if accept is not None:
+            message.accept = accept
+        if message.errors:
+            return message._reraise_error(self.on_decode_error)
+        decoded = None if on_m else message.decode()
+    except Exception as exc:
+        if not self.on_decode_error:
+            raise
+        self.on_decode_error(message, exc)
+    else:
+        return on_m(message) if on_m else self.receive(decoded, message)
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-python">on_m = {function} &lt;function Consumer.create_task_handler.&lt;locals&gt;.on_task_received at 0x7fcbaef562f0&gt;
+
+accept = {set: 1} {'application/json'}
+
+channel = {Channel} &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;
+
+m2p = {method} &lt;bound method Channel.message_to_python of &lt;kombu.transport.redis.Channel object at 0x7fcbaeeb68d0&gt;&gt;
+
+message = {Message} &lt;Message object at 0x7fcbaef3eaf8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc', 'body_length': 82, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'}, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}}&gt;
+
+self = {Consumer} &lt;Consumer: [&lt;Queue celery -&gt; &lt;Exchange celery(direct) bound to chan:1&gt; -&gt; celery bound to chan:1&gt;]&gt;
+</code></pre>
+<p>具体逻辑如下：</p>
+<pre><code class="language-python"> +-------------+        +-------------------+                                +-------------------------+
+ | hub         |    1   | Transport         |                2               |MultiChannelPoller       |
+ |             | fileno |                   |      cycle.on_readable(fileno) |                         |
+ |       cb +--------------&gt; on_readable   +-------------------------------------&gt; _fd_to_chan[fileno] |
+ |             |        |                   |                                |                         |
+ |      poll   |        |                   +-&lt;---------------+              |  chan.handlers[type]+---------------+
+ +-------------+        |  _callbacks[queue]|                 |              |                         |           |
+                        |        +          |                 |              +-------------------------+           |
+                        |        |          |                 |                                                    |
+                        +-------------------+                 |                                                    |
+                                 |                            |                                                    |
+                                 |                            |              +-----------------------+             |
+                                 |                            |              | Channel               |      3      |
+                                 |                            |              |                       | _brpop_read |
+                                 |                            |              |                       |             |
+                                 |                            +----------------+ connection          +&lt;------------+
+                                 |                   _deliver(message, queue)|                       |
+                                 |        5                      4           |                       |
+                                 |     callback(message)                     |                       |
+                                 +----------------------------------------------&gt; callback(message)+---------------+
+                                                                             +-----------------------+             |
+                                                                                                                   |
+                                                                             +----------------------+              |
+                                                                             | Consumer             |              |
+                                                             on_m(message)   |                      |              |
+                                                      +---------------------------+  on_message     | &lt;------------+
+                                                      |                      |                      |  _receive_callback
+                                                      |                      +----------------------+          6
+                                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+                                                      |
+                                                      v
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090147250-1507966759.png" alt="" loading="lazy"></p>
+<h3 id="28-来到-celery-范畴----consumer-in-celery">2.8 来到 Celery 范畴 -- Consumer in Celery</h3>
+<p>既然调用到了 Celery 之前注册的回调函数，我们实际就来到了 Celery 领域。</p>
+<h4 id="281-配置回调">2.8.1 配置回调</h4>
+<p>需要回忆下 Celery 何时配置回调函数。</p>
+<p>在 celery/worker/loops.py 中有如下代码，这样就让consumer可以回调：</p>
+<pre><code class="language-python">def asynloop(obj, connection, consumer, blueprint, hub, qos,
+             heartbeat, clock, hbrate=2.0):
+    """Non-blocking event loop."""
+    consumer.on_message = on_task_received
+</code></pre>
+<h4 id="282-回调函数">2.8.2 回调函数</h4>
+<p>回调函数位于：celery/worker/consumer/consumer.py</p>
+<p>可以看到，create_task_handler 函数中，返回了on_task_received，这就是回调函数。</p>
+<pre><code class="language-python">def create_task_handler(self, promise=promise):
+    strategies = self.strategies
+    on_unknown_message = self.on_unknown_message
+    on_unknown_task = self.on_unknown_task
+    on_invalid_task = self.on_invalid_task
+    callbacks = self.on_task_message
+    call_soon = self.call_soon
+
+    def on_task_received(message):
+        # payload will only be set for v1 protocol, since v2
+        # will defer deserializing the message body to the pool.
+        payload = None
+        try:
+            type_ = message.headers['task']                # protocol v2
+        except TypeError:
+            return on_unknown_message(None, message)
+        except KeyError:
+            try:
+                payload = message.decode()
+            except Exception as exc:  # pylint: disable=broad-except
+                return self.on_decode_error(message, exc)
+            try:
+                type_, payload = payload['task'], payload  # protocol v1
+            except (TypeError, KeyError):
+                return on_unknown_message(payload, message)
+        try:
+            strategy = strategies[type_]
+        except KeyError as exc:
+            return on_unknown_task(None, message, exc)
+        else:
+            try:
+                strategy(
+                    message, payload,
+                    promise(call_soon, (message.ack_log_error,)),
+                    promise(call_soon, (message.reject_log_error,)),
+                    callbacks,
+                )
+            except (InvalidTaskError, ContentDisallowed) as exc:
+                return on_invalid_task(payload, message, exc)
+            except DecodeError as exc:
+                return self.on_decode_error(message, exc)
+
+    return on_task_received
+</code></pre>
+<p>此时 变量为：</p>
+<pre><code class="language-python">call_soon = {method} &lt;bound method Consumer.call_soon of &lt;Consumer: celery@ demini (running)&gt;&gt;
+
+callbacks = {set: 0} set()
+
+message = {Message} &lt;Message object at 0x7fcbaef3eaf8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc', 'body_length': 82, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'}, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}}&gt;
+
+on_invalid_task = {method} &lt;bound method Consumer.on_invalid_task of &lt;Consumer: celery@ demini (running)&gt;&gt;
+
+on_unknown_message = {method} &lt;bound method Consumer.on_unknown_message of &lt;Consumer: celery@ demini (running)&gt;&gt;
+
+on_unknown_task = {method} &lt;bound method Consumer.on_unknown_task of &lt;Consumer: celery@ demini (running)&gt;&gt;
+
+self = {Consumer} &lt;Consumer: celery@ demini (running)&gt;
+
+strategies = {dict: 10} {'celery.chunks': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef230d0&gt;, 'celery.backend_cleanup': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23620&gt;, 'celery.chord_unlock': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef238c8&gt;, 'celery.group': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23b70&gt;, 'celery.map': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23e18&gt;, 'celery.chain': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48158&gt;, 'celery.starmap': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48400&gt;, 'celery.chord': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef486a8&gt;, 'myTest.add': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48950&gt;, 'celery.accumulate': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48bf8&gt;}
+</code></pre>
+<p>此时逻辑为：</p>
+<pre><code class="language-python"> +-------------+        +-------------------+                                +-------------------------+
+ | hub         |    1   | Transport         |                2               |MultiChannelPoller       |
+ |             | fileno |                   |      cycle.on_readable(fileno) |                         |
+ |       cb +--------------&gt; on_readable   +-------------------------------------&gt; _fd_to_chan[fileno] |
+ |             |        |                   |                                |                         |
+ |      poll   |        |                   +-&lt;---------------+              |  chan.handlers[type]+---------------+
+ +-------------+        |  _callbacks[queue]|                 |              |                         |           |
+                        |        +          |                 |              +-------------------------+           |
+                        |        |          |                 |                                                    |
+                        +-------------------+                 |                                                    |
+                                 |                            |                                                    |
+                                 |                            |              +-----------------------+             |
+                                 |                            |              | Channel               |      3      |
+                                 |                            |              |                       | _brpop_read |
+                                 |                            |              |                       |             |
+                                 |                            +----------------+ connection          +&lt;------------+
+                                 |                   _deliver(message, queue)|                       |
+                                 |        5                      4           |                       |
+                                 |     callback(message)                     |                       |
+                                 +----------------------------------------------&gt; callback(message)+---------------+
+                                                                             +-----------------------+             |
+                                                                                                                   |
+                                                                             +----------------------+              |
+                                                                             | Consumer             |              |
+                                                             on_m(message)   |                      |              |
+                                                      +---------------------------+  on_message     | &lt;------------+
+                                                      |                      |                      |  _receive_callback
+    kombu                                             |                      +----------------------+          6
+                                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+                                                      |
+    Celery                                            |
+                                         +---------------------------+
+                                         | Consumer   |              |
+                                         |            |              |
+                                         |            v              |
+                                         |      on_task_received     |
+                                         |                           |
+                                         |                           |
+                                         +---------------------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090201408-22590182.png" alt="" loading="lazy"></p>
+<h2 id="0x03-逻辑-in-celery">0x03 逻辑 in Celery</h2>
+<p>至此，我们开始在 Celery 之中活动。</p>
+<h3 id="31-逻辑入口-----consumer-in-celery">3.1 逻辑入口 --- consumer in Celery</h3>
+<p>首先来到了 Celery 的 Consumer 组件，这里<u>从概念上说是消费的逻辑入口</u>。</p>
+<p>Celery Consumer 的代码位于：celery/worker/consumer/consumer.py，其作用如下：</p>
+<ul>
+<li>
+<p>解析 message，从 header 中拿到 task 名字，比如 'myTest.add'；</p>
+</li>
+<li>
+<p>根据 task 名字，获得 strategy；</p>
+</li>
+<li>
+<p>调用 strategy；</p>
+</li>
+</ul>
+<p>代码为：</p>
+<pre><code class="language-python">def create_task_handler(self, promise=promise):
+    strategies = self.strategies
+    on_unknown_message = self.on_unknown_message
+    on_unknown_task = self.on_unknown_task
+    on_invalid_task = self.on_invalid_task
+    callbacks = self.on_task_message
+    call_soon = self.call_soon
+
+    def on_task_received(message):
+        # payload will only be set for v1 protocol, since v2
+        # will defer deserializing the message body to the pool.
+        payload = None
+        try:
+            type_ = message.headers['task']                # protocol v2
+        except TypeError:
+            return on_unknown_message(None, message)
+        except KeyError:
+            try:
+                payload = message.decode()
+            except Exception as exc:  # pylint: disable=broad-except
+                return self.on_decode_error(message, exc)
+            try:
+                type_, payload = payload['task'], payload  # protocol v1
+            except (TypeError, KeyError):
+                return on_unknown_message(payload, message)
+        try:
+            strategy = strategies[type_]
+        except KeyError as exc:
+            return on_unknown_task(None, message, exc)
+        else:
+            try:
+                strategy(
+                    message, payload,
+                    promise(call_soon, (message.ack_log_error,)),
+                    promise(call_soon, (message.reject_log_error,)),
+                    callbacks,
+                )
+            except (InvalidTaskError, ContentDisallowed) as exc:
+                return on_invalid_task(payload, message, exc)
+            except DecodeError as exc:
+                return self.on_decode_error(message, exc)
+
+    return on_task_received
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-python">self.app.tasks = {TaskRegistry: 10} {'celery.chunks': &lt;@task: celery.chunks of myTest at 0x7fcbade229e8&gt;, 'celery.backend_cleanup': &lt;@task: celery.backend_cleanup of myTest at 0x7fcbade229e8&gt;, 'celery.chord_unlock': &lt;@task: celery.chord_unlock of myTest at 0x7fcbade229e8&gt;, 'celery.group': &lt;@
+
+                                     call_soon = {method} &lt;bound method Consumer.call_soon of &lt;Consumer: celery@ demini (running)&gt;&gt;
+                                     
+callbacks = {set: 0} set()
+                                     
+message = {Message} &lt;Message object at 0x7fcbaef3eaf8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc', 'body_length': 82, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'}, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}}&gt;
+                                     
+on_invalid_task = {method} &lt;bound method Consumer.on_invalid_task of &lt;Consumer: celery@ demini (running)&gt;&gt;
+                                     
+on_unknown_message = {method} &lt;bound method Consumer.on_unknown_message of &lt;Consumer: celery@ demini (running)&gt;&gt;
+                                     
+on_unknown_task = {method} &lt;bound method Consumer.on_unknown_task of &lt;Consumer: celery@ demini (running)&gt;&gt;    
+                                     
+self = {Consumer} &lt;Consumer: celery@ demini (running)&gt;
+                                     
+strategies = {dict: 10} 
+{'celery.chunks': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef230d0&gt;, 'celery.backend_cleanup': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23620&gt;, 'celery.chord_unlock': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef238c8&gt;, 'celery.group': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23b70&gt;, 'celery.map': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23e18&gt;, 'celery.chain': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48158&gt;, 'celery.starmap': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48400&gt;, 'celery.chord': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef486a8&gt;, 'myTest.add': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48950&gt;, 'celery.accumulate': &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48bf8&gt;}
+</code></pre>
+<h4 id="311-解析-message">3.1.1 解析 message</h4>
+<p>通过 如下代码获得需要对应哪个 task，这里就为 'myTest.add'。</p>
+<pre><code class="language-python">type_ = message.headers['task']
+</code></pre>
+<p>message.headers如下，我们可以看出来定义一个 message 都需要考虑哪些方面。</p>
+<pre><code class="language-python">message.headers = {dict: 15} 
+ 'lang' = {str} 'py'
+ 'task' = {str} 'myTest.add'
+ 'id' = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ 'shadow' = {NoneType} None
+ 'eta' = {NoneType} None
+ 'expires' = {NoneType} None
+ 'group' = {NoneType} None
+ 'group_index' = {NoneType} None
+ 'retries' = {int} 0
+ 'timelimit' = {list: 2} [None, None]
+ 'root_id' = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ 'parent_id' = {NoneType} None
+ 'argsrepr' = {str} '(2, 17)'
+ 'kwargsrepr' = {str} '{}'
+ 'origin' = {str} 'gen19806@ demini'
+ __len__ = {int} 15
+</code></pre>
+<h4 id="312-获得-strategy">3.1.2 获得 strategy</h4>
+<p>依据  task，这里就为 'myTest.add'，从 strategies 获得对应的回调 function，回调 function就是开始处理 任务消息。</p>
+<pre><code class="language-python">strategies = {dict: 10} 
+ 'celery.chunks' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef230d0&gt;
+ 'celery.backend_cleanup' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23620&gt;
+ 'celery.chord_unlock' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef238c8&gt;
+ 'celery.group' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23b70&gt;
+ 'celery.map' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef23e18&gt;
+ 'celery.chain' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48158&gt;
+ 'celery.starmap' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48400&gt;
+ 'celery.chord' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef486a8&gt;
+ 'myTest.add' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48950&gt;
+ 'celery.accumulate' = {function} &lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48bf8&gt;
+ __len__ = {int} 10
+</code></pre>
+<h4 id="313-调用-strategy">3.1.3 调用 strategy</h4>
+<p>既然得到 strategy，比如：</p>
+<p><code>&lt;function default.&lt;locals&gt;.task_message_handler at 0x7fcbaef48950&gt;</code></p>
+<p>因此会调用这个函数，具体调用如下：</p>
+<pre><code class="language-python">strategy(
+    message, payload,
+    promise(call_soon, (message.ack_log_error,)),
+    promise(call_soon, (message.reject_log_error,)),
+    callbacks,
+)
+</code></pre>
+<h3 id="32-策略-----strategy">3.2 策略 --- strategy</h3>
+<p>Strategy 的作用是在 Consumer 和 Worker 之间做一个中间层，用来根据不同条件做不同的处理，也就是策略的本意。</p>
+<h4 id="321-逻辑-in-strategy">3.2.1 逻辑 in strategy</h4>
+<p>代码为：celery/worker/strategy.py，</p>
+<p>功能具体就是：</p>
+<ul>
+<li>进一步解析消息；</li>
+<li>根据消息构建内部的Req；</li>
+<li>如果需要发送，则发送 'task-received'’；</li>
+<li>进行时间 eta 处理；</li>
+<li>进行qos 和 limit 处理；</li>
+<li>调用 Req ，即来到 Worker；</li>
+</ul>
+<p>具体如下：</p>
+<pre><code class="language-python">def task_message_handler(message, body, ack, reject, callbacks,
+                         to_timestamp=to_timestamp):
+    if body is None and 'args' not in message.payload:
+        body, headers, decoded, utc = (
+            message.body, message.headers, False, app.uses_utc_timezone(),
+        )
+    else:
+        if 'args' in message.payload:
+            body, headers, decoded, utc = hybrid_to_proto2(message,
+                                                           message.payload)
+        else:
+            body, headers, decoded, utc = proto1_to_proto2(message, body)
+
+    req = Req(
+        message,
+        on_ack=ack, on_reject=reject, app=app, hostname=hostname,
+        eventer=eventer, task=task, connection_errors=connection_errors,
+        body=body, headers=headers, decoded=decoded, utc=utc,
+    )
+  
+    if (req.expires or req.id in revoked_tasks) and req.revoked():
+        return
+
+    signals.task_received.send(sender=consumer, request=req)
+
+    if task_sends_events:
+        send_event(
+            'task-received',
+            uuid=req.id, name=req.name,
+            args=req.argsrepr, kwargs=req.kwargsrepr,
+            root_id=req.root_id, parent_id=req.parent_id,
+            retries=req.request_dict.get('retries', 0),
+            eta=req.eta and req.eta.isoformat(),
+            expires=req.expires and req.expires.isoformat(),
+        )
+
+    bucket = None
+    eta = None
+    if req.eta:
+        try:
+            if req.utc:
+                eta = to_timestamp(to_system_tz(req.eta))
+            else:
+                eta = to_timestamp(req.eta, app.timezone)
+        except (OverflowError, ValueError) as exc:
+            error("Couldn't convert ETA %r to timestamp: %r. Task: %r",
+                  req.eta, exc, req.info(safe=True), exc_info=True)
+            req.reject(requeue=False)
+    if rate_limits_enabled:
+        bucket = get_bucket(task.name)
+
+    if eta and bucket:
+        consumer.qos.increment_eventually()
+        return call_at(eta, limit_post_eta, (req, bucket, 1),
+                       priority=6)
+    if eta:
+        consumer.qos.increment_eventually()
+        call_at(eta, apply_eta_task, (req,), priority=6)
+        return task_message_handler
+    if bucket:
+        return limit_task(req, bucket, 1)
+
+    task_reserved(req)
+    if callbacks:
+        [callback(req) for callback in callbacks]
+        
+    handle(req) # 在这里
+    
+return task_message_handler
+</code></pre>
+<p>具体还要看看细节。</p>
+<h4 id="322-获得实例">3.2.2 获得实例</h4>
+<p>Strategy 中，<u>以下目的是为了 根据 task 实例 构建一个 Request，从而把 broker 消息，consumer，多进程都联系起来</u>。</p>
+<p>具体可以看到  Request. execute_using_pool 这里就会和多进程处理开始关联，比如和 comsumer 的 pool 进程池联系起来。</p>
+<pre><code class="language-python">Req = create_request_cls(Request, task, consumer.pool, hostname, eventer)
+</code></pre>
+<p>task 实例为：</p>
+<pre><code class="language-python">myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f]  
+</code></pre>
+<p>获得Requst代码为：</p>
+<pre><code class="language-python">def create_request_cls(base, task, pool, hostname, eventer,
+                       ref=ref, revoked_tasks=revoked_tasks,
+                       task_ready=task_ready, trace=trace_task_ret):
+    default_time_limit = task.time_limit
+    default_soft_time_limit = task.soft_time_limit
+    apply_async = pool.apply_async
+    acks_late = task.acks_late
+    events = eventer and eventer.enabled
+
+    class Request(base):
+
+        def execute_using_pool(self, pool, **kwargs):
+            task_id = self.task_id
+            if (self.expires or task_id in revoked_tasks) and self.revoked():
+                raise TaskRevokedError(task_id)
+
+            time_limit, soft_time_limit = self.time_limits
+            result = apply_async(
+                trace,
+                args=(self.type, task_id, self.request_dict, self.body,
+                      self.content_type, self.content_encoding),
+                accept_callback=self.on_accepted,
+                timeout_callback=self.on_timeout,
+                callback=self.on_success,
+                error_callback=self.on_failure,
+                soft_timeout=soft_time_limit or default_soft_time_limit,
+                timeout=time_limit or default_time_limit,
+                correlation_id=task_id,
+            )
+            # cannot create weakref to None
+            # pylint: disable=attribute-defined-outside-init
+            self._apply_result = maybe(ref, result)
+            return result
+
+        def on_success(self, failed__retval__runtime, **kwargs):
+            failed, retval, runtime = failed__retval__runtime
+            if failed:
+                if isinstance(retval.exception, (
+                        SystemExit, KeyboardInterrupt)):
+                    raise retval.exception
+                return self.on_failure(retval, return_ok=True)
+            task_ready(self)
+
+            if acks_late:
+                self.acknowledge()
+
+            if events:
+                self.send_event(
+                    'task-succeeded', result=retval, runtime=runtime,
+                )
+
+    return Request
+</code></pre>
+<p>此时逻辑如下：</p>
+<pre><code class="language-python">                         +
+  Consumer               |
+                 message |
+                         v         strategy  +------------------------------------+
+            +------------+------+            | strategies                         |
+            | on_task_received  | &lt;--------+ |                                    |
+            |                   |            |[myTest.add : task_message_handler] |
+            +------------+------+            +------------------------------------+
+                         |
+                         |
++---------------------------------------------------------------------------------------+
+                         |
+ strategy                |
+                         |
+                         v                Request [myTest.add]
+            +------------+-------------+                       +---------------------+
+            | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+            |                          |                       |                     |
+            +--------------------------+                       +---------------------+
+
+</code></pre>
+<h4 id="323-调用实例">3.2.3 调用实例</h4>
+<p>task_message_handler 最终调用  handle(req)，就是开始调用实例。</p>
+<p>handle 函数实际对应了 WorkController._process_task_sem。</p>
+<p>代码如下：</p>
+<pre><code class="language-python">def task_message_handler(message, body, ack, reject, callbacks,
+                             to_timestamp=to_timestamp):
+
+        req = Req(
+            message,
+            on_ack=ack, on_reject=reject, app=app, hostname=hostname,
+            eventer=eventer, task=task, connection_errors=connection_errors,
+            body=body, headers=headers, decoded=decoded, utc=utc,
+        )
+
+        task_reserved(req)
+        
+        if callbacks:
+            [callback(req) for callback in callbacks]
+            
+        handle(req)
+        
+    return task_message_handler
+
+</code></pre>
+<p>Request 为：</p>
+<pre><code class="language-python">req = {Request} myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f]  
+ acknowledged = {bool} False
+ app = {Celery} &lt;Celery myTest at 0x7fcbade229e8&gt;
+ args = {list: 2} [2, 17]
+ argsrepr = {str} '(2, 17)'
+ body = {bytes: 82} b'[[2, 17], {}, {"callbacks": null, "errbacks": null, "chain": null, "chord": null}]'
+ chord = {NoneType} None
+ connection_errors = {tuple: 8} (&lt;class 'amqp.exceptions.ConnectionError'&gt;, &lt;class 'kombu.exceptions.InconsistencyError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'OSError'&gt;, &lt;class 'redis.exceptions.ConnectionError'&gt;, &lt;class 'redis.exceptions.AuthenticationError'&gt;, &lt;class 'redis.exceptions.TimeoutError'&gt;)
+ content_encoding = {str} 'utf-8'
+ content_type = {str} 'application/json'
+ correlation_id = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ delivery_info = {dict: 4} {'exchange': '', 'routing_key': 'celery', 'priority': 0, 'redelivered': None}
+ errbacks = {NoneType} None
+ eta = {NoneType} None
+ eventer = {EventDispatcher} &lt;celery.events.dispatcher.EventDispatcher object at 0x7fcbaeef31d0&gt;
+ expires = {NoneType} None
+ group = {NoneType} None
+ group_index = {NoneType} None
+ hostname = {str} 'celery@ demini'
+ id = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ kwargs = {dict: 0} {}
+ kwargsrepr = {str} '{}'
+ message = {Message} &lt;Message object at 0x7fcbaef3eaf8 with details {'state': 'RECEIVED', 'content_type': 'application/json', 'delivery_tag': 'cfa3a261-c9b4-4d7e-819c-37608c0bb0cc', 'body_length': 82, 'properties': {'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'}, 'delivery_info': {'exchange': '', 'routing_key': 'celery'}}&gt;
+ name = {str} 'myTest.add'
+ on_ack = {promise} &lt;promise@0x7fcbaeecc210 --&gt; &lt;bound method Consumer.call_soon of &lt;Consumer: celery@ demini (running)&gt;&gt;&gt;
+ on_reject = {promise} &lt;promise@0x7fcbaeeccf20 --&gt; &lt;bound method Consumer.call_soon of &lt;Consumer: celery@ demini (running)&gt;&gt;&gt;
+ parent_id = {NoneType} None
+ reply_to = {str} 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93'
+ request_dict = {dict: 25} {'lang': 'py', 'task': 'myTest.add', 'id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'parent_id': None, 'argsrepr': '(2, 17)', 'kwargsrepr': '{}', 'origin': 'gen19806@ demini', 'reply_to': 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93', 'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'hostname': 'celery@ demini', 'delivery_info': {'exchange': '', 'routing_key': 'celery', 'priority': 0, 'redelivered': None}, 'args': [2, 17], 'kwargs': {}, 'callbacks': None, 'errbacks': None, 'chain': None, 'chord': None}
+ root_id = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ store_errors = {bool} True
+ task = {add} &lt;@task: myTest.add of myTest at 0x7fcbade229e8&gt;
+ task_id = {str} '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f'
+ task_name = {str} 'myTest.add'
+ time_limits = {list: 2} [None, None]
+ time_start = {NoneType} None
+ type = {str} 'myTest.add'
+ tzlocal = {NoneType} None
+ utc = {bool} True
+ worker_pid = {NoneType} None
+</code></pre>
+<p>handle 为：</p>
+<pre><code class="language-python">handle = {method} &lt;bound method WorkController._process_task_sem of &lt;Worker: celery@ demini (running)&gt;&gt;
+headers = {dict: 25} {'lang': 'py', 'task': 'myTest.add', 'id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'parent_id': None, 'argsrepr': '(2, 17)', 'kwargsrepr': '{}', 'origin': 'gen19806@ demini', 'reply_to': 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93', 'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'hostname': 'celery@ demini', 'delivery_info': {'exchange': '', 'routing_key': 'celery', 'priority': 0, 'redelivered': None}, 'args': [2, 17], 'kwargs': {}, 'callbacks': None, 'errbacks': None, 'chain': None, 'chord': None}
+</code></pre>
+<p>此时逻辑如下:</p>
+<pre><code class="language-python">                         +
+  Consumer               |
+                 message |
+                         v         strategy  +------------------------------------+
+            +------------+------+            | strategies                         |
+            | on_task_received  | &lt;--------+ |                                    |
+            |                   |            |[myTest.add : task_message_handler] |
+            +------------+------+            +------------------------------------+
+                         |
+                         |
+ +------------------------------------------------------------------------------------+
+ strategy                |
+                         |
+                         |
+                         v                Request [myTest.add]
+            +------------+-------------+                       +---------------------+
+            | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+            |                          |                       |                     |
+            +------------+-------------+                       +---------------------+
+                         | _process_task_sem
+                         | 
++--------------------------------------------------------------------------------------+
+ Worker                  | req[{Request} myTest.add]
+                         v
+                +--------+-------+
+                | WorkController |
+                +----------------+
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090223807-1687132030.png" alt="" loading="lazy"></p>
+<h3 id="33-打工人----worker-in-celery">3.3 打工人 -- Worker in Celery</h3>
+<p>程序来到了Worker in Celery。<u>Worker 是具体执行 task 的地方</u>。</p>
+<p>代码位于：celery/worker/worker.py</p>
+<p>可以看到，就是:</p>
+<ul>
+<li>_process_task_sem 调用了 _process_task；</li>
+<li>_process_task 调用了req.execute_using_pool(self.pool)；</li>
+</ul>
+<p>具体如下：</p>
+<pre><code class="language-python">class WorkController:
+    """Unmanaged worker instance."""
+
+    def register_with_event_loop(self, hub):
+        self.blueprint.send_all(
+            self, 'register_with_event_loop', args=(hub,),
+            description='hub.register',
+        )
+
+    def _process_task_sem(self, req):
+        return self._quick_acquire(self._process_task, req)
+
+    def _process_task(self, req):
+        """Process task by sending it to the pool of workers."""
+        try:
+            req.execute_using_pool(self.pool)
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-python">req = {Request} myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f]  
+
+self = {Worker} celery
+</code></pre>
+<h4 id="331-request-in-celery">3.3.1 Request in Celery</h4>
+<p>程序来到了Worker in Celery。代码位于：celery/worker/request.py</p>
+<p>因为有：</p>
+<pre><code class="language-python">apply_async = pool.apply_async
+</code></pre>
+<p>所以调用到：pool.apply_async</p>
+<p>变量为：</p>
+<pre><code class="language-python">apply_async = {method} &lt;bound method BasePool.apply_async of &lt;celery.concurrency.prefork.TaskPool object at 0x7fcbaddfa2e8&gt;&gt;
+
+pool = {TaskPool} &lt;celery.concurrency.prefork.TaskPool object at 0x7fcbaddfa2e8&gt;
+
+revoked_tasks = {LimitedSet: 0} &lt;LimitedSet(0): maxlen=50000, expires=10800, minlen=0&gt;
+    
+self = {Request} myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f]  
+</code></pre>
+<p>代码为：</p>
+<pre><code class="language-python">class Request(base):
+
+    def execute_using_pool(self, pool, **kwargs):
+        task_id = self.task_id# 获取任务id
+        if (self.expires or task_id in revoked_tasks) and self.revoked():# 检查是否过期或者是否已经执行过
+            raise TaskRevokedError(task_id)
+
+        time_limit, soft_time_limit = self.time_limits# 获取时间
+        result = apply_async(# 执行对应的func并返回结果
+            trace,
+            args=(self.type, task_id, self.request_dict, self.body,
+                  self.content_type, self.content_encoding),
+            accept_callback=self.on_accepted,
+            timeout_callback=self.on_timeout,
+            callback=self.on_success,
+            error_callback=self.on_failure,
+            soft_timeout=soft_time_limit or default_soft_time_limit,
+            timeout=time_limit or default_time_limit,
+            correlation_id=task_id,
+        )
+        # cannot create weakref to None
+        # pylint: disable=attribute-defined-outside-init
+        self._apply_result = maybe(ref, result)
+        return result
+</code></pre>
+<p>此时逻辑为：</p>
+<pre><code class="language-python">                         +
+  Consumer               |
+                 message |
+                         v         strategy  +------------------------------------+
+            +------------+------+            | strategies                         |
+            | on_task_received  | &lt;--------+ |                                    |
+            |                   |            |[myTest.add : task_message_handler] |
+            +------------+------+            +------------------------------------+
+                         |
+                         |
+ +------------------------------------------------------------------------------------+
+ strategy                |
+                         |
+                         |
+                         v                Request [myTest.add]
+            +------------+-------------+                       +---------------------+
+            | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+            |                          |                       |                     |
+            +------------+-------------+                       +---------------------+
+                         | _process_task_sem
+                         |
++--------------------------------------------------------------------------------------+
+ Worker                  | req[{Request} myTest.add]
+                         v
+                +--------+-----------+
+                | WorkController     |
+                |                    |
+                |            pool +-------------------------+
+                +--------+-----------+                      |
+                         |                                  |
+                         |               apply_async        v
+             +-----------+----------+                   +---+-------+
+             |{Request} myTest.add  | +---------------&gt; | TaskPool  |
+             +----------------------+                   +-----------+
+                                        myTest.add
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090237160-1167849418.png" alt="" loading="lazy"></p>
+<h4 id="332-basepool-in-celery">3.3.2 BasePool in Celery</h4>
+<p>apply_async 代码来到了Celery 的 Pool，注意，这 <u>还不是 多进程的具体实现，只是来到了多进程实现的入口</u>。</p>
+<p>此时就把 任务信息具体传递给了Pool，比如：</p>
+<pre><code class="language-python">args = {tuple: 6} 
+ 0 = {str} 'myTest.add'
+ 1 = {str} 'af6ed084-efc6-4608-a13a-d3065f457cd5'
+ 2 = {dict: 21} {'lang': 'py', 'task': 'myTest.add', 'id': 'af6ed084-efc6-4608-a13a-d3065f457cd5', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': 'af6ed084-efc6-4608-a13a-d3065f457cd5', 'parent_id': None, 'argsrepr': '(2, 8)', 'kwargsrepr': '{}', 'origin': 'gen1100@DESKTOP-0GO3RPO', 'reply_to': 'afb85541-d08c-3191-b89d-918e15f9e0bf', 'correlation_id': 'af6ed084-efc6-4608-a13a-d3065f457cd5', 'hostname': 'celery@DESKTOP-0GO3RPO', 'delivery_info': {'exchange': '', 'routing_key': 'celery', 'priority': 0, 'redelivered': None}, 'args': [2, 8], 'kwargs': {}}
+ 3 = {bytes: 81} b'[[2, 8], {}, {"callbacks": null, "errbacks": null, "chain": null, "chord": null}]'
+ 4 = {str} 'application/json'
+ 5 = {str} 'utf-8'
+</code></pre>
+<p>文件位于：celery/concurrency/base.py，具体为：</p>
+<pre><code class="language-python">class BasePool:
+    """Task pool."""
+
+    def apply_async(self, target, args=None, kwargs=None, **options):
+        """Equivalent of the :func:`apply` built-in function.
+
+        Callbacks should optimally return as soon as possible since
+        otherwise the thread which handles the result will get blocked.
+        """
+        kwargs = {} if not kwargs else kwargs
+        args = [] if not args else args
+
+        return self.on_apply(target, args, kwargs,
+                             waitforslot=self.putlocks,
+                             callbacks_propagate=self.callbacks_propagate,
+                             **options)
+</code></pre>
+<p>此时变量为：</p>
+<pre><code class="language-python">options = {dict: 7} {'accept_callback': &lt;bound method Request.on_accepted of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;&gt;, 'timeout_callback': &lt;bound method Request.on_timeout of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;
+
+self = {TaskPool} &lt;celery.concurrency.prefork.TaskPool object at 0x7fcbaddfa2e8&gt;
+</code></pre>
+<h4 id="333-asynpool-in-celery">3.3.3 AsynPool in Celery</h4>
+<p>apply_async 代码位于：celery/billiard/pool.py。</p>
+<p>这里在 <code>__init__ </code>之中，<code>self._initargs = initargs</code> 就是  <code>(&lt;Celery myTest at 0x2663db3fe48&gt;, 'celery@DESKTOP-0GO3RPO')</code>，<u>这样就把 Celery 应用传递了进来</u>。</p>
+<p>这里依据操作系统的而不同，会调用  self._taskqueue.put 或者 self._quick_put 来给 多进程 pool 发送任务消息。</p>
+<pre><code class="language-python">def apply_async(self, func, args=(), kwds={},
+                callback=None, error_callback=None, accept_callback=None,
+                timeout_callback=None, waitforslot=None,
+                soft_timeout=None, timeout=None, lost_worker_timeout=None,
+                callbacks_propagate=(),
+                correlation_id=None):
+    '''
+    Asynchronous equivalent of `apply()` method.
+
+    Callback is called when the functions return value is ready.
+    The accept callback is called when the job is accepted to be executed.
+
+    Simplified the flow is like this:
+
+        &gt;&gt;&gt; def apply_async(func, args, kwds, callback, accept_callback):
+        ...     if accept_callback:
+        ...         accept_callback()
+        ...     retval = func(*args, **kwds)
+        ...     if callback:
+        ...         callback(retval)
+
+    '''
+
+    if self._state == RUN:
+        waitforslot = self.putlocks if waitforslot is None else waitforslot
+        if waitforslot and self._putlock is not None:
+            self._putlock.acquire()
+        result = ApplyResult(
+            self._cache, callback, accept_callback, timeout_callback,
+            error_callback, soft_timeout, timeout, lost_worker_timeout,
+            on_timeout_set=self.on_timeout_set,
+            on_timeout_cancel=self.on_timeout_cancel,
+            callbacks_propagate=callbacks_propagate,
+            send_ack=self.send_ack if self.synack else None,
+            correlation_id=correlation_id,
+        )
+        if timeout or soft_timeout:
+            # start the timeout handler thread when required.
+            self._start_timeout_handler()
+        if self.threads:
+            self._taskqueue.put(([(TASK, (result._job, None,
+                                func, args, kwds))], None))
+        else:
+            self._quick_put((TASK, (result._job, None, func, args, kwds)))
+        return result
+</code></pre>
+<p>变量为：</p>
+<pre><code class="language-python">accept_callback = {method} &lt;bound method Request.on_accepted of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;&gt;
+args = {tuple: 6} ('myTest.add', '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', {'lang': 'py', 'task': 'myTest.add', 'id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'shadow': None, 'eta': None, 'expires': None, 'group': None, 'group_index': None, 'retries': 0, 'timelimit': [None, None], 'root_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'parent_id': None, 'argsrepr': '(2, 17)', 'kwargsrepr': '{}', 'origin': 'gen19806@ demini', 'reply_to': 'ef1b446d-e3a9-3345-b027-b7bd8a93aa93', 'correlation_id': '863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f', 'hostname': 'celery@ demini', 'delivery_info': {'exchange': '', 'routing_key': 'celery', 'priority': 0, 'redelivered': None}, 'args': [2, 17], 'kwargs': {}, 'callbacks': None, 'errbacks': None, 'chain': None, 'chord': None}, b'[[2, 17], {}, {"callbacks": null, "errbacks": null, "chain": null, "chord": null}]', 'application/json', 'utf-8')
+
+callback = {method} &lt;bound method create_request_cls.&lt;locals&gt;.Request.on_success of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;&gt;
+
+error_callback = {method} &lt;bound method Request.on_failure of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;&gt;
+
+self = {AsynPool} &lt;celery.concurrency.asynpool.AsynPool object at 0x7fcbaee2ea20&gt;
+
+timeout_callback = {method} &lt;bound method Request.on_timeout of &lt;Request: myTest.add[863cf9b2-8440-4ea2-8ac4-06b3dcd2fd1f] (2, 17) {}&gt;&gt;
+waitforslot = {bool} False
+</code></pre>
+<h5 id="3331-部分变量事先设置">3.3.3.1 部分变量事先设置</h5>
+<p>我们首先说说之前的部分变量设置。</p>
+<p>比如如下代码中有：</p>
+<p><code>inq, outq, synq = self.get_process_queues() 和 self._process_register_queues(w, (inq, outq, synq))</code> 就是具体设置父进程和子进程之前的管道。</p>
+<pre><code class="language-python">def _create_worker_process(self, i):
+    sentinel = self._ctx.Event() if self.allow_restart else None
+    
+    inq, outq, synq = self.get_process_queues()
+    on_ready_counter = self._ctx.Value('i')
+    
+    w = self.WorkerProcess(self.Worker(
+        inq, outq, synq, self._initializer, self._initargs,
+        self._maxtasksperchild, sentinel, self._on_process_exit,
+        # Need to handle all signals if using the ipc semaphore,
+        # to make sure the semaphore is released.
+        sigprotection=self.threads,
+        wrap_exception=self._wrap_exception,
+        max_memory_per_child=self._max_memory_per_child,
+        on_ready_counter=on_ready_counter,
+    ))
+    self._pool.append(w)
+    self._process_register_queues(w, (inq, outq, synq))
+    w.name = w.name.replace('Process', 'PoolWorker')
+    w.daemon = True
+    w.index = i
+    w.start()
+    self._poolctrl[w.pid] = sentinel
+    self._on_ready_counters[w.pid] = on_ready_counter
+    if self.on_process_up:
+        self.on_process_up(w)
+    return w
+</code></pre>
+<p>比如下面是管道的建立。</p>
+<pre><code class="language-python">def _setup_queues(self):
+    self._inqueue = self._ctx.SimpleQueue()
+    self._outqueue = self._ctx.SimpleQueue()
+    self._quick_put = self._inqueue._writer.send
+    self._quick_get = self._outqueue._reader.recv
+</code></pre>
+<p>以及管道相关文件的确立。</p>
+<pre><code class="language-python">def _create_write_handlers(self, hub,
+                           pack=pack, dumps=_pickle.dumps,
+                           protocol=HIGHEST_PROTOCOL):
+    """Create handlers used to write data to child processes."""
+    fileno_to_inq = self._fileno_to_inq
+    fileno_to_synq = self._fileno_to_synq
+    outbound = self.outbound_buffer
+    pop_message = outbound.popleft
+    put_message = outbound.append
+</code></pre>
+<p>所以最终预置变量具体如下：</p>
+<pre><code class="language-python">self._taskqueue = {Queue} &lt;queue.Queue object at 0x7fcbaee57b00&gt;
+self._quick_put = {function} &lt;function AsynPool._create_write_handlers.&lt;locals&gt;.send_job at 0x7fcbaef569d8&gt;
+self._outqueue = {NoneType} None
+self._inqueue = {NoneType} None
+self._fileno_to_synq = {dict: 1} {None: &lt;ForkProcess(ForkPoolWorker-4, started daemon)&gt;}
+self._quick_get = {NoneType} None
+self._fileno_to_inq = {dict: 0} {}
+self.outbound_buffer = {deque: 1} deque([&lt;%s: 0 ack:False ready:False&gt;])
+
+
+self = {Pool} &lt;billiard.pool.Pool object at 0x000002663FD6E948&gt;
+ ResultHandler = {type} &lt;class 'billiard.pool.ResultHandler'&gt;
+ SoftTimeLimitExceeded = {type} &lt;class 'billiard.exceptions.SoftTimeLimitExceeded'&gt;
+ Supervisor = {type} &lt;class 'billiard.pool.Supervisor'&gt;
+ TaskHandler = {type} &lt;class 'billiard.pool.TaskHandler'&gt;
+ TimeoutHandler = {type} &lt;class 'billiard.pool.TimeoutHandler'&gt;
+ Worker = {type} &lt;class 'billiard.pool.Worker'&gt;
+</code></pre>
+<h5 id="3332-发送给子进程">3.3.3.2 发送给子进程</h5>
+<p>在 windows 就是</p>
+<pre><code class="language-python">if self.threads:    self._taskqueue.put(([(TASK, (result._job, None,                        func, args, kwds))], None))
+</code></pre>
+<p>*nix 就是：这里建立了job，并且发送。就是通过  put_message(job)  往子进程 pipe发消息。</p>
+<pre><code class="language-python">def send_job(tup):
+    # Schedule writing job request for when one of the process
+    # inqueues are writable.
+    body = dumps(tup, protocol=protocol)
+    body_size = len(body)
+    header = pack('&gt;I', body_size)
+    # index 1,0 is the job ID.
+    job = get_job(tup[1][0])
+    job._payload = buf_t(header), buf_t(body), body_size
+    put_message(job)
+    
+self._quick_put = send_job
+</code></pre>
+<p>此时逻辑为：</p>
+<pre><code class="language-python">                           +
+    Consumer               |
+                   message |
+                           v         strategy  +------------------------------------+
+              +------------+------+            | strategies                         |
+              | on_task_received  | &lt;--------+ |                                    |
+              |                   |            |[myTest.add : task_message_handler] |
+              +------------+------+            +------------------------------------+
+                           |
+                           |
+   +------------------------------------------------------------------------------------+
+   strategy                |
+                           |
+                           |
+                           v                Request [myTest.add]
+              +------------+-------------+                       +---------------------+
+              | task_message_handler     | &lt;-------------------+ | create_request_cls  |
+              |                          |                       |                     |
+              +------------+-------------+                       +---------------------+
+                           | _process_task_sem
+                           |
+  +------------------------------------------------------------------------------------+
+   Worker                  | req[{Request} myTest.add]
+                           v
+                  +--------+-----------+
+                  | WorkController     |
+                  |                    |
+                  |            pool +-------------------------+
+                  +--------+-----------+                      |
+                           |                                  |
+                           |               apply_async        v
+               +-----------+----------+                   +---+-------------------+
+               |{Request} myTest.add  | +---------------&gt; | TaskPool              |
+               +----------------------+                   +----+------------------+
+                                          myTest.add           |
+                                                               |
++--------------------------------------------------------------------------------------+
+                                                               |
+                                                               v
+                                                          +----+------------------+
+                                                          | billiard.pool.Pool    |
+                                                          +-------+---------------+
+                                                                  |
+                                                                  |
+ Pool              +---------------------------+                  |
+                   | TaskHandler               |                  |
+                   |                           |                  |  self._taskqueue.put
+                   |              _taskqueue   |  &lt;---------------+
+                   |                           |
+                   +------------+--------------+
+                                |
+                                |  put(task)
+                                |
++--------------------------------------------------------------------------------------+
+                                |
+ Sub process                    |
+                                v
+                                                   
+
+</code></pre>
+<p>手机如下：</p>
+<p><img src="https://img2020.cnblogs.com/blog/1850883/202104/1850883-20210410090254283-46044636.png" alt="" loading="lazy"></p>
+<p>于是从下文开始，我们正式进入多进程是如何处理消息的。</p>
+<h2 id="0xee-本系列文章">0xEE 本系列文章</h2>
+<p>本系列目前文章如下：</p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455431.html" target="_blank">源码分析] 消息队列 Kombu 之 mailbox</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455294.html" target="_blank">源码分析] 消息队列 Kombu 之 Hub</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455093.html" target="_blank">源码分析] 消息队列 Kombu 之 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14455186.html" target="_blank">源码分析] 消息队列 Kombu 之 Producer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454934.html" target="_blank">源码分析] 消息队列 Kombu 之 启动过程</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14454761.html" target="_blank">源码解析] 消息队列 Kombu 之 基本架构</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14562308.html" target="_blank">源码解析] 并行分布式框架 Celery 之架构 (1)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14562310.html" target="_blank">源码解析] 并行分布式框架 Celery 之架构 (2)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14563763.html" target="_blank">源码解析] 并行分布式框架 Celery 之 worker 启动 (1)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14563777.html" target="_blank">源码解析] 并行分布式框架 Celery 之 worker 启动 (2)</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14612853.html" target="_blank">源码解析] 分布式任务队列 Celery 之启动 Consumer</a></p>
+<p>[<a href="https://www.cnblogs.com/rossiXYZ/p/14613110.html" target="_blank">源码解析] 并行分布式任务队列 Celery 之 Task是什么</a></p>
+<h2 id="0xff-参考">0xFF 参考</h2>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow?lang=ZH_CN" target="_blank">1: Worker 启动流程概述</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-execute-engine?lang=ZH_CN" target="_blank">2: Worker 的执行引擎</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement?lang=ZH_CN" target="_blank">3: Task 对象的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-scheduler-task-implements?lang=ZH_CN" target="_blank">4: 定时任务的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control?lang=ZH_CN" target="_blank">5: 远程控制管理</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-event-implemention?lang=ZH_CN" target="_blank">6: Events 的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-interact-between-workers?lang=ZH_CN" target="_blank">7: Worker 之间的交互</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-start-flow" target="_blank">Celery 源码解析一：Worker 启动流程概述</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-worker-execute-engine" target="_blank">Celery 源码解析二：Worker 的执行引擎</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-task-object-implement" target="_blank">Celery 源码解析三：Task 对象的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-scheduler-task-implements" target="_blank">Celery 源码解析四：定时任务的实现</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-remote-manager-control" target="_blank">Celery 源码解析五：远程控制管理</a></p>
+<p><a href="https://liqiang.io/post/celery-source-analysis-event-implemention" target="_blank">Celery 源码解析六：Events 的实现</a></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-04-12 21:11</span>&nbsp;
+<a href="https://www.cnblogs.com/rossiXYZ/">罗西的思考</a>&nbsp;
+阅读(<span id="post_view_count">156</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14639556" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14639556);return false;">收藏</a></div>
+        </div>
+        <script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 556264, cb_blogApp = 'rossiXYZ', cb_blogUserGuid = '3d1961d5-3b13-4975-9d25-08d753a9a8fd';
+    var cb_entryId = 14639556, cb_entryCreatedDate = '2021-04-12 21:11', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+        <a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+    </div>
+</div>
+            </div>
+        </div>
+
+        <div id="sideBar">
+            <div id="sideBarMain">
+                <div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+                <div id="calendar"><div id="blog-calendar" style="display:none"></div></div>                
+                <script>loadBlogDefaultCalendar();</script>
+                <div id="leftcontentcontainer">
+                    <!-- begin:SingleColumn -->
+                    <div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+                    <!-- end:  SingleColumn -->
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="footer">
+        <!--done-->
+Copyright &copy; 2021 罗西的思考
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+    </div>
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjsqpVW8PobMW220vvlKrDUHBPyWImpFutFYrL4CZwEW0DvWuG8KumSAaQer6HEluij0lyf2DGOZezsPD4T7NJg1d9UFDnH2OHdJJPJ2A25yZ3FQdPHBPs8SLSM4x9wTMGo" />
+</body>
+</html>

@@ -1,0 +1,451 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="开篇语 本文开始之前，首先我想问下大家对于属性和特性知道多少？属性和特性又有何区别？ 对于该单词，我更想把它称之为：特性。对于属性和特性就是名称上有纠葛(不知道你们迷不迷，反正我写本文之前我是迷了)，" />
+    <meta property="og:description" content="开篇语 本文开始之前，首先我想问下大家对于属性和特性知道多少？属性和特性又有何区别？ 对于该单词，我更想把它称之为：特性。对于属性和特性就是名称上有纠葛(不知道你们迷不迷，反正我写本文之前我是迷了)，" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>C# 特性[Attribute] - AZRNG - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/codinglife/bundle-codinglife.min.css?v=2uJkpdACLVfstRQ7zeCFK19brTwKuDEaNBLgKz9nm3A" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/codinglife/bundle-codinglife-mobile.min.css?v=DwDRKMd1bmjnJZ4iQqrTCO9QLlYb6OZaUAzHoHIIihg" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/azrng/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/azrng/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/azrng/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 418143;
+        var currentBlogApp = 'azrng';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'CodingLife';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 05:10';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <link rel="stylesheet" type="text/css" href="https://files.cnblogs.com/files/kousak/waifu.css">   
+ <link rel="stylesheet" type="text/css" href="https://files.cnblogs.com/files/kousak/waifu.css">
+ 
+  <div class="waifu" id="waifu"> <div class="waifu-tips" style="opacity: 1"></div>  <div class="waifu-tool"> <span class="fui-home"></span> <span class="fui-chat"></span> <span class="fui-eye"></span> <span class="fui-user"></span> <span class="fui-photo"></span> <span class="fui-info-circle"></span> <span class="fui-cross"></span> </div> </div> 
+   <link rel="stylesheet" type="text/css" href="https://files.cnblogs.com/files/yjlblog/flat-ui.min.css">
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/azrng/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/azrng/">AZRNG</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/azrng/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/AZRNG">
+联系</a></li>
+<li>
+
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/azrng/p/14735996.html">
+    <span>C# 特性[Attribute]</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="开篇语">开篇语</h1>
+<p>本文开始之前，首先我想问下大家对于属性和特性知道多少？属性和特性又有何区别？<br>
+<img src="https://img2020.cnblogs.com/blog/1350373/202105/1350373-20210506170859674-1928912581.png" alt="image" loading="lazy"><br>
+对于该单词，我更想把它称之为：特性。对于属性和特性就是名称上有纠葛(不知道你们迷不迷，反正我写本文之前我是迷了)，什么是属性？属性是面向对象编程的基本概念，提供了对私有字段的访问封装，在C#中以get和set访问器方法实现对可读可写属性的操作，提供了安全和灵活的数据访问封装。什么是特性？下面内容就说明下：</p>
+<h1 id="介绍">介绍</h1>
+<p>使用特性，可以有效地将元数据或声明性信息与代码（程序集、类型、方法、属性等）相关联。将特性与程序实体相关联后，可以在运行时使用 反射 这项技术查询特性。详情 用于添加元数据，如编译器指令和注释、描述、方法、类等其他信息。.Net 框架提供了两种类型的特性：预定义特性和自定义特性。</p>
+<p>简单总结：定制特性attribute，本质上是一个类，其为目标元素提供关联附加信息，并在运行期以反射的方式来获取附加信息。</p>
+<h1 id="常用特性">常用特性</h1>
+<h2 id="attributeusage">AttributeUsage</h2>
+<p>AttributeUsage特性用于控制如何应用自定义特性到目标元素，有三个数据属性可用以修饰我们的自定义的属性</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left">ValidOn</th>
+<th style="text-align: left">规定特性可被放置的语言元素。它是枚举器 AttributeTargets 的值的组合。默认值是 AttributeTargets.All。</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left"><strong>AllowMultiple</strong></td>
+<td style="text-align: left"><strong>定义了是否可在同一个程序实体上同时使用多个属性进行修饰</strong></td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>Inherited</strong></td>
+<td style="text-align: left"><strong>定义了自定义属性的修饰是否可由被修饰类的派生类继承</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code>    [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class HelpAttribute : Attribute
+    {
+
+    }
+</code></pre>
+<blockquote>
+<p>表示该特定只能标识在类上，并且同一个类上只能用一个属性修饰，并且自定义属性的修饰不能由修饰类的派生类继承。</p>
+</blockquote>
+<h2 id="flags">Flags</h2>
+<p>以Flags特性来将枚举数值看作位标记，而非单独的数值，例如我有如下的一个需求，当我想要取得用户信息的时候，会先从本地缓存中查找，找不到然后从分布式缓存中查找，最后找不到再从数据库中查询。但是有些场景我又不需要查询数据库。</p>
+<p>所以会建立下面的这种模型</p>
+<pre><code>public UserEntity  GetUserInfo(List&lt;DataSource&gt;  dataSources)
+{
+    var xxxx = new UserEntity();
+    if(dataSources.Any(DataSource.Local)
+    {
+        //从本地缓存中获取
+        return xxxx;
+    }
+ 
+    if(dataSources.Any(DataSource.Distribution)
+    {
+        //从分布式缓存中获取
+        //更新本地缓存
+        return xxxx;
+    }
+ 
+    if(dataSources.Any(DataSource.DB)
+    {
+        //从DB中获取
+        //更新分布式缓存
+        //更新本地缓存
+    }
+    return xxxx;
+}
+</code></pre>
+<p>但是每次调用者都去构建一个List，比较麻烦，此时我们可以使用枚举中的Flags特性，修改程序如下：</p>
+<p>首先是枚举的定义上，要加上  [Flags] 特性标签，并且定义 一般都是 2的n次方，主要是便于位移运算</p>
+<pre><code>/// &lt;summary&gt;
+///数据取得地方
+/// &lt;/summary&gt;
+[Flags]
+public enum DataSource
+{
+    /// &lt;summary&gt;
+    ///本地缓存
+    /// &lt;/summary&gt;
+    [Description("本地缓存")]
+    LocalCache = 1,
+ 
+    /// &lt;summary&gt;
+    ///分布式缓存
+    /// &lt;/summary&gt;
+    [Description("分布式缓存")]
+    DistributeCache = 2,
+ 
+    /// &lt;summary&gt;
+    ///数据库
+    /// &lt;/summary&gt;
+    [Description("数据库")]
+    DB = 4,
+}
+</code></pre>
+<p>修改代码</p>
+<pre><code>public UserEntity  GetUserInfo(DataSource dataSources)
+{
+    var xxxx = new UserEntity();
+    if(dataSources.HasFlags(DataSource.Local)
+    {
+        //从本地缓存中获取
+        return xxxx;
+    }
+    if(dataSources.HasFlags(DataSource.Distribution)
+    {
+        //从分布式缓存中获取
+        //更新本地缓存
+        return xxxx;
+    }
+    if(dataSources.HasFlags(DataSource.DB)
+    {
+        //从DB中获取
+        //更新分布式缓存
+        //更新本地缓存
+    }
+    return xxxx;
+}
+</code></pre>
+<p>调用的地方，可以用过“|”来指定，例如我只想用分布式缓存和数据库，那么：</p>
+<pre><code>var userInfo = GetUserInfo(DataSource.Distribution | DataSource.DB);
+</code></pre>
+<blockquote>
+<p>该例子摘抄自：<a href="https://www.cnblogs.com/dcz2015/p/10943759.html" target="_blank">https://www.cnblogs.com/dcz2015/p/10943759.html</a></p>
+</blockquote>
+<h2 id="dllimport">DllImport</h2>
+<p>DllImport特性，可以让我们调用非托管代码，所以我们可以使用DllImport特性引入对Win32 API函数的调用</p>
+<pre><code>[System.Runtime.InteropServices.DllImport("user32.dll")]
+extern static void SampleMethod();
+</code></pre>
+<h2 id="serializable">Serializable</h2>
+<p>Serializable特性表明了应用的元素可以被序列化(serializated)</p>
+<pre><code>[Serializable]
+public class SampleClass
+{
+    // Objects of this type can be serialized.
+}
+</code></pre>
+<h2 id="conditional">Conditional</h2>
+<p>Conditional特性，用于条件编译，在调试时使用。注意：Conditional不可应用于数据成员和属性。</p>
+<h1 id="自定义特性">自定义特性</h1>
+<p>可通过定义特性类创建自己的自定义特性，特性类是直接或间接派生自 Attribute 的类，可快速轻松地识别元数据中的特性定义。假设我们希望使用编写类的程序员名字来标记该类，那么我们就需要自定义一个Author特性类</p>
+<pre><code>    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
+    public class AuthorAttribute : Attribute
+    {
+        public string AuthorName;
+        public double version;
+
+        public AuthorAttribute(string authorName)
+        {
+            this.AuthorName = authorName;
+            version = 1.0;
+        }
+    }
+</code></pre>
+<p>类名 <code>AuthorAttribute</code> 是该特性的名称，即 <code>Author</code> 加上 <code>Attribute</code> 后缀。由于该类继承自 <code>System.Attribute</code>，因此它是一个自定义特性类。构造函数的参数是自定义特性的位置参数。在此示例中，<code>name</code> 是位置参数。所有公共读写字段或属性都是命名参数。在本例中，<code>version</code> 是唯一的命名参数。</p>
+<blockquote>
+<p>请注意，使用 <code>AttributeUsage</code> 特性可使 <code>Author</code> 特性仅对类和 <code>struct</code> 声明有效。</p>
+</blockquote>
+<p>可按照下面的方式使用特性</p>
+<pre><code>    [Author("张三", version = 1.1)]
+    [Author("李四", version = 1.2)]
+    public class SampleClass
+    {
+        // 业务逻辑代码
+    }
+</code></pre>
+<p>获取自定义参数</p>
+<pre><code>var attr = typeof(SampleClass).GetCustomAttributes(typeof(AuthorAttribute), true);
+</code></pre>
+<blockquote>
+<p>GetCustomAttributes 会以数组形式返回 Author 对象和任何其他特性对象</p>
+</blockquote>
+<h1 id="参考文档">参考文档</h1>
+<blockquote>
+<p><a href="https://docs.microsoft.com/zh-cn/dotnet/csharp/programming-guide/concepts/attributes/" target="_blank">https://docs.microsoft.com/zh-cn/dotnet/csharp/programming-guide/concepts/attributes/</a></p>
+<p><a href="https://www.cnblogs.com/long2006sky/archive/2007/10/19/930094.html" target="_blank">https://www.cnblogs.com/long2006sky/archive/2007/10/19/930094.html</a></p>
+<p><a href="https://www.cnblogs.com/dcz2015/p/10943759.html" target="_blank">https://www.cnblogs.com/dcz2015/p/10943759.html</a></p>
+</blockquote>
+<h1 id="微信公众号">微信公众号</h1>
+<p><img src="https://img2020.cnblogs.com/blog/1350373/202105/1350373-20210504102816511-1607089610.jpg" alt="img" loading="lazy"></p>
+
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 17:10</span>&nbsp;
+<a href="https://www.cnblogs.com/azrng/">AZRNG</a>&nbsp;
+阅读(<span id="post_view_count">107</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735996" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14735996);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 418143, cb_blogApp = 'azrng', cb_blogUserGuid = '0a354e27-ba59-4278-95d4-08d5866282ce';
+    var cb_entryId = 14735996, cb_entryCreatedDate = '2021-05-06 17:10', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 AZRNG
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjszts47tWWO69r31lz65pI0qysWirKsjyE-9z0hY_NXYP9NqhmASAz0MB1c4q44VLUNMx2QwNoOuCyiNYNgvexYCcwoD2OqoLF6BLduvc7ZWyzrInwrFvU7rJObsu9MYf8" />
+</body>
+</html>

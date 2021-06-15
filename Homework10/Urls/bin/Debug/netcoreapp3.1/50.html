@@ -1,0 +1,2110 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>狂盗一枝梅 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/bluesky/bundle-bluesky.min.css?v=crS-BJKdvIW2vVfJGJMix4EoW6XR-Z12_psc8V6YTNc" />
+    <link type="text/css" rel="stylesheet" href="https://www.cnblogs.com/kuangdaoyizhimei/custom.css?v=rm55o2gagu2QZRsW0z7iXWdTVko=" />
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/bluesky/bundle-bluesky-mobile.min.css?v=R6fv62IpzGSvTM7pHsnRgkrk1El3gMSYm75Iwe80srs" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/kuangdaoyizhimei/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/kuangdaoyizhimei/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/kuangdaoyizhimei/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 147792;
+        var currentBlogApp = 'kuangdaoyizhimei';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'BlueSky';
+        var visitorUserId = '';
+    </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="no-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc navbar-custom">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="page_begin_html">
+        <!-- ............自定义首部代码开始............ -->
+<!-- 自定义进度条 -->
+<div id="myProgressBar" style="display: none;"></div>
+
+<!-- 自定义导航条 -->
+<div id="mynavbar" style="margin-top: 0px;">
+    <div style="position:relative;width:65pc;height:70px;margin:0 auto;">
+    	<a style="width: auto;height: 22px;margin-left: 25px;" class="c-c"  href="https://www.cnblogs.com/kuangdaoyizhimei">
+<img id="nv-icon" style="width: auto;height: 38px;outline: 0;margin-top: 12px;">
+
+    	</a>
+    	<div id="mynavbar_menu">
+	    	<a href="https://www.cnblogs.com/summertime-wu" class="c-c">首页</a>
+	    	<a href="https://msg.cnblogs.com/send/summertime-wu" class="c-c">联系</a>
+	    	<a id="myGayhubUrl" href="https://github.com/Summertime-Wu" class="c-c">Github</a>
+	    	<a id="friendLink" href="#">友情链接</a>
+	    	<a href="https://www.cnblogs.com/">博客园</a>
+            <a href="https://i.cnblogs.com/posts">管理</a>
+	    	<a id="aboutMe" href="#">关于</a>
+	    </div>
+    </div>
+</div>
+
+<!-- 自定义头部锚点 -->
+<a name="mtop"></a>
+
+<!-- 自定义头部 -->
+<div id="myheader">
+	<!-- 背景图片 -->
+    <div id="myheader_bg"></div>
+    <!-- 遮罩层 -->
+    <div id="myheader_cover" title="点我点我">
+        <!-- 博客标题 -->
+        <div id="mypost_title">
+            <div id="mypost_title_h" style="font-weight: 500;font-size: 21px;"></div>
+            <div id="mypost_title_f"></div>
+            <div id="mypost_title_e">
+                <a href="https://www.cnblogs.com/" class="c-c" style="">暂未分类</a>
+            </div> 
+        </div>  
+    </div>
+</div>
+<!-- ............自定义首部代码结束............ -->
+    </div>
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/kuangdaoyizhimei/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/kuangdaoyizhimei/">狂盗一枝梅</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/kuangdaoyizhimei/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%8B%82%E7%9B%97%E4%B8%80%E6%9E%9D%E6%A2%85">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/kuangdaoyizhimei/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+
+
+
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/05/06.html">2021年5月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14735895.html">
+    <span>
+        使用netty实现socks5协议
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：socks5协议详解和netty实现源代码        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14735895.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-05-06 16:51
+狂盗一枝梅
+<span data-post-id="14735895" class="post-view-count">阅读(133)</span> 
+<span data-post-id="14735895" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14735895" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14735895" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/04/22.html">2021年4月22日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14688415.html">
+    <span>
+        docker日志设置
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：最近查看docker日志的时候，使用命令docker log -f 会出现日志无限翻滚的情况，这些日志都是打印到控制台的，但是都被docker收集了起来，放到了/var/lib/docker/containers/{容器id}/*.log中，一般默认的日志格式是{容器id}-json.log，如果日        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14688415.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-22 10:43
+狂盗一枝梅
+<span data-post-id="14688415" class="post-view-count">阅读(7)</span> 
+<span data-post-id="14688415" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14688415" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14688415" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/04/21.html">2021年4月21日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685428.html">
+    <span>
+        关于我
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：关于我 网名：一枝梅、狂盗一枝梅 英文名：kdyzm 签名：色即是空，空即是色 标签：Java程序猿、（宅男、动画、漫画、小说、音乐、电影、电视）爱好者、技术懒人，就想葛优瘫到天荒地老 联系我 邮箱：kdyzm@foxmail.com Github：https://github.com/kdyzm         <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685428.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-21 15:27
+狂盗一枝梅
+<span data-post-id="14685428" class="post-view-count">阅读(16)</span> 
+<span data-post-id="14685428" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14685428" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14685428" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685396.html">
+    <span>
+        友情链接
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：友情链接 夏日浅笑 一枝梅的技术收录 xkxf YJLAugus 春江花月夜丶 Eric.Shen 97年老油条 alan-hqy Areds Unixcs 绝技小嗨皮 ThreePwn 雨沐心田 wangenhui lj菌 AllenAlan 后青春期的Keats 小菠萝测试笔记 赵海宇 半月无霜        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685396.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-21 15:20
+狂盗一枝梅
+<span data-post-id="14685396" class="post-view-count">阅读(16)</span> 
+<span data-post-id="14685396" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14685396" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14685396" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685276.html">
+    <span>
+        分布式任务调度系统：xxl-job
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：xxl-job一个分布式任务调度平台，其核心设计目标是开发迅速、学习简单、轻量级、易扩展。现已开放源代码并接入多家公司线上产品线，开箱即用。        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14685276.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-21 15:02
+狂盗一枝梅
+<span data-post-id="14685276" class="post-view-count">阅读(48)</span> 
+<span data-post-id="14685276" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14685276" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14685276" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/04/20.html">2021年4月20日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14681033.html">
+    <span>
+        SpringBoot自定义配置以及IDEA配置提示
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会讲解在springboot项目中如何实现自定义配置以及在IDEA或者Eclipse中实现配置项提示，就像spring的配置提示一样        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14681033.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-04-20 14:50
+狂盗一枝梅
+<span data-post-id="14681033" class="post-view-count">阅读(14)</span> 
+<span data-post-id="14681033" class="post-comment-count">评论(1)</span> 
+<span data-post-id="14681033" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14681033" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/03/30.html">2021年3月30日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14597870.html">
+    <span>
+        frp穿透内网使用vsftpd服务
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会介绍如何使用frp穿透内网以及如何在centos8环境下安装和使用vsftpd，最后在公网通过frp穿透内网使用ftp。        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14597870.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-03-30 17:29
+狂盗一枝梅
+<span data-post-id="14597870" class="post-view-count">阅读(68)</span> 
+<span data-post-id="14597870" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14597870" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14597870" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/02/26.html">2021年2月26日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14452736.html">
+    <span>
+        若依管理系统RuoYi-Vue（三）：代码生成器原理和实战
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会介绍ruoyi-vue代码生成器的使用方法、原理介绍以及独立版代码生成器的封装        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14452736.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-26 16:00
+狂盗一枝梅
+<span data-post-id="14452736" class="post-view-count">阅读(769)</span> 
+<span data-post-id="14452736" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14452736" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14452736" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/02/20.html">2021年2月20日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14419180.html">
+    <span>
+        若依管理系统RuoYi-Vue（二）：权限系统设计详解
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会详细讲解若依管理系统的权限分类、代码分析以及实战        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14419180.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-20 09:33
+狂盗一枝梅
+<span data-post-id="14419180" class="post-view-count">阅读(3210)</span> 
+<span data-post-id="14419180" class="post-comment-count">评论(2)</span> 
+<span data-post-id="14419180" class="post-digg-count">推荐(12)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14419180" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/02/04.html">2021年2月4日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14372719.html">
+    <span>
+        若依管理系统RuoYi-Vue（一）：项目启动和菜单创建
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会讲解如何如何使用RuoYi-Vue前后端分离版本        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14372719.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-04 15:13
+狂盗一枝梅
+<span data-post-id="14372719" class="post-view-count">阅读(2447)</span> 
+<span data-post-id="14372719" class="post-comment-count">评论(2)</span> 
+<span data-post-id="14372719" class="post-digg-count">推荐(4)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14372719" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/02/03.html">2021年2月3日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14369507.html">
+    <span>
+        markdown编辑器typora本地图片上传到自己的服务器
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：typora是windows平台下最受欢迎的markdown书写工具和查看工具，本篇文章将会介绍如何在typora平台使用java脚本程序自动上传本地图片到自己的服务器，从而让markdown文章中的图片“一次书写，处处可见”，免去总是需要转换图片的麻烦。        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14369507.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-02-03 20:14
+狂盗一枝梅
+<span data-post-id="14369507" class="post-view-count">阅读(392)</span> 
+<span data-post-id="14369507" class="post-comment-count">评论(2)</span> 
+<span data-post-id="14369507" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14369507" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/01/29.html">2021年1月29日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14346275.html">
+    <span>
+        Spring Security OAuth2.0认证授权六：前后端分离下的登录授权
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会解决上一篇文章《Spring Security OAuth2.0认证授权五：用户信息扩展到jwt 》中遗留的问题，并在原有的项目中新增模块`business-server`用来充当前端页面的web容器并转发登录请求和更换token的请求等，以模拟前后端分离下的登录以及更换token操作。        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14346275.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-29 17:51
+狂盗一枝梅
+<span data-post-id="14346275" class="post-view-count">阅读(743)</span> 
+<span data-post-id="14346275" class="post-comment-count">评论(1)</span> 
+<span data-post-id="14346275" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14346275" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/01/14.html">2021年1月14日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14279979.html">
+    <span>
+        Spring Security OAuth2.0认证授权五：用户信息扩展到jwt
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：历史文章 Spring Security OAuth2.0认证授权一：框架搭建和认证测试 Spring Security OAuth2.0认证授权二：搭建资源服务 Spring Security OAuth2.0认证授权三：使用JWT令牌 Spring Security OAuth2.0认证授权四：        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14279979.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-14 23:16
+狂盗一枝梅
+<span data-post-id="14279979" class="post-view-count">阅读(594)</span> 
+<span data-post-id="14279979" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14279979" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14279979" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14275559.html">
+    <span>
+        Spring Security OAuth2.0认证授权四：分布式系统认证授权
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：Spring Security OAuth2.0认证授权系列文章 Spring Security OAuth2.0认证授权一：框架搭建和认证测试 Spring Security OAuth2.0认证授权二：搭建资源服务 Spring Security OAuth2.0认证授权三：使用JWT令牌 前面        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14275559.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-14 09:49
+狂盗一枝梅
+<span data-post-id="14275559" class="post-view-count">阅读(519)</span> 
+<span data-post-id="14275559" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14275559" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14275559" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/01/11.html">2021年1月11日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14264844.html">
+    <span>
+        Spring Security OAuth2.0认证授权三：使用JWT令牌
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会讲解集成jwt以及将客户端信息和授权码信息保存到数据库        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14264844.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-11 22:58
+狂盗一枝梅
+<span data-post-id="14264844" class="post-view-count">阅读(371)</span> 
+<span data-post-id="14264844" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14264844" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14264844" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14259778.html">
+    <span>
+        Spring Security OAuth2.0认证授权二：搭建资源服务
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章将会介绍如何基于SpringBoot搭建一个OAuth2.0 资源服务        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14259778.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-11 10:30
+狂盗一枝梅
+<span data-post-id="14259778" class="post-view-count">阅读(461)</span> 
+<span data-post-id="14259778" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14259778" class="post-digg-count">推荐(1)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14259778" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2021/01/08.html">2021年1月8日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14250374.html">
+    <span>
+        Spring Security OAuth2.0认证授权一：框架搭建和认证测试
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：SpringBoot+Spring Security+OAuth2.0 实现初版第三方登录效果        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14250374.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2021-01-08 10:55
+狂盗一枝梅
+<span data-post-id="14250374" class="post-view-count">阅读(1252)</span> 
+<span data-post-id="14250374" class="post-comment-count">评论(14)</span> 
+<span data-post-id="14250374" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14250374" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2020/12/29.html">2020年12月29日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14205992.html">
+    <span>
+        spring-boot 使用hibernate validation对参数进行优雅的校验
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：springboot天生支持使用hibernate validation对参数的优雅校验，如果不使用它，只能对参数挨个进行如下方式的手工校验，不仅难看，使用起来还很不方便： if(StringUtils.isEmpty(userName)){ throw new RuntimeException(&amp;quot;        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14205992.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-12-29 13:43
+狂盗一枝梅
+<span data-post-id="14205992" class="post-view-count">阅读(425)</span> 
+<span data-post-id="14205992" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14205992" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14205992" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2020/12/26.html">2020年12月26日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14194234.html">
+    <span>
+        使用 transmittable-thread-local 组件解决 ThreadLocal 父子线程数据传递问题
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：使用ThreadLocal进行父子线程传值，，传了值也能取到，但是也不总是能取到，若干次之后就总是能取到了，这到底是是为什么呢？        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14194234.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-12-26 21:23
+狂盗一枝梅
+<span data-post-id="14194234" class="post-view-count">阅读(150)</span> 
+<span data-post-id="14194234" class="post-comment-count">评论(0)</span> 
+<span data-post-id="14194234" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14194234" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2020/12/22.html">2020年12月22日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/14175143.html">
+    <span>
+        win10新版wsl2使用指南
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：本篇文章会介绍win10中wsl2的安装和使用以及遇到的常见问题比如如何固定wsl2地址等问题的总结。        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/14175143.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2020-12-22 20:34
+狂盗一枝梅
+<span data-post-id="14175143" class="post-view-count">阅读(5061)</span> 
+<span data-post-id="14175143" class="post-comment-count">评论(3)</span> 
+<span data-post-id="14175143" class="post-digg-count">推荐(2)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14175143" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2018/03/06.html">2018年3月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/8508357.html">
+    <span>
+        使用java实现阿里云消息队列简单封装
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、前言 最近公司有使用阿里云消息队列的需求，为了更加方便使用，本人用了几天时间将消息队列封装成api调用方式以方便内部系统的调用，现在已经完成，特此记录其中过程和使用到的相关技术，与君共勉。 现在阿里云提供了两种消息服务：mns服务和ons服务，其中我认为mns是简化版的ons，而且mns的消息消        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/8508357.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2018-03-06 23:16
+狂盗一枝梅
+<span data-post-id="8508357" class="post-view-count">阅读(1257)</span> 
+<span data-post-id="8508357" class="post-comment-count">评论(0)</span> 
+<span data-post-id="8508357" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=8508357" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2016/12/04.html">2016年12月4日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/6131020.html">
+    <span>
+        【Java远程debug】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：转自 http://blog.csdn.net/hongchangfirst/article/details/44191925 一、远程debug原理 Java远程调试的原理是两个JVM之间通过debug协议进行通信，然后以达到远程调试的目的。两者之间可以通过socket进行通信。 被debug的机        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/6131020.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-12-04 16:07
+狂盗一枝梅
+<span data-post-id="6131020" class="post-view-count">阅读(3746)</span> 
+<span data-post-id="6131020" class="post-comment-count">评论(0)</span> 
+<span data-post-id="6131020" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=6131020" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2016/01/06.html">2016年1月6日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5105460.html">
+    <span>
+        【Java EE 学习 83 下】【SpringMVC】【使用注解替代已过时的API】【SpringMVC、Hibernate整合】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、SpringMVC中注解的使用 1.为什么要使用注解 之前曾经提到过的三种控制器在spring3.0中都已经被明确标记为过时了，spring3.0推荐使用注解的方式替代三种控制器，实际上使用注解的方式能够大大提高开发效率。 2.使用注解@RequestMapping 使用注解需要...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5105460.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-06 14:25
+狂盗一枝梅
+<span data-post-id="5105460" class="post-view-count">阅读(682)</span> 
+<span data-post-id="5105460" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5105460" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5105460" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2016/01/05.html">2016年1月5日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5103152.html">
+    <span>
+        【Java EE 学习 83 上】【SpringMVC】【基本使用方法】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、SpringMVC框架概述 什么是SpringMVC？SpringMVC是一个和Struts2差不多的东西，他们的作用和性质几乎是相同的，甚至开发效率上也差不多，但是在运行效率上SpringMVC要高于Struts2；注意这里的SpringMVC很明确的指明了使用了MVC框架，Struts2也...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5103152.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-05 17:25
+狂盗一枝梅
+<span data-post-id="5103152" class="post-view-count">阅读(939)</span> 
+<span data-post-id="5103152" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5103152" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5103152" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2016/01/03.html">2016年1月3日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5097127.html">
+    <span>
+        【Java EE 学习 82 下】【MAVEN整合Eclipse】【MAVEN的一些高级概念】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、MAVEN整合Eclipse MAVEN是非常优秀，但是总是要开命令行敲命令是比较不爽的，我们已经习惯了使用IDE，所以还有一种将MAVEN整合到Eclipse的方法。 详情查看：http://www.eclipse.org/m2e/，http://download.eclipse.org/...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5097127.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-03 20:50
+狂盗一枝梅
+<span data-post-id="5097127" class="post-view-count">阅读(559)</span> 
+<span data-post-id="5097127" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5097127" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5097127" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5095987.html">
+    <span>
+        【Java EE 学习 82 上】【MAVEN基本安装和使用方法】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、Maven概述 1.什么是Maven？ Maven中文意思是&quot;行家&quot;、&quot;专家&quot;，它是一种跨平台的项目管理工具。 2.Maven有什么作用？ Maven能够实现基于Java平台的项目构建、依赖管理和项目信息管理。 3.什么是理想的项目构建？ 高度自动化，跨平台，可重用组件，...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5095987.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-03 11:59
+狂盗一枝梅
+<span data-post-id="5095987" class="post-view-count">阅读(333)</span> 
+<span data-post-id="5095987" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5095987" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5095987" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2016/01/01.html">2016年1月1日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5093628.html">
+    <span>
+        【Java EE 学习 81】【CXF框架】【CXF整合Spring】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、CXF简介 CXF是Apache公司下的项目,CXF=Celtix+Xfire；它支持soap1.1、soap1.2，而且能够和spring进行快速无缝整合。 另外jax-ws是Sun公司发布的一套开发WebService服务的标准。早期的标准如jax-rpc已经很少使用，而cxf就是在新标...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5093628.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-01 19:25
+狂盗一枝梅
+<span data-post-id="5093628" class="post-view-count">阅读(654)</span> 
+<span data-post-id="5093628" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5093628" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5093628" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5093124.html">
+    <span>
+        【Java EE 学习 80 下】【调用WebService服务的四种方式】【WebService中的注解】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：不考虑第三方框架，如果只使用JDK提供的API，那么可以使用三种方式调用WebService服务；另外还可以使用Ajax调用WebService服务。预备工作：开启WebService服务，使用jdk命令wsimport生成调用源代码package com.kdyzm.ws;import javax...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5093124.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2016-01-01 11:38
+狂盗一枝梅
+<span data-post-id="5093124" class="post-view-count">阅读(2931)</span> 
+<span data-post-id="5093124" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5093124" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5093124" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2015/12/29.html">2015年12月29日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5086271.html">
+    <span>
+        【Java EE 学习 80 上】【WebService】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、WebService概述 什么是WebService，顾名思义，就是基于Web的服务，它使用Http方式接收和响应外部系统的某种请求，从而实现远程调用。WebService实际上就是依据某些标准，不关心对方使用的是何种语言，实现对外部其它应用程序提供跨平台、跨语言服务的一种技术。 使用Web...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5086271.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-29 16:45
+狂盗一枝梅
+<span data-post-id="5086271" class="post-view-count">阅读(402)</span> 
+<span data-post-id="5086271" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5086271" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5086271" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2015/12/27.html">2015年12月27日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5080291.html">
+    <span>
+        【Java EE 学习 79 下】【动态SQL】【mybatis和spring的整合】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、动态SQL 什么是动态SQL，就是在不同的条件下，sql语句不相同的意思，曾经在“酒店会员管理系统”中写过大量的多条件查询，那是在SSH的环境中，所以只能在代码中进行判断，以下是其中一个多条件查询的例子： 1 public Collection getCardsByMN(int request...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5080291.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-27 16:14
+狂盗一枝梅
+<span data-post-id="5080291" class="post-view-count">阅读(296)</span> 
+<span data-post-id="5080291" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5080291" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5080291" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5079937.html">
+    <span>
+        【Java EE 学习 79 上】【mybatis 基本使用方法】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、简介 mybatis类似于hibernate，都是简化对数据库操作的框架，但是和hibernate不同的是，mybatis更加灵活，整体来说框架更小，这体现在它需要我们手写SQL语句，而hibernate则将对数据库的操作对程序员完全透明了，程序员只需要按照面向对象的思想编写代码即可，想要看s...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5079937.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-27 13:29
+狂盗一枝梅
+<span data-post-id="5079937" class="post-view-count">阅读(582)</span> 
+<span data-post-id="5079937" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5079937" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5079937" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2015/12/20.html">2015年12月20日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5061400.html">
+    <span>
+        【Java EE 学习 78 下】【数据采集系统第十天】【数据采集系统完成】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、项目源代码地址二、项目演示        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5061400.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-20 17:47
+狂盗一枝梅
+<span data-post-id="5061400" class="post-view-count">阅读(274)</span> 
+<span data-post-id="5061400" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5061400" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5061400" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5060444.html">
+    <span>
+        【Java EE 学习 78 中】【数据采集系统第十天】【Spring远程调用】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、远程调用概述 1.远程调用的定义 在一个程序中就像调用本地中的方法一样调用另外一个远程程序中的方法，但是整个过程对本地完全透明，这就是远程调用。spring已经能够非常成熟的完成该项功能了。 2.spring远程调用的原理 客户端调用本地接口中的一个方法调用的时候将会被客户端代理...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5060444.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-20 11:13
+狂盗一枝梅
+<span data-post-id="5060444" class="post-view-count">阅读(523)</span> 
+<span data-post-id="5060444" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5060444" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5060444" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2015/12/19.html">2015年12月19日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059614.html">
+    <span>
+        【Java EE 学习 78 上】【数据采集系统第十天】【Service使用Spring缓存模块】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、需求分析 调查问卷中或许每一个单击动作都会引发大量的数据库访问，特别是在参与调查的过程中，只是单击“上一页”或者“下一页”的按钮就会引发大量的查询，必须对这种问题进行优化才行。使用缓存策略进行查询缓存是降低数据库压力非常理想的方法，这里最起码能够有两种缓存方式： 1.使用hibernate的...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059614.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 19:24
+狂盗一枝梅
+<span data-post-id="5059614" class="post-view-count">阅读(354)</span> 
+<span data-post-id="5059614" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5059614" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5059614" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059340.html">
+    <span>
+        【Java EE 学习 77 下】【数据采集系统第九天】【使用spring实现答案水平分库】【未解决问题：分库查询问题】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：之前说过，如果一个数据库中要存储的数据量整体比较小，但是其中一个表存储的数据比较多，比如日志表，这时候就要考虑分表存储了；但是如果一个数据库整体存储的容量就比较大，该怎么办呢？这时候就需要考虑分库了，就是建立多个数据库保存数据。这里以答案为例，就算调查对象不是很多，但是参与调查的人数非常多，那么...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059340.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 16:29
+狂盗一枝梅
+<span data-post-id="5059340" class="post-view-count">阅读(352)</span> 
+<span data-post-id="5059340" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5059340" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5059340" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059063.html">
+    <span>
+        【Java EE 学习 77 上】【数据采集系统第九天】【通过AOP实现日志管理】【通过Spring石英调度动态生成日志表】【日志分表和查询】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、需求分析 日志数据在很多行业中都是非常敏感的数据，它们不能删除只能保存和查看，这样日志表就会越来越大，我们不可能永远让它无限制的增长下去，必须采取一种手段将数据分散开来。假设现在整个数据库需要保存的数据量比较少，但是只有日志表的数据量会很大，在这种情况下我们可以考虑使用分表策略分散保存日志数据...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5059063.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 14:03
+狂盗一枝梅
+<span data-post-id="5059063" class="post-view-count">阅读(630)</span> 
+<span data-post-id="5059063" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5059063" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5059063" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058963.html">
+    <span>
+        【Java EE 学习 76 下】【数据采集系统第八天】【通过AOP实现日志管理】【日志管理功能分析和初步实现】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、日志管理相关分析 1.日志管理是一种典型的系统级别的应用，非常适合使用spring AOP实现。 2.使用日志管理的目的：对系统修改的动作进行记录，比如对权限、角色、用户的写操作、修改操作、删除操作等 3.确定使用的通知方式：使用环绕通知。复习一下环绕通知，所谓环绕通知实际上就是AOP代理...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058963.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 12:59
+狂盗一枝梅
+<span data-post-id="5058963" class="post-view-count">阅读(382)</span> 
+<span data-post-id="5058963" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5058963" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5058963" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058794.html">
+    <span>
+        【Java EE 学习 76 上】【数据采集系统第八天】【角色授权】【用户授权】【权限的粗粒度控制】【权限的细粒度控制】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、角色管理 单击导航栏上的&quot;角色管理&quot;超链接，跳转到角色管理界面，在该界面上显示所有角色，并提供角色的增加和删除、修改超链接。 1.增加新角色（角色授权） 流程：单击增加新角色超链接-&gt;Action查询出所有的权限保存到值栈并转到添加新角色页面-&gt;填写表单并提交-&gt;Action保存表单-...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058794.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 11:11
+狂盗一枝梅
+<span data-post-id="5058794" class="post-view-count">阅读(594)</span> 
+<span data-post-id="5058794" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5058794" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5058794" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+            <div class="postSeparator"></div>
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058676.html">
+    <span>
+        【Java EE 学习 75 下】【数据采集系统第七天】【二进制运算实现权限管理】【使用反射初始化权限表】【权限捕获拦截器动态添加权限】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、使用反射动态添加权限在该系统中，我使用struts2的时候非常规范，访问的Action的形式都是&quot;ActionClassName_MethodName.action?参数列表&quot;，所以可以非常方便的使用反射初始化权限表。比较关键的是获取所有Action类所在的包的方法：URL url=ClassL...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058676.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-19 09:48
+狂盗一枝梅
+<span data-post-id="5058676" class="post-view-count">阅读(220)</span> 
+<span data-post-id="5058676" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5058676" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5058676" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+		
+
+
+<div class="day">
+    <div class="dayTitle">
+        <a href="https://www.cnblogs.com/kuangdaoyizhimei/archive/2015/12/18.html">2015年12月18日</a>
+    </div>
+
+        <div class="postTitle">
+            
+
+<a class="postTitle2 vertical-middle" href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058185.html">
+    <span>
+        【Java EE 学习 75 上】【数据采集系统第七天】【二进制运算实现权限管理】【权限分析和设计】
+    </span>
+    
+
+
+
+</a>
+
+        </div>
+        <div class="postCon">
+
+    <div class="c_b_p_desc">
+摘要：一、权限计算相关分析 1.如何存储权限 首先说一下权限保存的问题，一个系统中最多有多少权限呢？一个大的系统中可能有成百上千个权限需要管理。怎么保存这么多的权限？首先，我们使用一个数字中的一位保存一种权限，那么如果现在有3600种权限需要保存，我们就需要一个3600位的数字来保存该权限，首先我们如...        <a href="https://www.cnblogs.com/kuangdaoyizhimei/p/5058185.html" class="c_b_p_desc_readmore">阅读全文</a>
+    </div>
+</div>
+        <div class="clear"></div>
+        <div class="postDesc">posted @ 2015-12-18 20:49
+狂盗一枝梅
+<span data-post-id="5058185" class="post-view-count">阅读(942)</span> 
+<span data-post-id="5058185" class="post-comment-count">评论(0)</span> 
+<span data-post-id="5058185" class="post-digg-count">推荐(0)</span> 
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=5058185" rel="nofollow">
+    编辑
+</a>
+</div>
+        <div class="clear"></div>
+</div>
+
+
+
+<div class="topicListFooter">
+    <div id="nav_next_page">
+        
+    <a href="https://www.cnblogs.com/kuangdaoyizhimei/default.html?page=2">
+        下一页
+    </a>
+
+    </div>    
+</div>
+
+
+
+
+
+
+<script>
+    updatePostStats(
+        $(".post-view-count").map(function () { return this.dataset.postId }).get(),
+        function(id, count) { $(".post-view-count[data-post-id=" + id + "]").text("阅读(" + count + ")") },
+        function(id, count) { $(".post-comment-count[data-post-id=" + id + "]").text("评论(" + count + ")") },
+        function(id, count) { $(".post-digg-count[data-post-id=" + id + "]").text("推荐(" + count + ")") });
+</script>
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 狂盗一枝梅
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    <div id="page_end_html">
+        <!-- ............自定义尾部代码开始............ -->
+<div id="post-bottom-bar" class="post-bottom-bar" style="bottom: 0px;">
+	<div class="bottom-bar-inner">
+		<!-- 左边 -->
+        <div class="bottom-bar-items social-share" style="float: left;">
+            <span class="bottom-bar-item bottom-bar-facebook">
+                <a id="bottom-d" href="javascript:void(0)" target="_blank">好文要赞</a>
+            </span>
+            <span class="bottom-bar-item bottom-bar-twitter">
+                <a id="bottom-g" href="javascript:void(0)" target="_blank">关注我</a>
+            </span>
+            <span class="bottom-bar-item bottom-bar-qrcode">
+                <a id="bottom-s" href="javascript:void(0)" target="_blank">收藏该文</a>
+            </span>
+        </div>
+        <!-- 右边 -->
+        <div class="bottom-bar-items right" style="float: right;">
+            <span class="bottom-bar-item"><a id="mbottom-left" href="javascript:void(0);">←</a></span>
+            <span class="bottom-bar-item"><a id="mbottom-right" href="javascript:void(0);">→</a></span>
+            <span class="bottom-bar-item"><a href="#mfooter">↓</a></span>
+            <span class="bottom-bar-item"><a href="#mtop">↑</a></span>
+        </div>
+	</div> 
+</div>
+<a name="mfooter"></a>
+
+<!-- 遮罩层（用于图片点击放大），
+    代码来自https://www.cnblogs.com/zhanxiaoyun/p/8259451.html-->
+<div id="outerdiv" style="text-align: center;position: fixed;z-index: 1000;top: 0;left: 0;
+    width: 100%;height: 100%;background-color: rgba(255,255,255,.9);display: none;">
+    <img id="bigimg" style="height: auto;width: auto;border: 0; 
+        margin: auto;position: absolute;top: 0;bottom: 0;left: 0;right: 0;">
+</div>
+<!-- ............自定义尾部代码结束............ -->
+
+
+<script type="text/javascript" src="https://blog-static.cnblogs.com/files/summertime-wu/nprogress.js"></script>
+<script type="text/javascript">
+
+    //博主名称 可不改，默认取博客园提供的
+    var nickName = null;
+    //slogan
+    var slogan = '立德立言，无闻西东';
+    //icon
+    var icon = "https://img2020.cnblogs.com/blog/516671/202104/516671-20210421182138882-1923189268.png";
+    //默认博客背景图片
+    var defaultPic="https://img2018.cnblogs.com/blog/1138447/201904/1138447-20190426121949417-1115592219.jpg";
+    //icon(浏览器标题栏上的)
+    var iconB="https://img2018.cnblogs.com/blog/1138447/201909/1138447-20190911161817172-1737762696.png";
+    //友情链接地址
+    var friendLink="https://www.cnblogs.com/kuangdaoyizhimei/p/14685396.html";
+    //关于地址
+    var aboutMe="https://www.cnblogs.com/kuangdaoyizhimei/p/14685428.html";
+    //Github地址,假如博客username与Github username相同，不用改。
+    //如 cnblogs.com/username github.com/username 这样就不用改
+    var myGayhubUrl = "https://github.com/kdyzm";
+</script>
+<script type="text/javascript">
+	/**
+		用来设置初始时需要执行的js
+	*/
+	$(document).ready(function(){
+
+        //获取博主名字
+        if (nickName == null){
+            var footerOverTestArray = $($("#footer")[0].childNodes[2]).text().trim().split(" ");
+            nickName = footerOverTestArray[footerOverTestArray.length - 1];
+        }
+
+		//加载顶部进度条
+	    NProgress.start();
+	    NProgress.done();
+	    $("#myProgressBar").hide();
+
+	    //设置背景图片地址
+	    if ($("#head_bg_img").val()!=null && $("#head_bg_img").val()!="") {
+	    	$("#myheader_bg").css("background-image","url("+$("#head_bg_img").val()+")");
+	    }else{
+    		$("#myheader_bg").css("background-image","url("+defaultPic+")");
+	    }
+
+	    //设置标题
+        if($("#cb_post_title_url").html()){
+            $("#mypost_title_h").html($("#cb_post_title_url").html());
+        }else{
+            $("#mypost_title_h").html(nickName);
+        }
+
+	    //正文和标题淡入
+	    $("#mainContent").css("opacity","1");
+	    $("#mainContent").css("margin-top","0");
+	    $("#mypost_title").css("opacity","1");
+	    $("#mypost_title").css("top","75pt");
+
+        /* --根据个人配置修改页面 start-- */
+        //修改a链接
+        var ccList = $(".c-c");
+        for(var cc of ccList){
+            $(cc).attr("href", $(cc).attr("href").replace("summertime-wu",currentBlogApp));
+        }
+        //设置Github链接
+        if (myGayhubUrl != null ){$("#myGayhubUrl").attr("href",myGayhubUrl)}
+        //设置友链的链接
+        $("#friendLink").attr("href",friendLink);
+        //设置关于的链接
+        $("#aboutMe").attr("href",aboutMe);
+        //设置两个iocn图标
+        $("#nv-icon").attr("src",icon);
+        var linkObject = document.createElement("link");
+        linkObject.rel = "shortcut icon";
+        linkObject.href = iconB;
+        document.getElementsByTagName("head")[0].appendChild(linkObject);
+        //设置底部栏按钮
+        if (window.location.href == "https://www.cnblogs.com/"+currentBlogApp|| 
+                window.location.href == "https://www.cnblogs.com/"+currentBlogApp+"/"||
+                window.location.href == "http://www.cnblogs.com/"+currentBlogApp|| 
+                window.location.href == "http://www.cnblogs.com/"+currentBlogApp+"/") {
+            $("#bottom-d").html("友情链接");
+            $("#bottom-d").attr("href",friendLink);
+        }else{
+            var url = window.location.href;
+            var lastUrl = url.substring(url.lastIndexOf("/")+1);
+            var mpageId = lastUrl.substring(0,lastUrl.indexOf("."));
+            $("#bottom-d").click(function(){
+                DiggIt(mpageId,cb_blogId,1);
+                green_channel_success(this,'谢谢推荐！');
+            })
+        }
+        /* --根据个人配置修改页面 end-- */
+	})
+
+	/**
+		设置ajax请求加载完所有数据时执行的js
+	*/
+	setTimeout(afterAjax,1000);
+	function afterAjax(){
+		//假如是首页
+		if (window.location.href == "https://www.cnblogs.com/"+currentBlogApp|| 
+			window.location.href == "https://www.cnblogs.com/"+currentBlogApp+"/"||
+			window.location.href == "http://www.cnblogs.com/"+currentBlogApp|| 
+			window.location.href == "http://www.cnblogs.com/"+currentBlogApp+"/") {
+			$("#mypost_title_e").html("<a href='https://cnblogs.com/"+currentBlogApp+"'>"+slogan+"</a>");
+		}else{
+		    var classification = null;
+		    if ($("#BlogPostCategory").html()!=null && $("#BlogPostCategory").html()!= "") {
+		    	classification = $("#BlogPostCategory").html();
+		    	classification = classification.substring(3,classification.length);
+		    }else{
+		    	classification = "<a href='https://cnblogs.com/"+currentBlogApp+"'>暂未分类</a>";
+		    }
+		    var ftitle = "Published on "+ $("#post-date").html() + " in " +  classification
+		    + " with <a href='https://cnblogs.com/"+currentBlogApp+"'>"+nickName+"</a>";
+		    //设置副标题标题
+		    $("#mypost_title_f").html(ftitle);
+		    //设置标题分类按钮
+		    $("#mypost_title_e").html(classification);
+		    //设置底部导航条上一篇下一篇文章
+		    var pnp = $("#post_next_prev a");
+		    $("#mbottom-left").attr("href",pnp[1].href);
+		    if (pnp.length>2) {
+		    	$("#mbottom-right").attr("href",pnp[3].href);
+		    }
+		}
+		$("#myheader_bg").css("filter","blur(0px)");
+
+        //优化评论区样式
+        $("#comment_form_container p:last").hide();
+        $("#commentbox_opt a:last").hide();
+        $("#tbCommentBody").attr('placeholder','Your comment here. Be cool. ');
+	}
+
+
+	/** 
+		自定义的js方法
+	*/
+	//设置底部导航条点击关注按钮事件
+	$("#bottom-g").click(function(){
+		$('#green_channel_follow').click()
+		return false
+	})
+	$("#bottom-s").click(function(){
+		AddToWz(cb_entryId);
+		return false;
+	})
+
+
+	//通过滚动条控制导航条的展现隐藏
+	var oldScrollNum = 0;
+	window.onscroll = function(){
+		var t = document.documentElement.scrollTop || document.body.scrollTop;
+		//下滑
+		if (t>oldScrollNum) {
+			if (t>120) {
+				$("#mynavbar").css("margin-top","-70px");//顶部导航
+				$("#post-bottom-bar").css("bottom","-3pc");//底部导航
+			}
+			if (t>300) {
+				$("#right_meun").css("display","inline-block");//右侧导航
+			}
+		//上拉
+		}else{
+			//防止用a链接跳转也触发效果
+			if (oldScrollNum-t<20) {
+				$("#mynavbar").css("margin-top","0px");//顶部导航
+				$("#post-bottom-bar").css("bottom","0");//底部导航
+			}
+			if (t<=300) {
+				$("#right_meun").css("display","none");//右侧导航
+			}
+		}
+		oldScrollNum = t;
+	}
+
+	//背景大图点击模糊||清晰
+	$("#myheader_cover").click(function(){
+		if ($("#myheader_bg").css("filter") == "blur(3px)") {
+			$("#myheader_bg").css("filter","blur(0px)");
+		}else{
+			$("#myheader_bg").css("filter","blur(3px)");
+		}
+	})
+
+
+    $("#outerdiv").click(function(){//再次点击淡出消失弹出层    
+        $(this).fadeOut("fast");    
+    }); 
+
+ </script>
+
+ <script type="text/javascript">  
+    var setMyBlog = {
+        setCopyright: function() {
+            //设置版权信息，转载出处自动根据页面url生成
+            var info_str = '<p>作者：<a target="_blank">@gzdaijie</a><br>'+
+                '本文为作者原创，转载请注明出处：<a class="uri"></a></p><hr></hr>', 
+                info = $(info_str),
+                info_a = info.find("a"),
+                url = window.location.href;
+            $(info_a[0]).attr("href","https://github.com/gzdaijie");
+            $(info_a[1]).attr("href",url).text(url);
+            $("#cnblogs_post_body").prepend(info);
+        },
+        setCodeRow: function(){
+            // 代码行号显示
+            var pre = $("pre.sourceCode"); //选中需要更改的部分
+            if(pre && pre.length){
+                pre.each(function() {
+                    var item = $(this);
+                    var lang = item.attr("class").split(" ")[1]; //判断高亮的语言
+                    item.html(item.html().replace(/<[^>]+>/g,"")); //将<pre>标签中的html标签去掉
+                    item.removeClass().addClass("brush: " + lang +";"); //根据语言添加笔刷
+                    SyntaxHighlighter.all();
+                })
+            }
+        },
+        setAtarget: function() {
+            // 博客内的链接在新窗口打开
+            $("#cnblogs_post_body a").each(function(){
+                this.target = "_blank";
+            }) 
+        },
+        setContent: function() {
+            // 根据h2、h3标签自动生成目录
+            var captions_ori = $("#cnblogs_post_body h2"),
+            	captions_ori2 = $("#cnblogs_post_body h3"),
+                captions = $("#cnblogs_post_body h2,#cnblogs_post_body h3").clone(),
+                content = $("<ul id='right_meun'></ul>");
+            $("#cnblogs_post_body").prepend(content.append(captions));
+            var index = -1,index2 = -1;
+            captions.replaceWith(function(){
+                var self = this;
+                if(self.tagName == "H2" || self.tagName == "h2"){
+                    // 设置点击目录跳转
+                    index += 1;
+                    $('<a name="' + '_caption_' + index + '"></a>').insertBefore(captions_ori[index]); 
+                    return '<li id="'+index+'li"><a href="#_caption_' + index + '">' + self.innerHTML + '</a><ul></ul></li>';
+                } else {
+                	// add by summertime-wu 增加h3链接跳转
+                	index2 += 1;
+                	$('<a name="' + '_caption' + index2 + '"></a>').insertBefore(captions_ori2[index2]); 
+                	$("#"+index+"li ul").append("<li><a href='#_caption" + index2 + "' style='color:#5f5f5f;'>" +self.innerHTML+"</a></li>");
+                    return ;
+                }
+            });
+        },
+        runAll: function() {
+            /* 运行所有方法
+             * setAtarget() 博客园内标签新窗口打开
+             * setContent() 设置目录
+             * setCopyright() 设置版权信息
+             * setCodeRow() 代码行号显示
+             */ 
+            this.setAtarget(); 
+            //假如为手机端不显示目录
+            if(document.body.clientWidth>=1000){
+                this.setContent();
+            }
+            // this.setCopyright();
+            this.setCodeRow();
+        }
+    }
+    setMyBlog.runAll();
+</script>
+
+<!-- 代码行号 -->
+<script src="//cdn.bootcss.com/highlightjs-line-numbers.js/1.1.0/highlightjs-line-numbers.min.js"></script>
+<script>hljs.initLineNumbersOnLoad();</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjtCu7pLsLdqW1GWwW_cOIvY0VeDBGkY-sA8CpTd-mNfbFJt_jmTc2dg-PnltYGimfodKrnWd7e5vqzhGrYxwn7L2rimc44cTNN2qpXdykFo73ppkzY9-ffbuO5soLmyk3c" />
+</body>
+</html>

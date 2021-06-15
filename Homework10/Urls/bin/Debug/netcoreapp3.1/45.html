@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    <meta name="description" content="前言 一般互联网的项目都是部署在linux服务器上的，如果linux服务器出了问题，那么咱们平时学习的高并发，稳定性之类的是没有任何意义的，所以对linux性能的把握就显得非常重要，当然很多同学可能觉" />
+    <meta property="og:description" content="前言 一般互联网的项目都是部署在linux服务器上的，如果linux服务器出了问题，那么咱们平时学习的高并发，稳定性之类的是没有任何意义的，所以对linux性能的把握就显得非常重要，当然很多同学可能觉" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>看了这篇还不会Linux性能分析和优化，你来打我 - 程序员养成日记 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=zS6-e1bxywlu3kpHvpr1J6MySwya3ztFtEnS7RYQ0Fk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/darkgreentrip/bundle-darkgreentrip.min.css?v=eoZATbPKwJCL5eWVDTQIYC6CIxJPcFz191dkzN2tSyQ" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/darkgreentrip/bundle-darkgreentrip-mobile.min.css?v=lU86o8mZVn3FOSdFt7nHKYTD8gzeKaiQIIZ6lSjEFyo" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/xuehao/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/xuehao/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/xuehao/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 327688;
+        var currentBlogApp = 'xuehao';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'darkgreentrip';
+        var visitorUserId = '';
+    </script>
+        <script>
+            var currentPostDateAdded = '2021-05-06 05:17';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=yJQaJ16S00coMfzvh-NgF2zm2J87f5VfNamFdsnKHrc"></script>
+    
+    
+    
+</head>
+<body class="has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/xuehao/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/xuehao/">饭米粒</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/xuehao/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E7%A8%8B%E5%BA%8F%E5%91%98%E5%85%BB%E6%88%90%E6%97%A5%E8%AE%B0">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/xuehao/rss/">
+订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class = "postTitle">
+                
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/xuehao/p/14736024.html">
+    <span>看了这篇还不会Linux性能分析和优化，你来打我</span>
+    
+
+
+
+</a>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<section id="nice" data-tool="mdnice编辑器" data-website="https://www.mdnice.com" style="font-size: 16px; padding: 0 10px; word-spacing: 0; word-wrap: break-word; text-align: left; line-height: 1.25; color: rgba(43, 43, 43, 1); font-family: Optima-Regular, Optima, PingFangTC-Light, PingFangSC-light, PingFangTC-light; letter-spacing: 2px; background-image: linear-gradient(90deg, rgba(50, 0, 0, 0.04) 3%, rgba(0, 0, 0, 0) 3%), linear-gradient(360deg, rgba(50, 0, 0, 0.04) 3%, rgba(0, 0, 0, 0) 3%); background-size: 20px 20px; background-position: center"><h1 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 25px"><span class="prefix" style="font-weight: bold; color: rgba(64, 184, 250, 1); display: none"></span><span class="content" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)">前言</span><span class="suffix" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)"></span></h1>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">一般互联网的项目都是部署在linux服务器上的，如果linux服务器出了问题，那么咱们平时学习的高并发，稳定性之类的是没有任何意义的，所以对linux性能的把握就显得非常重要，当然很多同学可能觉得这些是运维同学的事情，但是我不这么认为，不管你是架构师，还是crud boy，对项目有个全局的掌控是一项非常重要的基本素质，所以总结了这篇文章，希望对您有用，如果您觉得我写的还不错，看完记得点个赞，点个再看哦。咱们废话不用多说，直接进入正题。</p>
+<h1 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 25px"><span class="prefix" style="font-weight: bold; color: rgba(64, 184, 250, 1); display: none"></span><span class="content" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)">影响linux服务器性能的因素</span><span class="suffix" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)"></span></h1>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">cpu</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">CPU是操作系统稳定运行的根本，CPU的速度与性能在很大程度上决定了系统整体的性能，因此，CPU数量越多、主频越高，服务器性能也就相对越好。</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">内存</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">内存的大小也是影响Linux性能的一个重要的因素，内存太小，系统进程将被阻塞，应用也将变得缓慢，甚至失去响应；内存太大，导致资源浪费。</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">磁盘IO</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">磁盘的I/O性能直接影响应用程序的性能，在一个有频繁读写的应用中，如果磁盘I/O性能得不到满足，就会导致应用停滞。好在现今的磁盘都采用了很多方法来提高I/O性能，比如常见的磁盘RAID技术。</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">网络</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">Linux下的各种应用，一般都是基于网络的，因此网络带宽也是影响性能的一个重要因素，低速的、不稳定的网络将导致网络应用程序的访问阻塞，而稳定、高速的网络带宽，可以保证应用程序在网络上畅通无阻地运行。幸运的是，现在的网络一般都是千兆带宽或光纤网络，带宽问题对应用程序性能造成的影响也在逐步降低。</p>
+<h1 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 25px"><span class="prefix" style="font-weight: bold; color: rgba(64, 184, 250, 1); display: none"></span><span class="content" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)">常用的linux系统性能监控的命令</span><span class="suffix" style="display: inline-block; font-weight: bold; color: rgba(64, 184, 250, 1)"></span></h1>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">uptime(系统整体性能评估)</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<figure data-tool="mdnice编辑器" style="margin: 10px 0; display: flex; flex-direction: column; justify-content: center; align-items: center"><img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620275227971-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)"></figure>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">这里需要注意的是：load average这个输出值，这三个值的大小一般不能大于系统CPU的个数</p>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">那么如何查看cpu的个数呢？</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">查看系统cpu的信息</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">cat /proc/cpuinfo中的信息</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">其中cpu cores即为cpu的核数</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">也可以用cat /proc/cpuinfo |grep "cores"|uniq直接查看</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px"><code class="hljs" style="overflow-x: auto; padding: 16px; background: rgba(39, 40, 34, 1); color: rgba(221, 221, 221, 1); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0; font-size: 12px; -webkit-overflow-scrolling: touch; letter-spacing: 0">[root@<span class="hljs-built_in" style="color: rgba(166, 226, 46, 1); line-height: 26px">test</span>&nbsp;~]<span class="hljs-comment" style="color: rgba(117, 113, 94, 1); line-height: 26px">#&nbsp;cat&nbsp;/proc/cpuinfo&nbsp;|grep&nbsp;"cores"|uniq</span><br>cpu&nbsp;cores&nbsp;:&nbsp;2<br></code></pre>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">cpu的性能评估</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>利用vmstat命令监控cpu</span><span class="suffix" style="display: none"></span></h3>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">vmstat 2 10  （每2秒监控一次 监控10次）</p>
+<figure data-tool="mdnice编辑器" style="margin: 10px 0; display: flex; flex-direction: column; justify-content: center; align-items: center"><img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620272671414-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)"></figure>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">procs</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">r表示运行和等待cpu时间片的进程数，这个值如果长期大于cpu的个数，则需要增加系统cpu</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">b表示等待资源的进程数</p>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">CPU</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">us列显示了用户进程消耗CPU时间百分比，us比较高的时候，说明用户进程消耗cpu的时间多，如果长期大于50%，就需要优化程序和算法</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">sy列显示了内核进程消耗的cpu时间百分比，sy值较高的时候，说明内核消耗的cpu资源很多</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">根据经验，us+sy的参考值为80%，如果us+sy大于 80%说明可能存在CPU资源不足。</p>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>利用sar命令监控系统cpu</span><span class="suffix" style="display: none"></span></h3>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">sar命令会增加系统开销 但是影响不大</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">yum install sysstat安装sar命令</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">sar -u 3 5（u显示系统所有cpu在采样时间内的负载状态）
+<img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620272735820-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)">
+%user：用户进程消耗cpu的时间百分比</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%nice：运行正常进程所消耗cpu的百分比</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%system：系统消耗cpu时间百分比</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%iowait：IO等待所占用cpu时间百分比</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%steal：内存在相对紧张的环境下pagein强制对不同页面进行的steal操作</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%idle：cpu处在空闲时间的百分比</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">内存性能评估</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>利用free指令监控内存</span><span class="suffix" style="display: none"></span></h3>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">free -m #查看以M为单位的内存使用情况
+<img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620272885261-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)">
+一般有这样一个经验公式：</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">应用程序可用内存/系统物理内存&gt;70%时，表示系统内存资源非常充足，不影响系统性能。</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">应用程序可用内存/系统物理内存&lt;20%时，表示系统内存资源紧缺，需要增加系统内存。</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">20%&lt;应用程序可用内存/系统物理内存&lt;70%时，表示系统内存资源基本能满足应用需求，暂时不影响系统性能。</p>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>利用vmstat监控内存</span><span class="suffix" style="display: none"></span></h3>
+<figure data-tool="mdnice编辑器" style="margin: 10px 0; display: flex; flex-direction: column; justify-content: center; align-items: center"><img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620272671414-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)"></figure>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">swpd表示切换到内存交换去的内存数量（k），如果swpd的值不为0，或者比较大，但是si，so的值长期为0，这种情况不用担心，不会影响性能</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">free表示空闲的物理内存数量</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">buffer表示buffers cache的内存数量，一般对设备的读写才需要缓冲</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">cache表示page cached的内存数量。一般作为文件系统cached，频繁访问的文件都会被cached，如果cache值较大，说明cached的文件较多，如果此时IO中的bi比较小，说明文件系统效率比较好</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">si表示由磁盘调入内存，也就是内存进入内存交换区的数量</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">so表示由内存调入磁盘，也就是内存交换区进入内存的数量
+一般情况下，so si的值都为0。如果si so的值长期不为0，则表示系统内存不足，需要增加内存</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">磁盘IO性能评估</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>iostat</span><span class="suffix" style="display: none"></span></h3>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">iostat -d 2 10
+<img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620273026239-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)"></p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px"><code class="hljs" style="overflow-x: auto; padding: 16px; background: rgba(39, 40, 34, 1); color: rgba(221, 221, 221, 1); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0; font-size: 12px; -webkit-overflow-scrolling: touch; letter-spacing: 0">Blk_reads/s&nbsp;&nbsp;每秒读取的数据块数<br><br>Blk_wrtn/s&nbsp;&nbsp;&nbsp;每秒写入的数据块数<br><br>Blk_read&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;读取的所有块数<br><br>Blk_wrtn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;写入的所有块数<br></code></pre>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">这几个值没有标准  如果长期都很大 肯定是不正常的</p>
+<h3 data-tool="mdnice编辑器" style="padding: 0; color: rgba(0, 0, 0, 1); font-size: 17px; font-weight: bold; text-align: center; position: relative; margin-top: 20px; margin-bottom: 20px"><span class="prefix" style="display: none"></span><span class="content" style="color: rgba(43, 43, 43, 1); padding-bottom: 2px"><span style="width: 30px; height: 30px; display: block; background-image: url(&quot;https://files.mdnice.com/fullstack-2.png&quot;); background-position: center; background-size: 30px; margin: auto auto -8px; opacity: 1; background-repeat: no-repeat"></span>利用sar评估磁盘性能</span><span class="suffix" style="display: none"></span></h3>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">sar -d 2 5
+<img src="https://cdn.jsdelivr.net/gh/quven/picture/2021-5-6/1620273079173-image.png" alt="" style="max-width: 100%; border-radius: 6px; display: block; margin: 20px auto; object-fit: contain; box-shadow: 2px 4px 7px rgba(153, 153, 153, 1)">
+await  平均每次设备I/O操作的等待时间（毫秒）</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">svctm 平均每次设备I/O操作的服务时间（毫秒）</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%util 一秒中有百分之几的时间用于I/O操作</p>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">评判标准</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">正常情况下svctm应该是小于await的，svctm的值和磁盘性能，cpu内存等都有关系</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">如果svctm的值和await的值相近表示几乎没有I/O等待，磁盘性能很好，如果await的值远高于svctm，表示I/O队列等待时间太长，系统上的应用程序将变慢，此时可以通过更换更快的硬盘来解决问题</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">%util越小越好，如果%util接近100%表示磁盘产生的I/O请求太多，I/O系统已经满负载在工作，此时可以通过优化程序或者更换更快的磁盘来解决问题</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 22px; display: block; border-bottom: 4px solid rgba(64, 184, 250, 1)"><span class="prefix" style="display: flex; width: 20px; height: 20px; background-size: 20px 20px; background-image: url(&quot;https://files.mdnice.com/fullstack-1.png&quot;); margin-bottom: -22px"></span><span class="content" style="display: flex; color: rgba(64, 184, 250, 1); font-size: 20px; margin-left: 25px">网络性能评估</span><span class="suffix" style="display: flex; box-sizing: border-box !important; width: 200px; height: 10px; border-top-left-radius: 20px; color: rgba(255, 255, 255, 1); font-size: 16px; letter-spacing: 0.544px; justify-content: flex-end; float: right; margin-top: -10px; overflow-wrap: break-word !important"></span></h2>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">通过ping命令检测网络的连通性。</span><span class="suffix" style="display: none"></span></h5>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">通过netstat -i 组合检测网络接口状况。</span><span class="suffix" style="display: none"></span></h5>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">通过netstat -r 组合检测系统路由表信息。</span><span class="suffix" style="display: none"></span></h5>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">通过sar -n 组合显示系统的网络运行状态（sar -n DEV 5 3）。</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">常用分析：</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">查看tcp连接数最多的ip：</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px"><code class="hljs" style="overflow-x: auto; padding: 16px; background: rgba(39, 40, 34, 1); color: rgba(221, 221, 221, 1); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0; font-size: 12px; -webkit-overflow-scrolling: touch; letter-spacing: 0">sudo&nbsp;netstat&nbsp;-pant&nbsp;|&nbsp;grep&nbsp;<span class="hljs-string" style="color: rgba(166, 226, 46, 1); line-height: 26px">":22"</span>&nbsp;|&nbsp;awk&nbsp;<span class="hljs-string" style="color: rgba(166, 226, 46, 1); line-height: 26px">'{print&nbsp;$5}'</span>&nbsp;|&nbsp;awk&nbsp;-F<span class="hljs-string" style="color: rgba(166, 226, 46, 1); line-height: 26px">":"</span>&nbsp;<span class="hljs-string" style="color: rgba(166, 226, 46, 1); line-height: 26px">'{print&nbsp;$4}'</span>&nbsp;|sort|uniq&nbsp;-c|sort&nbsp;-nr<br></code></pre>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">解释：</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">awk -F":" '{print $4}' 表示把结果的第4列用:号分割</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">sort -nr 排序，-n以数值大小排序，-r倒序，从大到小。</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">uniq -c 删除重复的行，-c表示加上每行出现的次数。</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">netstat命令是一个监控TCP/IP网络的非常有用的工具，
+它可以显示路由表、实际的网络连接以及每一个网络接口设备的状态信息。</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">netstat -pant</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">参数-p ：显示正在使用Socket的程序识别码和程序名称；</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">参数-a ：显示所有连线中的Socket；</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">参数-n ：直接使用ip地址，而不通过域名服务器；</p>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">参数-t ：显示TCP传输协议的连线状况。</p>
+<h5 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0; font-weight: bold; color: rgba(0, 0, 0, 1); font-size: 16px"><span class="prefix" style="display: none"></span><span class="content">提取访问nginx服务器最多的10个ip。</span><span class="suffix" style="display: none"></span></h5>
+<p data-tool="mdnice编辑器" style="padding-top: 8px; padding-bottom: 8px; line-height: 26px; color: rgba(43, 43, 43, 1); margin: 10px 0; letter-spacing: 2px; font-size: 14px; word-spacing: 2px">cat access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -n10</p>
+</section>
+</div>
+<div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date">2021-05-06 17:17</span>&nbsp;
+<a href="https://www.cnblogs.com/xuehao/">程序员养成日记</a>&nbsp;
+阅读(<span id="post_view_count">95</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=14736024" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(14736024);return false;">收藏</a></div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js"></script>
+<script>markdown_highlight();</script>
+<script>
+    var allowComments = true, cb_blogId = 327688, cb_blogApp = 'xuehao', cb_blogUserGuid = '3a7c5c74-04d8-e611-845c-ac853d9f53ac';
+    var cb_entryId = 14736024, cb_entryCreatedDate = '2021-05-06 17:17', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+        <div id='div-gpt-ad-1592365906576-0' style='width: 300px; height: 250px;'></div>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="cnblogs_c2" class="under-post-card">
+        <div id='div-gpt-ad-1592366332455-0' style='width: 468px; height: 60px;'></div>
+    </div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+       loadBlogSignature();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 程序员养成日记
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8L-rpLgFVEJMgssCVvNUAjuCvXe_UgUyHhzPnoIGtLVI4GdgqFhILlUzBfsKlnib1-nEgZLGbWN7SFZHABlPckUIS3sDYV19M_MsFszjn9EKTPqPEZN4RQFmxBhwCBg-TFeKTaqB-cV4bDD7jB6njo0" />
+</body>
+</html>

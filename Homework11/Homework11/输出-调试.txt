@@ -1,0 +1,76 @@
+﻿“OrderSystemSQL.exe”(CoreCLR: DefaultDomain): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Private.CoreLib.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Things\Git\HomeWork\CSharp\CSharp\Homework11\Homework11\OrderSystemSQL\bin\Debug\netcoreapp3.1\OrderSystemSQL.dll”。已加载符号。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Runtime.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\System.Windows.Forms.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.ComponentModel.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Drawing.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Collections.Specialized.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Runtime.InteropServices.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\System.Drawing.Common.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Threading.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Diagnostics.TraceSource.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Collections.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Runtime.Extensions.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Diagnostics.Debug.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\Microsoft.Win32.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.ComponentModel.EventBasedAsync.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Threading.Thread.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\Accessibility.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.ComponentModel.TypeConverter.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\Microsoft.Win32.SystemEvents.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Resources.ResourceManager.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\zh-Hans\System.Windows.Forms.resources.dll”。模块已生成，不包含符号。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Collections.NonGeneric.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Memory.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.ComponentModel.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Buffers.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Things\Git\HomeWork\CSharp\CSharp\Homework11\Homework11\OrderSystemSQL\bin\Debug\netcoreapp3.1\MySql.Data.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Data.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Data.Common.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\mscorlib.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Transactions.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Transactions.Local.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Console.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Core.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Linq.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Text.RegularExpressions.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Reflection.Emit.ILGeneration.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Reflection.Emit.Lightweight.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Reflection.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Xml.ReaderWriter.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Private.Xml.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\System.Security.Permissions.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Diagnostics.Tracing.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Configuration.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\System.Configuration.ConfigurationManager.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\netstandard.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Private.Uri.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.IO.FileSystem.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Net.WebClient.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Cryptography.Algorithms.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Text.Encoding.Extensions.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Cryptography.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Principal.Windows.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Claims.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Principal.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Net.Sockets.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Net.Primitives.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Net.NameResolution.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Threading.Tasks.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Threading.Overlapped.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Net.Security.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Cryptography.X509Certificates.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Collections.Concurrent.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Threading.ThreadPool.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Security.Cryptography.Encoding.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+OrderSystemSQL Error: 0 : The type initializer for 'MySql.Data.MySqlClient.MySqlConnectAttrs' threw an exception.
+引发的异常:“System.TypeInitializationException”(位于 MySql.Data.dll 中)
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Diagnostics.StackTrace.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Reflection.Metadata.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.15\System.Collections.Immutable.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.15\System.Drawing.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+**dataset** 是 null。
+
+“OrderSystemSQL.exe”(CoreCLR: clrhost): 已加载“C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Remote Debugger\x64\Runtime\Microsoft.VisualStudio.Debugger.Runtime.NetCoreApp.dll”。已跳过加载符号。模块进行了优化，并且调试器选项“仅我的代码”已启用。
+程序“[5876] OrderSystemSQL.exe”已退出，返回值为 -1 (0xffffffff)。
